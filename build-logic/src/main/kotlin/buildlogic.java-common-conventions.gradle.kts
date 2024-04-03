@@ -44,12 +44,15 @@ dependencies {
         // Define dependency versions as constraints
         implementation("org.apache.commons:commons-text:1.11.0")
         implementation("org.joml:joml:1.10.5")
+        testImplementation("org.joml:joml:1.10.5")
         compileOnly("net.kyori:adventure-api:4.16.0")
     }
 
     compileOnly("net.kyori:adventure-api")
     compileOnly("org.joml:joml")
+    testImplementation("org.joml:joml")
     compileOnly("com.mojang:datafixerupper:6.0.8")
+    testImplementation("com.mojang:datafixerupper:6.0.8")
 }
 
 testing {

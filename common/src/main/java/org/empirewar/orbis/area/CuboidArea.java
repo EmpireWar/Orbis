@@ -19,14 +19,36 @@
  */
 package org.empirewar.orbis.area;
 
+import com.mojang.serialization.Codec;
+
 import org.joml.Vector3d;
 
-import java.util.Set;
+import java.util.Optional;
 
-public class CuboidArea implements Area {
+public class CuboidArea extends EncompassingArea {
 
     @Override
-    public Set<Vector3d> points() {
+    public boolean contains(Vector3d point) {
+        if (points.size() != getExpectedPoints().orElseThrow()) return false;
+
+        final double x = point.x();
+        final double y = point.y();
+        final double z = point.z();
+        return x >= min.x()
+                && x <= max.x()
+                && y >= min.y()
+                && y <= max.y()
+                && z >= min.z()
+                && z <= max.z();
+    }
+
+    @Override
+    public Optional<Integer> getExpectedPoints() {
+        return Optional.of(2);
+    }
+
+    @Override
+    public Codec<? extends EncompassingArea> getCodec() {
         return null;
     }
 }

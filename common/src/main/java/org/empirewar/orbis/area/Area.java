@@ -20,6 +20,7 @@
 package org.empirewar.orbis.area;
 
 import org.joml.Vector3d;
+import org.joml.Vector3i;
 
 import java.util.Set;
 
@@ -30,7 +31,49 @@ import java.util.Set;
  * <p>
  * Instead, a world contains a set of Areas.
  */
-public interface Area {
+public sealed interface Area permits EncompassingArea {
+
+    /**
+     * Attempts to add a point to this area.
+     * <p>
+     * This method will return false if the area does not support the addition of another point, e.g a cuboid exceeding 4 points.
+     * @param point the point to add
+     */
+    boolean addPoint(Vector3i point);
+
+    /**
+     * Attempts to remove a point from this area.
+     * <p>
+     * This method will return as specified by {@link java.util.Set#remove(Object)}.
+     * @param point the point to remove
+     * @return specified by {@link java.util.Set#remove(Object)}
+     */
+    boolean removePoint(Vector3i point);
+
+    /**
+     * Gets whether the specified point is within this area.
+     * <p>
+     * This method will always return false if the area is incomplete.
+     * @param point the point to check
+     * @return true if the point is within the area specified by {@link #points()}
+     */
+    boolean contains(Vector3d point);
+
+    /**
+     * Gets the minimum point of this area.
+     * <p>
+     * This method does not guarantee returning a {@link Vector3i} from {@link #points()}; it is the minimum bounds point.
+     * @return the minimum point
+     */
+    Vector3i getMin();
+
+    /**
+     * Gets the maximum point of this area.
+     * <p>
+     * This method does not guarantee returning a {@link Vector3i} from {@link #points()}; it is the maximum bounds point.
+     * @return the maximum point
+     */
+    Vector3i getMax();
 
     /**
      * Gets the set of points that make up this area.
@@ -38,5 +81,5 @@ public interface Area {
      * The returned set cannot be modified.
      * @return set of points of this area
      */
-    Set<Vector3d> points();
+    Set<Vector3i> points();
 }
