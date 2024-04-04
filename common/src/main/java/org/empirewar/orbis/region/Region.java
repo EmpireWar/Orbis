@@ -20,8 +20,21 @@
 package org.empirewar.orbis.region;
 
 import org.empirewar.orbis.area.Area;
+import org.empirewar.orbis.query.RegionQuery;
 
-public class Region {
+public class Region implements RegionQuery.Flag.Queryable {
 
     private Area area;
+
+    public Area area() {
+        return area;
+    }
+
+    @Override
+    public RegionQuery.Result<Boolean, RegionQuery.Flag> query(RegionQuery.Flag flag) {
+        // TODO
+        return null;
+    }
+
+    // TODO good hashcode and equals
 }
