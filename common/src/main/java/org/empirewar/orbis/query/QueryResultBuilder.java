@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.Objects;
 
-final class QueryResultBuilder<R, Q extends RegionQuery<?>> implements RegionQuery.Result.Builder<R, Q> {
+final class QueryResultBuilder<R, Q extends RegionQuery<R>> implements RegionQuery.Result.Builder<R, Q> {
 
     private R result;
     private Q query;
