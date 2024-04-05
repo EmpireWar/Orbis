@@ -96,7 +96,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
     /**
      * Represents the result of a {@link RegionQuery}.
      */
-    interface Result<R, Q extends RegionQuery<?>> {
+    interface Result<R, Q extends RegionQuery<R>> {
 
         /**
          * Gets the query used to generate this result.
@@ -110,7 +110,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
          */
         R result();
 
-        interface Builder<R, Q extends RegionQuery<?>> {
+        interface Builder<R, Q extends RegionQuery<R>> {
 
             Builder<R, Q> query(Q query);
 
@@ -119,7 +119,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
             RegionQuery.Result<R, Q> build();
         }
 
-        static <R, Q extends RegionQuery<?>> Builder<R, Q> builder() {
+        static <R, Q extends RegionQuery<R>> Builder<R, Q> builder() {
             return new QueryResultBuilder<>();
         }
     }
