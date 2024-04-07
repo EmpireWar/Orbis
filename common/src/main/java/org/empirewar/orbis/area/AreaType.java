@@ -27,6 +27,8 @@ import org.empirewar.orbis.registry.Registry;
 public interface AreaType<A extends Area> {
 
     AreaType<CuboidArea> CUBOID = register("cuboid", CuboidArea.CODEC);
+    AreaType<PolygonalArea> POLYGON = register("polygon", PolygonalArea.CODEC);
+    AreaType<PolygonalArea> POLYHEDRON = register("polyhedron", PolygonalArea.CODEC);
 
     Codec<A> codec();
 

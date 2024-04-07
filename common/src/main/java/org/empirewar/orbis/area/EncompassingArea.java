@@ -19,6 +19,7 @@
  */
 package org.empirewar.orbis.area;
 
+import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 import java.util.HashSet;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract sealed class EncompassingArea implements Area permits CuboidArea {
+public abstract sealed class EncompassingArea implements Area permits CuboidArea, PolygonalArea, PolyhedralArea {
 
     protected final Set<Vector3i> points;
     protected final Vector3i min = new Vector3i();
@@ -98,6 +99,21 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean contains(Vector3d point) {
+        if (points.size() != getExpectedPoints().orElseThrow()) return false;
+
+        final double x = point.x();
+        final double y = point.y();
+        final double z = point.z();
+        return x >= min.x()
+                && x <= max.x()
+                && y >= min.y()
+                && y <= max.y()
+                && z >= min.z()
+                && z <= max.z();
     }
 
     @Override
