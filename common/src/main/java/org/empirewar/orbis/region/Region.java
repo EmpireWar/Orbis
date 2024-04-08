@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024  EmpireWar
+ * Copyright (C) 2024 EmpireWar
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,22 +19,84 @@
  */
 package org.empirewar.orbis.region;
 
+import net.kyori.adventure.key.Key;
+
 import org.empirewar.orbis.area.Area;
+import org.empirewar.orbis.area.CuboidArea;
+import org.empirewar.orbis.flag.MutableRegionFlag;
+import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class Region implements RegionQuery.Flag.Queryable {
 
-    private Area area;
+    // public static final Codec<Region> CODEC = RecordCodecBuilder.create(
+    // instance -> instance.group(
+    // Codec.STRING.fieldOf("name").forGetter(Region::getName),
+    // RegionFlag.CODEC.codec().listOf().fieldOf("flags").forGetter(r ->
+    // r.flags.values().stream().toList())
+    // ).apply(instance, Region::new)
+    // );
+
+    private final String name;
+    private final Map<Key, MutableRegionFlag<?>> flags;
+    private final Area area;
+
+    public Region(String name) {
+        this.name = name;
+        this.flags = new HashMap<>();
+        this.area = new CuboidArea();
+    }
+
+    private Region(String name, List<MutableRegionFlag<?>> flags, Area area) {
+        this.name = name;
+        this.flags = new HashMap<>();
+        flags.forEach(mu -> this.flags.put(mu.key(), mu));
+        this.area = area;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public Area area() {
         return area;
     }
 
-    @Override
-    public RegionQuery.Result<Boolean, RegionQuery.Flag> query(RegionQuery.Flag flag) {
-        // TODO
-        return null;
+    public void addFlag(RegionFlag<?> flag) {
+        flags.put(flag.key(), flag.asMutable());
     }
 
-    // TODO good hashcode and equals
+    public boolean removeFlag(RegionFlag<?> flag) {
+        return flags.remove(flag.key()) == null;
+    }
+
+    @Override
+    public <FR> RegionQuery.Result<Optional<FR>, RegionQuery.Flag<FR>> query(RegionQuery.Flag<FR> flag) {
+        final Stream<MutableRegionFlag<?>> stream = flags.values().stream();
+        final Optional<MutableRegionFlag<?>> foundFlag = stream.filter(mu -> mu.equals(flag.flag())).findAny();
+        Optional<FR> foundValue;
+        foundValue = foundFlag.flatMap(mutableRegionFlag -> Optional.of((FR) mutableRegionFlag.getValue()));
+        return flag.resultBuilder().query(flag).result(foundValue).build();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Region region))
+            return false;
+        return Objects.equals(getName(), region.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getName());
+    }
 }

@@ -17,31 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.query;
+package org.empirewar.orbis;
 
-import com.google.common.base.Preconditions;
+public abstract class OrbisAPI implements Orbis {
 
-import org.empirewar.orbis.flag.RegionFlag;
+    private static Orbis instance;
 
-import java.util.Objects;
-
-non-sealed class RegionQueryFlagBuilder<FR> implements RegionQuery.Flag.Builder<FR> {
-
-    private RegionFlag<FR> flag;
-
-    RegionQueryFlagBuilder() {
+    public static Orbis get() {
+        return instance;
     }
 
-    @Override
-    public RegionQuery.Flag<FR> build() {
-        Preconditions.checkState(this.flag != null, "Flag cannot be empty");
-        return () -> flag;
-    }
-
-    @Override
-    public RegionQuery.Flag.Builder<FR> flag(RegionFlag<FR> flag) {
-        Objects.requireNonNull(flag, "Flag cannot be null");
-        this.flag = flag;
-        return this;
+    public static void set(Orbis instance) {
+        if (OrbisAPI.instance != null) {
+            throw new IllegalStateException("Instance already set!");
+        }
+        OrbisAPI.instance = instance;
     }
 }

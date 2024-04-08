@@ -17,31 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.query;
+package org.empirewar.orbis.flag;
 
-import com.google.common.base.Preconditions;
+import com.mojang.serialization.Codec;
 
-import org.empirewar.orbis.flag.RegionFlag;
+import net.kyori.adventure.key.Key;
 
-import java.util.Objects;
+import org.empirewar.orbis.registry.Registries;
 
-non-sealed class RegionQueryFlagBuilder<FR> implements RegionQuery.Flag.Builder<FR> {
+public final class DefaultFlags {
 
-    private RegionFlag<FR> flag;
+    public static final RegionFlag<Boolean> CAN_BREAK = register("can_break", false, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_PLACE = register("can_place", true, Codec.BOOL);
 
-    RegionQueryFlagBuilder() {
-    }
-
-    @Override
-    public RegionQuery.Flag<FR> build() {
-        Preconditions.checkState(this.flag != null, "Flag cannot be empty");
-        return () -> flag;
-    }
-
-    @Override
-    public RegionQuery.Flag.Builder<FR> flag(RegionFlag<FR> flag) {
-        Objects.requireNonNull(flag, "Flag cannot be null");
-        this.flag = flag;
-        return this;
+    private static <T> RegionFlag<T> register(String name, T defaultValue, Codec<T> codec) {
+        final Key key = Key.key("orbis", name);
+        final RegionFlag<T> entry = RegionFlag.<T>builder().key(key).codec(codec).defaultValue(defaultValue).build();
+        Registries.FLAGS.register(key, entry);
+        return entry;
     }
 }

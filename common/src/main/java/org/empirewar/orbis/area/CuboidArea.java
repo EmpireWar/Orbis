@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024  EmpireWar
+ * Copyright (C) 2024 EmpireWar
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  */
 package org.empirewar.orbis.area;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import org.joml.Vector3d;
 
@@ -29,17 +29,13 @@ public class CuboidArea extends EncompassingArea {
 
     @Override
     public boolean contains(Vector3d point) {
-        if (points.size() != getExpectedPoints().orElseThrow()) return false;
+        if (points.size() != getExpectedPoints().orElseThrow())
+            return false;
 
         final double x = point.x();
         final double y = point.y();
         final double z = point.z();
-        return x >= min.x()
-                && x <= max.x()
-                && y >= min.y()
-                && y <= max.y()
-                && z >= min.z()
-                && z <= max.z();
+        return x >= min.x() && x <= max.x() && y >= min.y() && y <= max.y() && z >= min.z() && z <= max.z();
     }
 
     @Override
@@ -48,7 +44,7 @@ public class CuboidArea extends EncompassingArea {
     }
 
     @Override
-    public Codec<? extends EncompassingArea> getCodec() {
+    public MapCodec<? extends EncompassingArea> getCodec() {
         return null;
     }
 }

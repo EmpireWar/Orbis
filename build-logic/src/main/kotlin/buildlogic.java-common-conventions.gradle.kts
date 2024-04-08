@@ -9,7 +9,8 @@ plugins {
 spotless {
     java {
         toggleOffOn("@formatter:off", "@formatter:on")
-        palantirJavaFormat().style("AOSP")
+//        palantirJavaFormat().style("AOSP")
+        eclipse()
         indentWithSpaces(4)
         trimTrailingWhitespace()
         formatAnnotations()
@@ -29,6 +30,8 @@ repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/") // Paper
 }
+
+project.version = "1.0.0-SNAPSHOT"
 
 dependencies {
     constraints {

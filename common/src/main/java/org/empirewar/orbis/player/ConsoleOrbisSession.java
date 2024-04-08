@@ -17,31 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.query;
+package org.empirewar.orbis.player;
 
-import com.google.common.base.Preconditions;
+import net.kyori.adventure.audience.Audience;
 
-import org.empirewar.orbis.flag.RegionFlag;
+public final class ConsoleOrbisSession extends OrbisSession {
 
-import java.util.Objects;
-
-non-sealed class RegionQueryFlagBuilder<FR> implements RegionQuery.Flag.Builder<FR> {
-
-    private RegionFlag<FR> flag;
-
-    RegionQueryFlagBuilder() {
+    public ConsoleOrbisSession(Audience audience) {
+        super(audience);
     }
 
     @Override
-    public RegionQuery.Flag<FR> build() {
-        Preconditions.checkState(this.flag != null, "Flag cannot be empty");
-        return () -> flag;
-    }
-
-    @Override
-    public RegionQuery.Flag.Builder<FR> flag(RegionFlag<FR> flag) {
-        Objects.requireNonNull(flag, "Flag cannot be null");
-        this.flag = flag;
-        return this;
+    public boolean hasPermission(String permission) {
+        return true;
     }
 }

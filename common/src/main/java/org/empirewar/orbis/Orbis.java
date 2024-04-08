@@ -17,31 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.query;
+package org.empirewar.orbis;
 
-import com.google.common.base.Preconditions;
+import org.empirewar.orbis.world.RegionisedWorld;
 
-import org.empirewar.orbis.flag.RegionFlag;
+import java.util.UUID;
 
-import java.util.Objects;
+public interface Orbis {
 
-non-sealed class RegionQueryFlagBuilder<FR> implements RegionQuery.Flag.Builder<FR> {
-
-    private RegionFlag<FR> flag;
-
-    RegionQueryFlagBuilder() {
-    }
-
-    @Override
-    public RegionQuery.Flag<FR> build() {
-        Preconditions.checkState(this.flag != null, "Flag cannot be empty");
-        return () -> flag;
-    }
-
-    @Override
-    public RegionQuery.Flag.Builder<FR> flag(RegionFlag<FR> flag) {
-        Objects.requireNonNull(flag, "Flag cannot be null");
-        this.flag = flag;
-        return this;
-    }
+    RegionisedWorld getRegionisedWorld(UUID worldId);
 }

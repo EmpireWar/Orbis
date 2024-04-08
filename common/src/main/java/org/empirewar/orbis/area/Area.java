@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024  EmpireWar
+ * Copyright (C) 2024 EmpireWar
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -36,8 +36,11 @@ public sealed interface Area permits EncompassingArea {
     /**
      * Attempts to add a point to this area.
      * <p>
-     * This method will return false if the area does not support the addition of another point, e.g a cuboid exceeding 4 points.
-     * @param point the point to add
+     * This method will return false if the area does not support the addition of
+     * another point, e.g a cuboid exceeding 4 points.
+     *
+     * @param point
+     *            the point to add
      */
     boolean addPoint(Vector3i point);
 
@@ -45,7 +48,9 @@ public sealed interface Area permits EncompassingArea {
      * Attempts to remove a point from this area.
      * <p>
      * This method will return as specified by {@link java.util.Set#remove(Object)}.
-     * @param point the point to remove
+     *
+     * @param point
+     *            the point to remove
      * @return specified by {@link java.util.Set#remove(Object)}
      */
     boolean removePoint(Vector3i point);
@@ -54,7 +59,9 @@ public sealed interface Area permits EncompassingArea {
      * Gets whether the specified point is within this area.
      * <p>
      * This method will always return false if the area is incomplete.
-     * @param point the point to check
+     *
+     * @param point
+     *            the point to check
      * @return true if the point is within the area specified by {@link #points()}
      */
     boolean contains(Vector3d point);
@@ -62,7 +69,9 @@ public sealed interface Area permits EncompassingArea {
     /**
      * Gets the minimum point of this area.
      * <p>
-     * This method does not guarantee returning a {@link Vector3i} from {@link #points()}; it is the minimum bounds point.
+     * This method does not guarantee returning a {@link Vector3i} from
+     * {@link #points()}; it is the minimum bounds point.
+     *
      * @return the minimum point
      */
     Vector3i getMin();
@@ -70,7 +79,9 @@ public sealed interface Area permits EncompassingArea {
     /**
      * Gets the maximum point of this area.
      * <p>
-     * This method does not guarantee returning a {@link Vector3i} from {@link #points()}; it is the maximum bounds point.
+     * This method does not guarantee returning a {@link Vector3i} from
+     * {@link #points()}; it is the maximum bounds point.
+     *
      * @return the maximum point
      */
     Vector3i getMax();
@@ -79,6 +90,7 @@ public sealed interface Area permits EncompassingArea {
      * Gets the set of points that make up this area.
      * <p>
      * The returned set cannot be modified.
+     *
      * @return set of points of this area
      */
     Set<Vector3i> points();

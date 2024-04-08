@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    compileOnly("org.incendo:cloud-core:2.0.0-beta.4")
+    compileOnly("org.incendo:cloud-annotations:2.0.0-beta.4")
 }

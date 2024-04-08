@@ -17,31 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.query;
+package org.empirewar.orbis.registry;
 
-import com.google.common.base.Preconditions;
+import com.mojang.serialization.MapCodec;
+
+import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.flag.RegionFlag;
 
-import java.util.Objects;
+public final class Registries {
 
-non-sealed class RegionQueryFlagBuilder<FR> implements RegionQuery.Flag.Builder<FR> {
-
-    private RegionFlag<FR> flag;
-
-    RegionQueryFlagBuilder() {
-    }
-
-    @Override
-    public RegionQuery.Flag<FR> build() {
-        Preconditions.checkState(this.flag != null, "Flag cannot be empty");
-        return () -> flag;
-    }
-
-    @Override
-    public RegionQuery.Flag.Builder<FR> flag(RegionFlag<FR> flag) {
-        Objects.requireNonNull(flag, "Flag cannot be null");
-        this.flag = flag;
-        return this;
-    }
+    public static final Registry<RegionFlag<?>> FLAGS = new SimpleRegistry<>(Key.key("orbis", "flags"));
+    public static final Registry<MapCodec<? extends RegionFlag<?>>> FLAG_CODECS = new SimpleRegistry<>(
+            Key.key("orbis", "flag_codecs"));
 }

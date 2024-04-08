@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024  EmpireWar
+ * Copyright (C) 2024 EmpireWar
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,16 +20,23 @@
 package org.empirewar.orbis.util;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import net.kyori.adventure.key.Key;
 
 import org.joml.Vector3i;
 
 public final class ExtraCodecs {
 
-    public static final Codec<Vector3i> VEC_3I =
-            RecordCodecBuilder.create(instance -> instance.group(
-                            Codec.INT.fieldOf("x").forGetter(Vector3i::x),
-                            Codec.INT.fieldOf("y").forGetter(Vector3i::y),
-                            Codec.INT.fieldOf("z").forGetter(Vector3i::z))
+    public static final Codec<Vector3i> VEC_3I = RecordCodecBuilder
+            .create(instance -> instance.group(Codec.INT.fieldOf("x").forGetter(Vector3i::x),
+                    Codec.INT.fieldOf("y").forGetter(Vector3i::y), Codec.INT.fieldOf("z").forGetter(Vector3i::z))
                     .apply(instance, Vector3i::new));
+
+    public static final Codec<Key> KEY = Codec.STRING.comapFlatMap(ExtraCodecs::validateKey, Key::asString).stable();
+
+    private static DataResult<Key> validateKey(final String id) {
+        return DataResult.success(Key.key(id));
+    }
 }

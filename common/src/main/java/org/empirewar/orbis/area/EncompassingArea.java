@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024  EmpireWar
+ * Copyright (C) 2024 EmpireWar
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 package org.empirewar.orbis.area;
 
 import com.mojang.datafixers.Products;
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
@@ -33,12 +33,10 @@ import java.util.Set;
 
 public abstract non-sealed class EncompassingArea implements Area {
 
-    protected static <A extends EncompassingArea>
-            Products.P1<RecordCodecBuilder.Mu<A>, List<Vector3i>> fillFields(
-                    RecordCodecBuilder.Instance<A> instance) {
-        return instance.group(
-                ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(a -> a.points().stream()
-                        .toList()));
+    protected static <A extends EncompassingArea> Products.P1<RecordCodecBuilder.Mu<A>, List<Vector3i>> fillFields(
+            RecordCodecBuilder.Instance<A> instance) {
+        return instance
+                .group(ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(a -> a.points().stream().toList()));
     }
 
     protected final Set<Vector3i> points;
@@ -126,11 +124,14 @@ public abstract non-sealed class EncompassingArea implements Area {
     /**
      * Gets the expected number of points for this area.
      * <p>
-     * This may represent a "maximum" however for some shapes such as polygons this is not applicable.
-     * In these cases, this method should instead return {@link Optional#empty()}.
-     * @return an {@link Optional} with the number of expected points, else {@link Optional#empty()} if any number of points is applicable.
+     * This may represent a "maximum" however for some shapes such as polygons this
+     * is not applicable. In these cases, this method should instead return
+     * {@link Optional#empty()}.
+     *
+     * @return an {@link Optional} with the number of expected points, else
+     *         {@link Optional#empty()} if any number of points is applicable.
      */
     public abstract Optional<Integer> getExpectedPoints();
 
-    public abstract Codec<? extends EncompassingArea> getCodec();
+    public abstract MapCodec<? extends EncompassingArea> getCodec();
 }
