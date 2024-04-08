@@ -29,8 +29,7 @@ non-sealed class RegionQueryPositionBuilder implements RegionQuery.Position.Buil
 
     private Vector3d position;
 
-    RegionQueryPositionBuilder() {
-    }
+    RegionQueryPositionBuilder() {}
 
     @Override
     public RegionQuery.Position build() {

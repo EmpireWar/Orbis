@@ -32,8 +32,8 @@ import java.util.Objects;
 
 public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
 
-    public static final MapCodec<RegionFlag<?>> CODEC = Registries.FLAG_CODECS.getCodec()
-            .dispatchMap(RegionFlag::getCodec, MapCodec::codec);
+    public static final MapCodec<RegionFlag<?>> CODEC =
+            Registries.FLAG_CODECS.getCodec().dispatchMap(RegionFlag::getCodec, MapCodec::codec);
 
     protected final Key key;
     protected final T defaultValue;
@@ -64,10 +64,8 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof RegionFlag<?> that))
-            return false;
+        if (this == o) return true;
+        if (!(o instanceof RegionFlag<?> that)) return false;
         return Objects.equals(key, that.key);
     }
 

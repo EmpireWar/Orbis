@@ -31,7 +31,10 @@ import java.util.Set;
  * Several methods are provided through applicable {@link RegionQuery}
  * subclasses to allow specific queries for regions.
  */
-public sealed interface RegionisedWorld extends RegionQuery.Position.Queryable permits RegionisedWorldSet {
+// spotless:off
+public sealed interface RegionisedWorld extends RegionQuery.Position.Queryable
+        permits RegionisedWorldSet {
+    // spotless:on
 
     /**
      * Gets the set of regions within this regionised world.
@@ -43,8 +46,7 @@ public sealed interface RegionisedWorld extends RegionQuery.Position.Queryable p
     /**
      * Gets a region by the specified name, if it is present.
      *
-     * @param regionName
-     *            the region name
+     * @param regionName the region name
      * @return an optional with the region if present, else {@link Optional#empty()}
      */
     Optional<Region> getByName(String regionName);
@@ -52,8 +54,7 @@ public sealed interface RegionisedWorld extends RegionQuery.Position.Queryable p
     /**
      * Attempts to add a region to this world.
      *
-     * @param region
-     *            the region to add
+     * @param region the region to add
      * @return false if the region is already attached to this world
      */
     boolean add(Region region);
@@ -61,8 +62,7 @@ public sealed interface RegionisedWorld extends RegionQuery.Position.Queryable p
     /**
      * Attempts to remove a region from this world.
      *
-     * @param region
-     *            the region to remove
+     * @param region the region to remove
      * @return true if the region was present and was successfully removed
      */
     boolean remove(Region region);

@@ -42,9 +42,16 @@ public final class RegionCommand {
     }
 
     @Command("rg addpos <region> <x> <y> <z>")
-    public void onAddPos(OrbisSession session, @Argument("region") String regionName, @Argument("x") int x,
-            @Argument("y") int y, @Argument("z") int z) {
-        final Region region = OrbisAPI.get().getRegionisedWorld(UUID.randomUUID()).getByName(regionName).orElseThrow();
+    public void onAddPos(
+            OrbisSession session,
+            @Argument("region") String regionName,
+            @Argument("x") int x,
+            @Argument("y") int y,
+            @Argument("z") int z) {
+        final Region region = OrbisAPI.get()
+                .getRegionisedWorld(UUID.randomUUID())
+                .getByName(regionName)
+                .orElseThrow();
         region.area().addPoint(new Vector3i(x, y, z));
         session.getAudience().sendMessage(Component.text("Added position!"));
     }

@@ -33,10 +33,12 @@ import java.util.Set;
 
 public abstract non-sealed class EncompassingArea implements Area {
 
-    protected static <A extends EncompassingArea> Products.P1<RecordCodecBuilder.Mu<A>, List<Vector3i>> fillFields(
-            RecordCodecBuilder.Instance<A> instance) {
-        return instance
-                .group(ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(a -> a.points().stream().toList()));
+    protected static <A extends EncompassingArea>
+            Products.P1<RecordCodecBuilder.Mu<A>, List<Vector3i>> fillFields(
+                    RecordCodecBuilder.Instance<A> instance) {
+        return instance.group(
+                ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(a -> a.points().stream()
+                        .toList()));
     }
 
     protected final Set<Vector3i> points;

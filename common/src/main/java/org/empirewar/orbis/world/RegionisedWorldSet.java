@@ -36,8 +36,10 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     }
 
     @Override
-    public RegionQuery.Result<Set<Region>, RegionQuery.Position> query(RegionQuery.Position position) {
-        final Set<Region> result = regions.stream().filter(r -> r.area().contains(position.position()))
+    public RegionQuery.Result<Set<Region>, RegionQuery.Position> query(
+            RegionQuery.Position position) {
+        final Set<Region> result = regions.stream()
+                .filter(r -> r.area().contains(position.position()))
                 .collect(Collectors.toSet());
         return position.resultBuilder().query(position).result(result).build();
     }
@@ -49,7 +51,9 @@ public final class RegionisedWorldSet implements RegionisedWorld {
 
     @Override
     public Optional<Region> getByName(String regionName) {
-        return regions.stream().filter(region -> region.getName().equals(regionName)).findAny();
+        return regions.stream()
+                .filter(region -> region.getName().equals(regionName))
+                .findAny();
     }
 
     @Override

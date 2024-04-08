@@ -46,8 +46,8 @@ public final class MutableRegionFlag<T> extends RegionFlag<T> {
 
     @Override
     public MapCodec<MutableRegionFlag<T>> getCodec() {
-        return RecordCodecBuilder.mapCodec(instance -> instance
-                .group(ExtraCodecs.KEY.fieldOf("key").forGetter(MutableRegionFlag::key),
+        return RecordCodecBuilder.mapCodec(instance -> instance.group(
+                        ExtraCodecs.KEY.fieldOf("key").forGetter(MutableRegionFlag::key),
                         codec.fieldOf("value").forGetter(MutableRegionFlag::getValue))
                 .apply(instance, (key, value) -> new MutableRegionFlag<>(key, value, codec)));
     }

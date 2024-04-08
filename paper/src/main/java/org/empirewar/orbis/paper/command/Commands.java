@@ -32,10 +32,11 @@ import org.incendo.cloud.paper.PaperCommandManager;
 public class Commands {
 
     public Commands(OrbisPaper plugin) {
-        PaperCommandManager<ConsoleOrbisSession> commandManager = new PaperCommandManager<>(plugin, /* 1 */
+        PaperCommandManager<ConsoleOrbisSession> commandManager = new PaperCommandManager<>(
+                plugin, /* 1 */
                 ExecutionCoordinator.asyncCoordinator(), /* 2 */
-                SenderMapper.create(ConsoleOrbisSession::new,
-                        session -> (CommandSender) session.getAudience()) /* 3 */);
+                SenderMapper.create(ConsoleOrbisSession::new, session ->
+                        (CommandSender) session.getAudience()) /* 3 */);
 
         if (commandManager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
             commandManager.registerBrigadier();
@@ -43,8 +44,8 @@ public class Commands {
             commandManager.registerAsynchronousCompletions();
         }
 
-        AnnotationParser<ConsoleOrbisSession> annotationParser = new AnnotationParser<>(commandManager,
-                ConsoleOrbisSession.class);
+        AnnotationParser<ConsoleOrbisSession> annotationParser =
+                new AnnotationParser<>(commandManager, ConsoleOrbisSession.class);
         annotationParser.parse(new RegionCommand());
     }
 }

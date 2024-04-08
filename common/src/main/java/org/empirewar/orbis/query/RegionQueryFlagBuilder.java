@@ -29,8 +29,7 @@ non-sealed class RegionQueryFlagBuilder<FR> implements RegionQuery.Flag.Builder<
 
     private RegionFlag<FR> flag;
 
-    RegionQueryFlagBuilder() {
-    }
+    RegionQueryFlagBuilder() {}
 
     @Override
     public RegionQuery.Flag<FR> build() {

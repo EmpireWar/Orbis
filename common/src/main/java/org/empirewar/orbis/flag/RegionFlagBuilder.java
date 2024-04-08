@@ -32,8 +32,7 @@ final class RegionFlagBuilder<T> implements RegionFlag.Builder<T> {
     private T defaultValue;
     private Codec<T> codec;
 
-    RegionFlagBuilder() {
-    }
+    RegionFlagBuilder() {}
 
     @Override
     public RegionFlag<T> build() {

@@ -61,18 +61,27 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
     public void onBreak(BlockBreakEvent event) {
         final Block block = event.getBlock();
         Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());
-        final Set<Region> regionsAtPos = set.query(RegionQuery.Position.builder().position(pos).build()).result();
+        final Set<Region> regionsAtPos =
+                set.query(RegionQuery.Position.builder().position(pos).build()).result();
         System.out.println("regions at pos: " + regionsAtPos);
         for (Region region : regionsAtPos) {
             System.out.println("result: "
-                    + region.query(RegionQuery.Flag.<Boolean>builder().flag(DefaultFlags.CAN_BREAK).build()).result());
-            if (!region.query(RegionQuery.Flag.<Boolean>builder().flag(DefaultFlags.CAN_BREAK).build()).result()
+                    + region.query(RegionQuery.Flag.<Boolean>builder()
+                                    .flag(DefaultFlags.CAN_BREAK)
+                                    .build())
+                            .result());
+            if (!region.query(RegionQuery.Flag.<Boolean>builder()
+                            .flag(DefaultFlags.CAN_BREAK)
+                            .build())
+                    .result()
                     .orElse(true)) {
                 System.out.println("cannot break!");
                 event.getPlayer()
                         .sendMessage(Component.text("Hey!", NamedTextColor.RED, TextDecoration.BOLD)
                                 .append(Component.space())
-                                .append(Component.text("Sorry, but you can't break that here.", NamedTextColor.GRAY)));
+                                .append(Component.text(
+                                        "Sorry, but you can't break that here.",
+                                        NamedTextColor.GRAY)));
                 event.setCancelled(true);
             }
         }

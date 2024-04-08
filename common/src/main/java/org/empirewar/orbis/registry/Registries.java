@@ -25,9 +25,11 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.flag.RegionFlag;
 
+// spotless:off
 public final class Registries {
 
-    public static final Registry<RegionFlag<?>> FLAGS = new SimpleRegistry<>(Key.key("orbis", "flags"));
-    public static final Registry<MapCodec<? extends RegionFlag<?>>> FLAG_CODECS = new SimpleRegistry<>(
-            Key.key("orbis", "flag_codecs"));
+    public static final Registry<RegionFlag<?>> FLAGS =
+            new SimpleRegistry<>(Key.key("orbis", "flags"));
+    public static final Registry<MapCodec<? extends RegionFlag<?>>> FLAG_CODECS =
+            new SimpleRegistry<>(Key.key("orbis", "flag_codecs"));
 }

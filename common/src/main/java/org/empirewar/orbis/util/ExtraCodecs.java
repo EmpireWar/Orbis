@@ -29,12 +29,15 @@ import org.joml.Vector3i;
 
 public final class ExtraCodecs {
 
-    public static final Codec<Vector3i> VEC_3I = RecordCodecBuilder
-            .create(instance -> instance.group(Codec.INT.fieldOf("x").forGetter(Vector3i::x),
-                    Codec.INT.fieldOf("y").forGetter(Vector3i::y), Codec.INT.fieldOf("z").forGetter(Vector3i::z))
+    public static final Codec<Vector3i> VEC_3I =
+            RecordCodecBuilder.create(instance -> instance.group(
+                            Codec.INT.fieldOf("x").forGetter(Vector3i::x),
+                            Codec.INT.fieldOf("y").forGetter(Vector3i::y),
+                            Codec.INT.fieldOf("z").forGetter(Vector3i::z))
                     .apply(instance, Vector3i::new));
 
-    public static final Codec<Key> KEY = Codec.STRING.comapFlatMap(ExtraCodecs::validateKey, Key::asString).stable();
+    public static final Codec<Key> KEY =
+            Codec.STRING.comapFlatMap(ExtraCodecs::validateKey, Key::asString).stable();
 
     private static DataResult<Key> validateKey(final String id) {
         return DataResult.success(Key.key(id));

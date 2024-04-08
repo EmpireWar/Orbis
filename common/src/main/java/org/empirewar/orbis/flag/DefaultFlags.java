@@ -27,12 +27,18 @@ import org.empirewar.orbis.registry.Registries;
 
 public final class DefaultFlags {
 
+    // spotless:off
     public static final RegionFlag<Boolean> CAN_BREAK = register("can_break", false, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PLACE = register("can_place", true, Codec.BOOL);
+    // spotless:on
 
     private static <T> RegionFlag<T> register(String name, T defaultValue, Codec<T> codec) {
         final Key key = Key.key("orbis", name);
-        final RegionFlag<T> entry = RegionFlag.<T>builder().key(key).codec(codec).defaultValue(defaultValue).build();
+        final RegionFlag<T> entry = RegionFlag.<T>builder()
+                .key(key)
+                .codec(codec)
+                .defaultValue(defaultValue)
+                .build();
         Registries.FLAGS.register(key, entry);
         return entry;
     }

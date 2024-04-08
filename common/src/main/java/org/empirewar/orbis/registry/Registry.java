@@ -42,10 +42,13 @@ public sealed interface Registry<T> extends Iterable<T> permits SimpleRegistry {
 
     default Codec<T> getCodec() {
         return ExtraCodecs.KEY.flatXmap(
-                id -> this.get(id).map(DataResult::success)
-                        .orElseGet(() -> DataResult.error(() -> "Unknown registry key in " + this.getKey() + ": " + id,
+                id -> this.get(id)
+                        .map(DataResult::success)
+                        .orElseGet(() -> DataResult.error(
+                                () -> "Unknown registry key in " + this.getKey() + ": " + id,
                                 Lifecycle.stable())),
-                value -> this.getKey(value).map(DataResult::success)
+                value -> this.getKey(value)
+                        .map(DataResult::success)
                         .orElseGet(() -> DataResult.error(
                                 () -> "Unknown registry element in " + this.getKey() + ":" + value,
                                 Lifecycle.stable())));

@@ -78,20 +78,21 @@ public class Region implements RegionQuery.Flag.Queryable {
     }
 
     @Override
-    public <FR> RegionQuery.Result<Optional<FR>, RegionQuery.Flag<FR>> query(RegionQuery.Flag<FR> flag) {
+    public <FR> RegionQuery.Result<Optional<FR>, RegionQuery.Flag<FR>> query(
+            RegionQuery.Flag<FR> flag) {
         final Stream<MutableRegionFlag<?>> stream = flags.values().stream();
-        final Optional<MutableRegionFlag<?>> foundFlag = stream.filter(mu -> mu.equals(flag.flag())).findAny();
+        final Optional<MutableRegionFlag<?>> foundFlag =
+                stream.filter(mu -> mu.equals(flag.flag())).findAny();
         Optional<FR> foundValue;
-        foundValue = foundFlag.flatMap(mutableRegionFlag -> Optional.of((FR) mutableRegionFlag.getValue()));
+        foundValue = foundFlag.flatMap(
+                mutableRegionFlag -> Optional.of((FR) mutableRegionFlag.getValue()));
         return flag.resultBuilder().query(flag).result(foundValue).build();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof Region region))
-            return false;
+        if (this == o) return true;
+        if (!(o instanceof Region region)) return false;
         return Objects.equals(getName(), region.getName());
     }
 

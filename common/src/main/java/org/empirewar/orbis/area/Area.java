@@ -39,8 +39,7 @@ public sealed interface Area permits EncompassingArea {
      * This method will return false if the area does not support the addition of
      * another point, e.g a cuboid exceeding 4 points.
      *
-     * @param point
-     *            the point to add
+     * @param point the point to add
      */
     boolean addPoint(Vector3i point);
 
@@ -49,8 +48,7 @@ public sealed interface Area permits EncompassingArea {
      * <p>
      * This method will return as specified by {@link java.util.Set#remove(Object)}.
      *
-     * @param point
-     *            the point to remove
+     * @param point the point to remove
      * @return specified by {@link java.util.Set#remove(Object)}
      */
     boolean removePoint(Vector3i point);
@@ -60,8 +58,7 @@ public sealed interface Area permits EncompassingArea {
      * <p>
      * This method will always return false if the area is incomplete.
      *
-     * @param point
-     *            the point to check
+     * @param point the point to check
      * @return true if the point is within the area specified by {@link #points()}
      */
     boolean contains(Vector3d point);

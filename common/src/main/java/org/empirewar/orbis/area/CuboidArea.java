@@ -29,13 +29,17 @@ public class CuboidArea extends EncompassingArea {
 
     @Override
     public boolean contains(Vector3d point) {
-        if (points.size() != getExpectedPoints().orElseThrow())
-            return false;
+        if (points.size() != getExpectedPoints().orElseThrow()) return false;
 
         final double x = point.x();
         final double y = point.y();
         final double z = point.z();
-        return x >= min.x() && x <= max.x() && y >= min.y() && y <= max.y() && z >= min.z() && z <= max.z();
+        return x >= min.x()
+                && x <= max.x()
+                && y >= min.y()
+                && y <= max.y()
+                && z >= min.z()
+                && z <= max.z();
     }
 
     @Override
