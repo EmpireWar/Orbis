@@ -31,7 +31,7 @@ public abstract class OrbisSession {
 
     public abstract boolean hasPermission(String permission);
 
-    public Audience getAudience() {
+    public Audience audience() {
         return audience;
     }
 }

@@ -19,11 +19,66 @@
  */
 package org.empirewar.orbis;
 
+import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.serialization.StaticGsonProvider;
 import org.empirewar.orbis.world.RegionisedWorld;
+import org.spongepowered.configurate.ConfigurationNode;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Set;
 import java.util.UUID;
 
+/**
+ * The core Orbis instance for a platform that manages worlds and players.
+ */
 public interface Orbis {
 
+    /**
+     * Gets all regionised worlds.
+     * <p>
+     * This does not contain the {@link #getGlobalWorld()}.
+     * @return {@link Set} of regionised worlds
+     */
+    Set<RegionisedWorld> getRegionisedWorlds();
+
+    /**
+     * Gets the "global world" which holds all regions.
+     * @return global world holding all regions
+     */
+    RegionisedWorld getGlobalWorld();
+
     RegionisedWorld getRegionisedWorld(UUID worldId);
+
+    Path dataFolder();
+
+    ConfigurationNode config();
+
+    default void loadRegions() throws IOException {
+        File regionsFolder = dataFolder().resolve("regions").toFile();
+        if (!regionsFolder.exists()) regionsFolder.mkdirs();
+        for (File regionFile : regionsFolder.listFiles()) {
+            if (!regionFile.getName().endsWith(".json")) continue;
+            try (FileReader reader = new FileReader(regionFile)) {
+                final Region region = StaticGsonProvider.GSON.fromJson(reader, Region.class);
+                if (region == null) throw new IllegalArgumentException("GSON returned null");
+                getGlobalWorld().add(region);
+            }
+        }
+    }
+
+    default void saveRegions() throws IOException {
+        File regionsFolder = dataFolder().resolve("regions").toFile();
+        if (!regionsFolder.exists()) regionsFolder.mkdirs();
+
+        for (Region region : getGlobalWorld().regions()) {
+            File regionFile = new File(regionsFolder + File.separator + region.name() + ".json");
+            try (FileWriter writer = new FileWriter(regionFile)) {
+                StaticGsonProvider.GSON.toJson(region, writer);
+            }
+        }
+    }
 }

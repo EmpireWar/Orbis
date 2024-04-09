@@ -24,6 +24,7 @@ import org.empirewar.orbis.region.Region;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Represents a world that contains a set of {@link Region}s.
@@ -32,9 +33,24 @@ import java.util.Set;
  * subclasses to allow specific queries for regions.
  */
 // spotless:off
-public sealed interface RegionisedWorld extends RegionQuery.Position.Queryable
-        permits RegionisedWorldSet {
-    // spotless:on
+public sealed interface RegionisedWorld extends RegionQuery.Position.Queryable permits RegionisedWorldSet {
+// spotless:on
+
+    /**
+     * Gets the name of the world this represents.
+     * <p>
+     * This method may return an empty optional if this is a "global holder" of all regions.
+     * @return name of world this represents
+     */
+    Optional<String> worldName();
+
+    /**
+     * Gets the UUID of the world this represents.
+     * <p>
+     * This method may return an empty optional if this is a "global holder" of all regions.
+     * @return uuid of world this represents
+     */
+    Optional<UUID> worldId();
 
     /**
      * Gets the set of regions within this regionised world.

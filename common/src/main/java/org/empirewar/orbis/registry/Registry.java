@@ -54,5 +54,7 @@ public sealed interface Registry<T> extends Iterable<T> permits SimpleRegistry {
                                 Lifecycle.stable())));
     }
 
+    Set<T> getAll();
+
     Set<Key> getKeys();
 }

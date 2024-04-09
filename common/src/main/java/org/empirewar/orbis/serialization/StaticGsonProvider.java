@@ -17,26 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis;
+package org.empirewar.orbis.serialization;
 
-import org.empirewar.orbis.registry.Registries;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-/**
- * Provides access to the {@link Orbis} instance.
- */
-public abstract class OrbisAPI implements Orbis {
+import org.empirewar.orbis.region.Region;
 
-    private static Orbis instance;
+public final class StaticGsonProvider {
 
-    public static Orbis get() {
-        return instance;
-    }
-
-    public static void set(Orbis instance) {
-        if (OrbisAPI.instance != null) {
-            throw new IllegalStateException("Instance already set!");
-        }
-        Registries.initialize();
-        OrbisAPI.instance = instance;
-    }
+    public static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(Region.class, new RegionAdapter())
+            .create();
 }

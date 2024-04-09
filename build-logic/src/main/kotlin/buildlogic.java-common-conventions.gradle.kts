@@ -15,6 +15,7 @@ spotless {
         formatAnnotations()
         removeUnusedImports()
         endWithNewline()
+        toggleOffOn()
     }
 
     kotlinGradle {
@@ -39,9 +40,13 @@ dependencies {
         implementation("org.joml:joml:1.10.5")
         testImplementation("org.joml:joml:1.10.5")
         compileOnly("net.kyori:adventure-api:4.16.0")
+        testImplementation("net.kyori:adventure-api:4.16.0")
     }
 
+    compileOnly("org.spongepowered:configurate-yaml:4.1.2")
+    testImplementation("org.spongepowered:configurate-yaml:4.1.2")
     compileOnly("net.kyori:adventure-api")
+    testImplementation("net.kyori:adventure-api")
     compileOnly("org.joml:joml")
     testImplementation("org.joml:joml")
     compileOnly("com.mojang:datafixerupper:6.0.8")

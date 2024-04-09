@@ -21,11 +21,14 @@ package org.empirewar.orbis.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
 
 import org.joml.Vector3i;
+
+import java.util.UUID;
 
 public final class ExtraCodecs {
 
@@ -42,4 +45,14 @@ public final class ExtraCodecs {
     private static DataResult<Key> validateKey(final String id) {
         return DataResult.success(Key.key(id));
     }
+
+    public static final Codec<UUID> STRING_UUID = Codec.STRING.comapFlatMap(
+            string -> {
+                try {
+                    return DataResult.success(UUID.fromString(string), Lifecycle.stable());
+                } catch (IllegalArgumentException e) {
+                    return DataResult.error(() -> "Invalid UUID " + string + ": " + e.getMessage());
+                }
+            },
+            UUID::toString);
 }

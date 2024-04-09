@@ -19,17 +19,41 @@
  */
 package org.empirewar.orbis.registry;
 
+import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
 
 import net.kyori.adventure.key.Key;
 
+import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
+
+import java.util.Map;
+import java.util.function.Supplier;
 
 // spotless:off
 public final class Registries {
 
+    private static final Map<Key, Supplier<?>> DEFAULT_ENTRIES = Maps.newLinkedHashMap();
+
+    public static final Registry<MapCodec<? extends MutableRegionFlag<?>>> FLAG_CODECS =
+            create(Key.key("orbis", "flag_codecs"), r -> null);
+
     public static final Registry<RegionFlag<?>> FLAGS =
-            new SimpleRegistry<>(Key.key("orbis", "flags"));
-    public static final Registry<MapCodec<? extends RegionFlag<?>>> FLAG_CODECS =
-            new SimpleRegistry<>(Key.key("orbis", "flag_codecs"));
+            create(Key.key("orbis", "flags"), r -> DefaultFlags.CAN_BREAK);
+
+    private static <T> Registry<T> create(Key key, Initializer<T> initializer) {
+        final Registry<T> registry = new SimpleRegistry<>(key);
+        DEFAULT_ENTRIES.put(key, () -> initializer.run(registry));
+        return registry;
+    }
+
+    public static void initialize() {
+        DEFAULT_ENTRIES.forEach((id, initializer) -> initializer.get());
+    }
+
+    @FunctionalInterface
+    interface Initializer<T> {
+        T run(Registry<T> var1);
+    }
 }

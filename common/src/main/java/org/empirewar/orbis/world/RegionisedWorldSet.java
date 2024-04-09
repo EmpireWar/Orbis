@@ -21,18 +21,38 @@ package org.empirewar.orbis.world;
 
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public final class RegionisedWorldSet implements RegionisedWorld {
 
+    private final String worldName;
+    private final UUID worldId;
     private final Set<Region> regions;
 
     public RegionisedWorldSet() {
+        this(null, null);
+    }
+
+    public RegionisedWorldSet(@Nullable UUID worldId, @Nullable String worldName) {
+        this.worldName = worldName;
+        this.worldId = worldId;
         this.regions = new HashSet<>();
+    }
+
+    @Override
+    public Optional<String> worldName() {
+        return Optional.ofNullable(worldName);
+    }
+
+    @Override
+    public Optional<UUID> worldId() {
+        return Optional.ofNullable(worldId);
     }
 
     @Override
@@ -52,7 +72,7 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     @Override
     public Optional<Region> getByName(String regionName) {
         return regions.stream()
-                .filter(region -> region.getName().equals(regionName))
+                .filter(region -> region.name().equals(regionName))
                 .findAny();
     }
 

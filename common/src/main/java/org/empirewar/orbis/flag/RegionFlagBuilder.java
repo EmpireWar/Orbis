@@ -24,6 +24,8 @@ import com.mojang.serialization.Codec;
 
 import net.kyori.adventure.key.Key;
 
+import org.empirewar.orbis.registry.Registries;
+
 import java.util.Objects;
 
 final class RegionFlagBuilder<T> implements RegionFlag.Builder<T> {
@@ -39,7 +41,9 @@ final class RegionFlagBuilder<T> implements RegionFlag.Builder<T> {
         Preconditions.checkState(this.key != null, "Key cannot be empty");
         Preconditions.checkState(this.defaultValue != null, "Value cannot be empty");
         Preconditions.checkState(this.codec != null, "Value Codec be empty");
-        return new RegionFlag<>(key, defaultValue, codec);
+        final RegionFlag<T> flag = new RegionFlag<>(key, defaultValue, codec);
+        Registries.FLAG_CODECS.register(key, flag.asMutable().getCodec());
+        return flag;
     }
 
     @Override

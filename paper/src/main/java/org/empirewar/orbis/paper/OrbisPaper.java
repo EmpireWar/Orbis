@@ -19,32 +19,42 @@
  */
 package org.empirewar.orbis.paper;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-
 import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
-import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.paper.command.Commands;
-import org.empirewar.orbis.query.RegionQuery;
+import org.empirewar.orbis.paper.listener.BlockActionListener;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
-import org.joml.Vector3d;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
+import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
 
-    private final RegionisedWorldSet set = new RegionisedWorldSet();
+    private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
+    private final Map<UUID, RegionisedWorldSet> worldSets = new HashMap<>();
 
     @Override
     public void onLoad() {
@@ -54,41 +64,102 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
     @Override
     public void onEnable() {
         new Commands(this);
-        Bukkit.getPluginManager().registerEvents(this, this);
+        this.loadConfig();
+        this.registerListeners();
+        try {
+            this.loadRegions();
+        } catch (IOException e) {
+            getSLF4JLogger().error("Error loading regions", e);
+        }
+        Bukkit.getWorlds().forEach(this::loadWorld);
+    }
+
+    @Override
+    public void onDisable() {
+        try {
+            saveRegions();
+        } catch (IOException e) {
+            getSLF4JLogger().error("Error saving regions", e);
+        }
     }
 
     @EventHandler
-    public void onBreak(BlockBreakEvent event) {
-        final Block block = event.getBlock();
-        Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());
-        final Set<Region> regionsAtPos =
-                set.query(RegionQuery.Position.builder().position(pos).build()).result();
-        System.out.println("regions at pos: " + regionsAtPos);
-        for (Region region : regionsAtPos) {
-            System.out.println("result: "
-                    + region.query(RegionQuery.Flag.<Boolean>builder()
-                                    .flag(DefaultFlags.CAN_BREAK)
-                                    .build())
-                            .result());
-            if (!region.query(RegionQuery.Flag.<Boolean>builder()
-                            .flag(DefaultFlags.CAN_BREAK)
-                            .build())
-                    .result()
-                    .orElse(true)) {
-                System.out.println("cannot break!");
-                event.getPlayer()
-                        .sendMessage(Component.text("Hey!", NamedTextColor.RED, TextDecoration.BOLD)
-                                .append(Component.space())
-                                .append(Component.text(
-                                        "Sorry, but you can't break that here.",
-                                        NamedTextColor.GRAY)));
-                event.setCancelled(true);
+    public void onLoad(WorldLoadEvent event) {
+        this.loadWorld(event.getWorld());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onUnload(WorldUnloadEvent event) {
+        this.worldSets.remove(event.getWorld().getUID());
+    }
+
+    private ConfigurationNode rootNode;
+
+    private void loadConfig() {
+        try {
+            final Path configPath = dataFolder().resolve("config.yml");
+            saveResource("config.yml", false);
+
+            ConfigurationLoader<CommentedConfigurationNode> loader =
+                    YamlConfigurationLoader.builder().path(configPath).build();
+            rootNode = loader.load();
+        } catch (IOException e) {
+            getSLF4JLogger().error("Error loading config", e);
+        }
+    }
+
+    private void registerListeners() {
+        final PluginManager pluginManager = Bukkit.getPluginManager();
+        pluginManager.registerEvents(this, this);
+        pluginManager.registerEvents(new BlockActionListener(this), this);
+    }
+
+    private void loadWorld(World world) {
+        try {
+            final List<String> regionNames = config().node("worlds", world.getName(), "regions")
+                    .getList(String.class, new ArrayList<>());
+            List<Region> regions = new ArrayList<>();
+            for (String regionName : regionNames) {
+                final Region region =
+                        OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
+                if (region == null) {
+                    System.out.println("Error: Region by name '" + regionName
+                            + "' could not be found, ignoring...");
+                    continue;
+                }
+                regions.add(region);
             }
+
+            final RegionisedWorldSet set = new RegionisedWorldSet(world.getUID(), world.getName());
+            regions.forEach(set::add);
+            worldSets.put(world.getUID(), set);
+        } catch (SerializationException e) {
+            getSLF4JLogger().error("Error loading world set {}", world.getUID(), e);
         }
     }
 
     @Override
+    public Set<RegionisedWorld> getRegionisedWorlds() {
+        return worldSets.values().stream().collect(Collectors.toUnmodifiableSet());
+    }
+
+    @Override
+    public RegionisedWorld getGlobalWorld() {
+        return globalSet;
+    }
+
+    @Override
     public RegionisedWorld getRegionisedWorld(UUID worldId) {
-        return set;
+        return worldSets.get(worldId);
+    }
+
+    @Override
+    public Path dataFolder() {
+        return getDataFolder().toPath();
+    }
+
+    @Override
+    public ConfigurationNode config() {
+        return rootNode;
     }
 }

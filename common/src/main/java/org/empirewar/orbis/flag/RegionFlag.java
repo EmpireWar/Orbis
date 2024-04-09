@@ -30,10 +30,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+/**
+ * Represents the flag of a {@link org.empirewar.orbis.region.Region}.
+ * <p>
+ * All flags are {@link Keyed} and thus have a {@link Key} to identify them.
+ * <p>
+ * To add a region flag, you should use the {@link #builder()} and register it to {@link Registries#FLAGS}.
+ * @param <T> the type this flag has
+ */
 public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
-
-    public static final MapCodec<RegionFlag<?>> CODEC =
-            Registries.FLAG_CODECS.getCodec().dispatchMap(RegionFlag::getCodec, MapCodec::codec);
 
     protected final Key key;
     protected final T defaultValue;

@@ -28,7 +28,7 @@ import org.empirewar.orbis.registry.Registries;
 public final class DefaultFlags {
 
     // spotless:off
-    public static final RegionFlag<Boolean> CAN_BREAK = register("can_break", false, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_BREAK = register("can_break", true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PLACE = register("can_place", true, Codec.BOOL);
     // spotless:on
 

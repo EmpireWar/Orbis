@@ -19,6 +19,10 @@
  */
 package org.empirewar.orbis.region;
 
+import com.google.common.base.MoreObjects;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.area.Area;
@@ -36,13 +40,18 @@ import java.util.stream.Stream;
 
 public class Region implements RegionQuery.Flag.Queryable {
 
-    // public static final Codec<Region> CODEC = RecordCodecBuilder.create(
-    // instance -> instance.group(
-    // Codec.STRING.fieldOf("name").forGetter(Region::getName),
-    // RegionFlag.CODEC.codec().listOf().fieldOf("flags").forGetter(r ->
-    // r.flags.values().stream().toList())
-    // ).apply(instance, Region::new)
-    // );
+    public static final Codec<Region> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                    Codec.STRING.fieldOf("name").forGetter(Region::name),
+                    MutableRegionFlag.CODEC
+                            .codec()
+                            .listOf()
+                            .fieldOf("flags")
+                            .forGetter(r -> r.flags.values().stream().toList()))
+            .apply(instance, (name, flags) -> {
+                final Region region = new Region(name);
+                flags.forEach(region::addFlag);
+                return region;
+            }));
 
     private final String name;
     private final Map<Key, MutableRegionFlag<?>> flags;
@@ -61,7 +70,7 @@ public class Region implements RegionQuery.Flag.Queryable {
         this.area = area;
     }
 
-    public String getName() {
+    public String name() {
         return name;
     }
 
@@ -77,6 +86,11 @@ public class Region implements RegionQuery.Flag.Queryable {
         return flags.remove(flag.key()) == null;
     }
 
+    public <T> void setFlag(RegionFlag<T> flag, T value) {
+        final MutableRegionFlag<T> mu = (MutableRegionFlag<T>) flags.get(flag.key());
+        mu.setValue(value);
+    }
+
     @Override
     public <FR> RegionQuery.Result<Optional<FR>, RegionQuery.Flag<FR>> query(
             RegionQuery.Flag<FR> flag) {
@@ -90,14 +104,23 @@ public class Region implements RegionQuery.Flag.Queryable {
     }
 
     @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("name", name)
+                .add("flags", flags)
+                .add("area", area)
+                .toString();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Region region)) return false;
-        return Objects.equals(getName(), region.getName());
+        return Objects.equals(name(), region.name());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getName());
+        return Objects.hashCode(name());
     }
 }

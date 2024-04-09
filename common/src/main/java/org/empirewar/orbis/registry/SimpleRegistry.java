@@ -63,6 +63,11 @@ public final class SimpleRegistry<T> implements Registry<T> {
     }
 
     @Override
+    public Set<T> getAll() {
+        return valueToEntry.keySet();
+    }
+
+    @Override
     public Set<Key> getKeys() {
         return idToEntry.keySet();
     }
