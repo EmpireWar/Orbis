@@ -20,7 +20,6 @@
 package org.empirewar.orbis.flag;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
@@ -40,9 +39,14 @@ import java.util.Optional;
  */
 public final class MutableRegionFlag<T> extends RegionFlag<T> {
 
-    public static final MapCodec<MutableRegionFlag<?>> CODEC = Registries.FLAG_CODECS
+    // This feels a bit abusive of dispatch but it works perfect
+    // Map from mutable -> constant region flag in registry
+    // (Honestly I'm not entirely sure what dispatch does but basic idea is we are mapping the codec
+    // from registry)
+    public static final Codec<MutableRegionFlag<?>> CODEC = Registries.FLAGS
             .getCodec()
-            .dispatchMap(MutableRegionFlag::getCodec, MapCodec::codec);
+            .dispatch(mu -> Registries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asMutable()
+                    .getCodec());
 
     private T value;
 
@@ -60,8 +64,8 @@ public final class MutableRegionFlag<T> extends RegionFlag<T> {
     }
 
     @Override
-    public MapCodec<MutableRegionFlag<T>> getCodec() {
-        return RecordCodecBuilder.mapCodec(instance -> instance.group(
+    public Codec<MutableRegionFlag<T>> getCodec() {
+        return RecordCodecBuilder.create(instance -> instance.group(
                         ExtraCodecs.KEY.fieldOf("key").forGetter(MutableRegionFlag::key),
                         codec.fieldOf("value").forGetter(MutableRegionFlag::getValue))
                 .apply(instance, (key, value) -> {

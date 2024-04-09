@@ -20,7 +20,6 @@
 package org.empirewar.orbis.area;
 
 import com.mojang.datafixers.Products;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
@@ -134,6 +133,4 @@ public abstract non-sealed class EncompassingArea implements Area {
      *         {@link Optional#empty()} if any number of points is applicable.
      */
     public abstract Optional<Integer> getExpectedPoints();
-
-    public abstract MapCodec<? extends EncompassingArea> getCodec();
 }

@@ -63,8 +63,6 @@ public class RegionFlagParser<C>
 
     public static final class RegionFlagParserException extends ParserException {
 
-        private final String input;
-
         public RegionFlagParserException(
                 final @NonNull String input, final @NonNull CommandContext<?> context) {
             super(
@@ -72,11 +70,6 @@ public class RegionFlagParser<C>
                     context,
                     OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGION_FLAG_NOT_FOUND,
                     CaptionVariable.of("input", input));
-            this.input = input;
-        }
-
-        public @NonNull String getInput() {
-            return this.input;
         }
     }
 }

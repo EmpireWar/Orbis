@@ -20,12 +20,11 @@
 package org.empirewar.orbis.registry;
 
 import com.google.common.collect.Maps;
-import com.mojang.serialization.MapCodec;
 
 import net.kyori.adventure.key.Key;
 
+import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.flag.DefaultFlags;
-import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
 
 import java.util.Map;
@@ -36,11 +35,11 @@ public final class Registries {
 
     private static final Map<Key, Supplier<?>> DEFAULT_ENTRIES = Maps.newLinkedHashMap();
 
-    public static final Registry<MapCodec<? extends MutableRegionFlag<?>>> FLAG_CODECS =
-            create(Key.key("orbis", "flag_codecs"), r -> null);
-
     public static final Registry<RegionFlag<?>> FLAGS =
             create(Key.key("orbis", "flags"), r -> DefaultFlags.CAN_BREAK);
+
+    public static final Registry<AreaType<?>> AREA_TYPE =
+            create(Key.key("orbis", "area_type"), r -> AreaType.CUBOID);
 
     private static <T> Registry<T> create(Key key, Initializer<T> initializer) {
         final Registry<T> registry = new SimpleRegistry<>(key);

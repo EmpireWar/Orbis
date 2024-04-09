@@ -47,9 +47,10 @@ public final class SimpleRegistry<T> implements Registry<T> {
     }
 
     @Override
-    public void register(Key key, T entry) {
+    public T register(Key key, T entry) {
         idToEntry.put(key, entry);
         valueToEntry.put(entry, key);
+        return entry;
     }
 
     @Override

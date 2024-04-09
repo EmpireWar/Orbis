@@ -34,7 +34,7 @@ public sealed interface Registry<T> extends Iterable<T> permits SimpleRegistry {
 
     Key getKey();
 
-    void register(Key key, T entry);
+    T register(Key key, T entry);
 
     Optional<T> get(Key key);
 
@@ -57,4 +57,13 @@ public sealed interface Registry<T> extends Iterable<T> permits SimpleRegistry {
     Set<T> getAll();
 
     Set<Key> getKeys();
+
+    static <T> T register(Registry<? super T> registry, String id, T entry) {
+        return register(registry, Key.key("orbis", id), entry);
+    }
+
+    static <V, T extends V> T register(Registry<V> registry, Key key, T entry) {
+        registry.register(key, entry);
+        return entry;
+    }
 }

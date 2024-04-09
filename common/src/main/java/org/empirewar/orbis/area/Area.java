@@ -19,6 +19,9 @@
  */
 package org.empirewar.orbis.area;
 
+import com.mojang.serialization.Codec;
+
+import org.empirewar.orbis.registry.Registries;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 
@@ -32,6 +35,8 @@ import java.util.Set;
  * Instead, a world contains a set of Areas.
  */
 public sealed interface Area permits EncompassingArea {
+
+    Codec<Area> CODEC = Registries.AREA_TYPE.getCodec().dispatch(Area::getType, AreaType::codec);
 
     /**
      * Attempts to add a point to this area.
@@ -91,4 +96,6 @@ public sealed interface Area permits EncompassingArea {
      * @return set of points of this area
      */
     Set<Vector3i> points();
+
+    AreaType<?> getType();
 }

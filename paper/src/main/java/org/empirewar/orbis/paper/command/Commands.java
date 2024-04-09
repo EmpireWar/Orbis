@@ -54,21 +54,9 @@ public class Commands {
         // Register our custom caption registry so we can define exception messages for parsers
         manager.captionRegistry().registerProvider(new OrbisCaptionProvider<>());
 
-        final BukkitBrigadierMapper<ConsoleOrbisSession> brigadierMapper =
-                new BukkitBrigadierMapper<>(manager, manager.brigadierManager());
-        brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionFlagParser<ConsoleOrbisSession>>() {},
-                "resource_location",
-                false /* cloud suggestions */);
-
         manager.parserRegistry()
                 .registerParserSupplier(
                         TypeToken.get(Region.class), parserParameters -> new RegionParser<>());
-
-        final TypeToken<?> typeToken = TypeToken.get(
-                TypeFactory.parameterizedClass(RegionFlag.class, TypeFactory.unboundWildcard()));
-        manager.parserRegistry()
-                .registerParserSupplier(typeToken, parserParameters -> new RegionFlagParser<>());
 
         manager.parserRegistry()
                 .registerParserSupplier(
@@ -80,6 +68,18 @@ public class Commands {
         } else if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
             manager.registerAsynchronousCompletions();
         }
+
+        final BukkitBrigadierMapper<ConsoleOrbisSession> brigadierMapper =
+                new BukkitBrigadierMapper<>(manager, manager.brigadierManager());
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<RegionFlagParser<ConsoleOrbisSession>>() {},
+                "resource_location",
+                true);
+
+        final TypeToken<?> typeToken = TypeToken.get(
+                TypeFactory.parameterizedClass(RegionFlag.class, TypeFactory.unboundWildcard()));
+        manager.parserRegistry()
+                .registerParserSupplier(typeToken, parserParameters -> new RegionFlagParser<>());
 
         AnnotationParser<ConsoleOrbisSession> annotationParser =
                 new AnnotationParser<>(manager, ConsoleOrbisSession.class);

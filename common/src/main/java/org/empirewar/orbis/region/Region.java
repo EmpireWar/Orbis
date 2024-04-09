@@ -43,15 +43,11 @@ public class Region implements RegionQuery.Flag.Queryable {
     public static final Codec<Region> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     Codec.STRING.fieldOf("name").forGetter(Region::name),
                     MutableRegionFlag.CODEC
-                            .codec()
                             .listOf()
                             .fieldOf("flags")
-                            .forGetter(r -> r.flags.values().stream().toList()))
-            .apply(instance, (name, flags) -> {
-                final Region region = new Region(name);
-                flags.forEach(region::addFlag);
-                return region;
-            }));
+                            .forGetter(r -> r.flags.values().stream().toList()),
+                    Area.CODEC.fieldOf("area").forGetter(Region::area))
+            .apply(instance, Region::new));
 
     private final String name;
     private final Map<Key, MutableRegionFlag<?>> flags;

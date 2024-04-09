@@ -19,13 +19,24 @@
  */
 package org.empirewar.orbis.area;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import org.empirewar.orbis.util.ExtraCodecs;
 import org.joml.Vector3d;
 
 import java.util.Optional;
 
-public class CuboidArea extends EncompassingArea {
+public final class CuboidArea extends EncompassingArea {
+
+    public static Codec<CuboidArea> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                    ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(c -> c.points().stream()
+                            .toList()))
+            .apply(instance, points -> {
+                CuboidArea area = new CuboidArea();
+                points.forEach(area::addPoint);
+                return area;
+            }));
 
     @Override
     public boolean contains(Vector3d point) {
@@ -43,12 +54,12 @@ public class CuboidArea extends EncompassingArea {
     }
 
     @Override
-    public Optional<Integer> getExpectedPoints() {
-        return Optional.of(2);
+    public AreaType<?> getType() {
+        return AreaType.CUBOID;
     }
 
     @Override
-    public MapCodec<? extends EncompassingArea> getCodec() {
-        return null;
+    public Optional<Integer> getExpectedPoints() {
+        return Optional.of(2);
     }
 }
