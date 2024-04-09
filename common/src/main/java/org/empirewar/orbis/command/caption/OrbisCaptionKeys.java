@@ -53,6 +53,9 @@ public class OrbisCaptionKeys {
     public static final Caption ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND =
             of("argument.parse.failure.world_not_found");
 
+    public static final Caption ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID =
+            of("argument.parse.failure.flag_value_invalid");
+
     private OrbisCaptionKeys() {}
 
     private static @NonNull Caption of(final @NonNull String key) {

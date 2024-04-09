@@ -24,12 +24,14 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.Permission;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 
 @Permission("orbis.manage")
@@ -44,12 +46,17 @@ public final class RegionCommand {
                         "Created region with name '" + regionName + "'!", NamedTextColor.GREEN));
     }
 
-    @Command("region|rg flag add <region> <flag>")
-    public void onFlagAdd(
+    @Command("region|rg flag add <region> <flag> [value]")
+    public <T> void onFlagAdd(
             OrbisSession session,
             @Argument("region") Region region,
-            @Argument("flag") RegionFlag<?> flag) {
+            @Argument("flag") RegionFlag<?> flag,
+            @Argument("value") @Nullable FlagValue<?> value) {
         region.addFlag(flag);
+        if (value != null) {
+            RegionFlag<T> cast = (RegionFlag<T>) flag;
+            region.setFlag(cast, (T) value.instance());
+        }
         session.audience()
                 .sendMessage(Component.text(
                         "Added flag '" + flag.key().asString() + "' to region " + region.name()
@@ -71,14 +78,14 @@ public final class RegionCommand {
     }
 
     @Command("region|rg flag set <region> <flag> <value>")
-    public void onFlagSet(
+    public <T> void onFlagSet(
             OrbisSession session,
             @Argument("region") Region region,
             @Argument("flag") RegionFlag<?> flag,
-            @Argument("value") String value) {
-        // TODO
-        final boolean b = Boolean.parseBoolean(value);
-        region.setFlag((RegionFlag<Boolean>) flag, b);
+            @Argument("value") FlagValue<?> value) {
+        // Is there a better way? I'm not sure...
+        RegionFlag<T> cast = (RegionFlag<T>) flag;
+        region.setFlag(cast, (T) value.instance());
         session.audience().sendMessage(Component.text("success"));
     }
 

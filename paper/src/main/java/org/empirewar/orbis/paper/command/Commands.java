@@ -25,10 +25,12 @@ import io.leangen.geantyref.TypeToken;
 import org.bukkit.command.CommandSender;
 import org.empirewar.orbis.command.RegionCommand;
 import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
+import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.paper.OrbisPaper;
 import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.empirewar.orbis.player.OrbisSession;
@@ -80,6 +82,12 @@ public class Commands {
                 TypeFactory.parameterizedClass(RegionFlag.class, TypeFactory.unboundWildcard()));
         manager.parserRegistry()
                 .registerParserSupplier(typeToken, parserParameters -> new RegionFlagParser<>());
+
+        final TypeToken<?> flagValueToken = TypeToken.get(
+                TypeFactory.parameterizedClass(FlagValue.class, TypeFactory.unboundWildcard()));
+        manager.parserRegistry()
+                .registerParserSupplier(
+                        flagValueToken, parserParameters -> new FlagValueParser<>(manager));
 
         AnnotationParser<ConsoleOrbisSession> annotationParser =
                 new AnnotationParser<>(manager, ConsoleOrbisSession.class);

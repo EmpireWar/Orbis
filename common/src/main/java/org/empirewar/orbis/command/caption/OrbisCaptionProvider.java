@@ -48,6 +48,12 @@ public final class OrbisCaptionProvider<C> extends DelegatingCaptionProvider<C> 
     public static final String ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND =
             "Could not find world '<input>'";
 
+    /**
+     * Default caption for {@link OrbisCaptionKeys#ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID}.
+     */
+    public static final String ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID =
+            "Invalid flag value '<input>': <error>";
+
     private static final CaptionProvider<?> PROVIDER = CaptionProvider.constantProvider()
             .putCaption(
                     OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGION_NOT_FOUND,
@@ -58,6 +64,9 @@ public final class OrbisCaptionProvider<C> extends DelegatingCaptionProvider<C> 
             .putCaption(
                     OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND,
                     ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND)
+            .putCaption(
+                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID,
+                    ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID)
             .build();
 
     @Override

@@ -49,6 +49,10 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
         this.codec = codec;
     }
 
+    public Codec<T> typeCodec() {
+        return codec;
+    }
+
     public T getDefaultValue() {
         return defaultValue;
     }
@@ -61,7 +65,15 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
         return new MutableRegionFlag<>(key, defaultValue, codec);
     }
 
-    public Codec<? extends RegionFlag<T>> getCodec() {
+    /**
+     * Gets the codec for this flag.
+     * <p>
+     * The parameter provided is the instance of this flag type in the {@link Registries#FLAGS} registry.
+     * This allows for transformation within the codec to occur.
+     * @param registry the registry value of this flag
+     * @return the codec
+     */
+    public Codec<? extends RegionFlag<T>> getCodec(RegionFlag<?> registry) {
         return Codec.unit(() -> new RegionFlag<>(key, defaultValue, codec));
     }
 

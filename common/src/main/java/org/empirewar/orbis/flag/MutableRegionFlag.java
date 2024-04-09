@@ -25,9 +25,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.registry.Registries;
-import org.empirewar.orbis.util.ExtraCodecs;
-
-import java.util.Optional;
 
 /**
  * Represents a flag that has a changeable {@link T} value.
@@ -46,7 +43,7 @@ public final class MutableRegionFlag<T> extends RegionFlag<T> {
     public static final Codec<MutableRegionFlag<?>> CODEC = Registries.FLAGS
             .getCodec()
             .dispatch(mu -> Registries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asMutable()
-                    .getCodec());
+                    .getCodec(r));
 
     private T value;
 
@@ -64,17 +61,13 @@ public final class MutableRegionFlag<T> extends RegionFlag<T> {
     }
 
     @Override
-    public Codec<MutableRegionFlag<T>> getCodec() {
+    public Codec<MutableRegionFlag<T>> getCodec(RegionFlag<?> registry) {
         return RecordCodecBuilder.create(instance -> instance.group(
-                        ExtraCodecs.KEY.fieldOf("key").forGetter(MutableRegionFlag::key),
                         codec.fieldOf("value").forGetter(MutableRegionFlag::getValue))
-                .apply(instance, (key, value) -> {
-                    final Optional<RegionFlag<?>> regionFlag = Registries.FLAGS.get(key);
-                    if (regionFlag.isEmpty()) {
-                        return null;
-                    }
-                    final MutableRegionFlag<T> mutable =
-                            (MutableRegionFlag<T>) regionFlag.get().asMutable();
+                .apply(instance, (value) -> {
+                    // spotless:off
+                    final MutableRegionFlag<T> mutable = (MutableRegionFlag<T>) registry.asMutable();
+                    // spotless:on
                     mutable.setValue(value);
                     return mutable;
                 }));
