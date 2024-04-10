@@ -17,17 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.serialization;
+package org.empirewar.orbis.serialization.context.passport;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.common.base.MoreObjects;
 
-import org.empirewar.orbis.region.Region;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
-public final class StaticGsonProvider {
+public final class Passport<P> {
 
-    public static final Gson GSON = new GsonBuilder()
-            .setPrettyPrinting()
-            .registerTypeHierarchyAdapter(Region.class, new RegionAdapter())
-            .create();
+    private final List<Consumer<P>> suppliers = new ArrayList<>();
+
+    public List<Consumer<P>> getSuppliers() {
+        return suppliers;
+    }
+
+    public void add(Consumer<P> supplier) {
+        suppliers.add(supplier);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this).add("suppliers", suppliers).toString();
+    }
 }

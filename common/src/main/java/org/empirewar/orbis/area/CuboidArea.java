@@ -24,7 +24,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
 import org.joml.Vector3d;
+import org.joml.Vector3i;
 
+import java.util.List;
 import java.util.Optional;
 
 public final class CuboidArea extends EncompassingArea {
@@ -32,11 +34,15 @@ public final class CuboidArea extends EncompassingArea {
     public static Codec<CuboidArea> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(c -> c.points().stream()
                             .toList()))
-            .apply(instance, points -> {
-                CuboidArea area = new CuboidArea();
-                points.forEach(area::addPoint);
-                return area;
-            }));
+            .apply(instance, CuboidArea::new));
+
+    public CuboidArea() {
+        super();
+    }
+
+    private CuboidArea(List<Vector3i> points) {
+        super(points);
+    }
 
     @Override
     public boolean contains(Vector3d point) {

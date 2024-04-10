@@ -32,6 +32,7 @@ import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.paper.command.Commands;
 import org.empirewar.orbis.paper.listener.BlockActionListener;
+import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
@@ -118,8 +119,36 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
         try {
             final List<String> regionNames = config().node("worlds", world.getName(), "regions")
                     .getList(String.class, new ArrayList<>());
+
+            final RegionisedWorldSet set =
+                    new RegionisedWorldSet(world.getUID(), world.getKey().asString());
+
             List<Region> regions = new ArrayList<>();
+            Region globalRegion = OrbisAPI.get()
+                    .getGlobalWorld()
+                    .getByName(set.worldName().orElseThrow())
+                    .filter(r -> {
+                        // Can somebody really be this stupid?
+                        if (!r.isGlobal()) {
+                            getSLF4JLogger()
+                                    .error(
+                                            "Region name conflict! Region with name {} exists and matches a world name, but it is not global! Destroying invalid region!",
+                                            set.worldName().orElseThrow());
+                            OrbisAPI.get().getGlobalWorld().remove(r);
+                            OrbisAPI.get().getRegionisedWorlds().forEach(rw -> rw.remove(r));
+                            return false;
+                        }
+                        return true;
+                    })
+                    .orElseGet(() -> new GlobalRegion(set));
+            globalRegion.priority(0);
+            OrbisAPI.get().getGlobalWorld().add(globalRegion);
             for (String regionName : regionNames) {
+                if (regionName.equals(set.worldName().orElseThrow())) {
+                    System.out.println("Illegal region name in world set");
+                    continue;
+                }
+
                 final Region region =
                         OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
                 if (region == null) {
@@ -127,10 +156,11 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
                             + "' could not be found, ignoring...");
                     continue;
                 }
+
                 regions.add(region);
             }
 
-            final RegionisedWorldSet set = new RegionisedWorldSet(world.getUID(), world.getName());
+            set.add(globalRegion);
             regions.forEach(set::add);
             worldSets.put(world.getUID(), set);
         } catch (SerializationException e) {

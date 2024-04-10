@@ -17,17 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.serialization;
+package org.empirewar.orbis.serialization.context;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+public final class CodecContext {
 
-import org.empirewar.orbis.region.Region;
+    private static final ContextQueue QUEUE = new ContextQueue();
+    private static boolean frozen;
 
-public final class StaticGsonProvider {
+    public static void freeze() {
+        CodecContext.frozen = true;
+        QUEUE.clear();
+    }
 
-    public static final Gson GSON = new GsonBuilder()
-            .setPrettyPrinting()
-            .registerTypeHierarchyAdapter(Region.class, new RegionAdapter())
-            .create();
+    public static ContextQueue queue() {
+        if (frozen) {
+            throw new IllegalStateException("Queue is frozen!");
+        }
+        return QUEUE;
+    }
 }

@@ -31,7 +31,7 @@ import org.incendo.cloud.parser.ArgumentParseResult;
 import org.incendo.cloud.parser.ArgumentParser;
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider;
 
-public class RegionisedWorldParser<C>
+public final class RegionisedWorldParser<C>
         implements ArgumentParser<C, RegionisedWorld>, BlockingSuggestionProvider.Strings<C> {
 
     @Override

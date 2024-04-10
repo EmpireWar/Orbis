@@ -39,6 +39,13 @@ public final class RegionCommand {
 
     @Command("region|rg create <name>")
     public void onCreate(OrbisSession session, @Argument("name") String regionName) {
+        if (OrbisAPI.get().getGlobalWorld().getByName(regionName).isPresent()) {
+            session.audience()
+                    .sendMessage(Component.text(
+                            "Region by that name already exists.", NamedTextColor.RED));
+            return;
+        }
+
         final Region region = new Region(regionName);
         OrbisAPI.get().getGlobalWorld().add(region);
         session.audience()
@@ -89,6 +96,30 @@ public final class RegionCommand {
                         NamedTextColor.GREEN));
     }
 
+    @Command("region|rg parent add <region> <parent>")
+    public void onAddParent(
+            OrbisSession session,
+            @Argument("region") Region region,
+            @Argument("parent") Region parent) {
+        region.addParent(parent);
+        session.audience()
+                .sendMessage(Component.text(
+                        "Added parent '" + parent.name() + "' to '" + region.name() + "'.",
+                        NamedTextColor.GREEN));
+    }
+
+    @Command("region|rg parent remove <region> <parent>")
+    public void onRemoveParent(
+            OrbisSession session,
+            @Argument("region") Region region,
+            @Argument("parent") Region parent) {
+        region.removeParent(parent);
+        session.audience()
+                .sendMessage(Component.text(
+                        "Removed parent '" + parent.name() + "' from '" + region.name() + "'.",
+                        NamedTextColor.RED));
+    }
+
     @Command("region|rg flag set <region> <flag> <value>")
     public <T> void onFlagSet(
             OrbisSession session,
@@ -106,6 +137,13 @@ public final class RegionCommand {
             OrbisSession session,
             @Argument("region") Region region,
             @Argument("world") RegionisedWorld world) {
+        if (region.isGlobal()) {
+            session.audience()
+                    .sendMessage(Component.text(
+                            "Can't assign world to a global region.", NamedTextColor.RED));
+            return;
+        }
+
         if (world.add(region)) {
             session.audience()
                     .sendMessage(Component.text(
@@ -120,6 +158,13 @@ public final class RegionCommand {
             OrbisSession session,
             @Argument("region") Region region,
             @Argument("world") RegionisedWorld world) {
+        if (region.isGlobal()) {
+            session.audience()
+                    .sendMessage(Component.text(
+                            "Can't assign world to a global region.", NamedTextColor.RED));
+            return;
+        }
+
         if (world.remove(region)) {
             session.audience()
                     .sendMessage(Component.text(

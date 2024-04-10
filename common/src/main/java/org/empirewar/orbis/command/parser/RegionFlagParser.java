@@ -35,7 +35,7 @@ import org.incendo.cloud.suggestion.BlockingSuggestionProvider;
 
 import java.util.Optional;
 
-public class RegionFlagParser<C>
+public final class RegionFlagParser<C>
         implements ArgumentParser<C, RegionFlag<?>>, BlockingSuggestionProvider.Strings<C> {
 
     @Override

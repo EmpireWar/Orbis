@@ -78,6 +78,14 @@ public class Commands {
                 "resource_location",
                 true);
 
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<RegionisedWorldParser<ConsoleOrbisSession>>() {},
+                "resource_location",
+                true);
+
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<RegionParser<ConsoleOrbisSession>>() {}, "resource_location", true);
+
         final TypeToken<?> typeToken = TypeToken.get(
                 TypeFactory.parameterizedClass(RegionFlag.class, TypeFactory.unboundWildcard()));
         manager.parserRegistry()

@@ -29,7 +29,7 @@ import java.util.LinkedList;
 /**
  * {@link Caption} instances for messages in Orbis
  */
-public class OrbisCaptionKeys {
+public final class OrbisCaptionKeys {
 
     private static final Collection<Caption> RECOGNIZED_CAPTIONS = new LinkedList<>();
 

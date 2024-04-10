@@ -17,17 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.serialization;
+package org.empirewar.orbis.region;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.mojang.serialization.Codec;
 
-import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.Registry;
 
-public final class StaticGsonProvider {
+public interface RegionType<R extends Region> {
 
-    public static final Gson GSON = new GsonBuilder()
-            .setPrettyPrinting()
-            .registerTypeHierarchyAdapter(Region.class, new RegionAdapter())
-            .create();
+    RegionType<Region> NORMAL = register("normal", Region.CODEC);
+    RegionType<GlobalRegion> GLOBAL = register("global", GlobalRegion.CODEC);
+
+    Codec<R> codec();
+
+    private static <R extends Region> RegionType<R> register(String id, Codec<R> codec) {
+        return Registry.register(Registries.REGION_TYPE, id, () -> codec);
+    }
 }

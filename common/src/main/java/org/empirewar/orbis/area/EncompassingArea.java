@@ -22,6 +22,7 @@ package org.empirewar.orbis.area;
 import org.joml.Vector3i;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,6 +35,11 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
     EncompassingArea() {
         final int expected = getExpectedPoints().orElse(0);
         this.points = new HashSet<>(expected);
+        calculateEncompassingArea();
+    }
+
+    EncompassingArea(List<Vector3i> points) {
+        this.points = new HashSet<>(points);
         calculateEncompassingArea();
     }
 

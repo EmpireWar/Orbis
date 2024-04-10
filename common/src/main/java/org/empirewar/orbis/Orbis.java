@@ -21,6 +21,7 @@ package org.empirewar.orbis;
 
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.serialization.StaticGsonProvider;
+import org.empirewar.orbis.serialization.context.CodecContext;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.spongepowered.configurate.ConfigurationNode;
 
@@ -68,6 +69,7 @@ public interface Orbis {
                 getGlobalWorld().add(region);
             }
         }
+        CodecContext.freeze();
     }
 
     default void saveRegions() throws IOException {
@@ -75,7 +77,8 @@ public interface Orbis {
         if (!regionsFolder.exists()) regionsFolder.mkdirs();
 
         for (Region region : getGlobalWorld().regions()) {
-            File regionFile = new File(regionsFolder + File.separator + region.name() + ".json");
+            File regionFile = new File(
+                    regionsFolder + File.separator + region.name().replace(":", "-") + ".json");
             try (FileWriter writer = new FileWriter(regionFile)) {
                 StaticGsonProvider.GSON.toJson(region, writer);
             }

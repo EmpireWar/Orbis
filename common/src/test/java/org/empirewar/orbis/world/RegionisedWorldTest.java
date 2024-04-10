@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.query.RegionQuery;
+import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.Set;
+import java.util.UUID;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RegionisedWorldTest {
@@ -155,5 +157,17 @@ public class RegionisedWorldTest {
                 .result()
                 .orElse(true);
         assertFalse(canAct2);
+    }
+
+    @Test
+    @Order(6)
+    void testGlobalRegionQuery() {
+        RegionisedWorldSet set = new RegionisedWorldSet(UUID.randomUUID(), "world");
+        final Region global = new GlobalRegion(set);
+        assertTrue(global.isGlobal());
+        set.add(global);
+        assertTrue(set.query(RegionQuery.Position.builder().position(5, 5, 5))
+                .result()
+                .contains(global));
     }
 }

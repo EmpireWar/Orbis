@@ -63,6 +63,8 @@ public record BlockActionListener(OrbisPaper plugin) implements Listener {
     private boolean shouldPreventBlockAction(Block block, RegionFlag<Boolean> flag) {
         final Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());
         final RegionisedWorld world = plugin.getRegionisedWorld(block.getWorld().getUID());
+        System.out.println("regions at pos: "
+                + world.query(RegionQuery.Position.builder().position(pos)).result());
         final boolean canAct = world.query(RegionQuery.Position.builder().position(pos))
                 .query(RegionQuery.Flag.builder(flag))
                 .result()

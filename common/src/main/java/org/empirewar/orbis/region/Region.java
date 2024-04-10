@@ -31,13 +31,17 @@ import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
+import org.empirewar.orbis.serialization.context.CodecContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -46,16 +50,23 @@ import java.util.stream.Stream;
  * Regions hold an {@link Area} to define the locations affected by the region.
  * They also hold a set of {@link MutableRegionFlag}s.
  * <p>
+ * Regions may have region <i>parents</i> defined, where they will inherit the flags of those parents
+ * if it does not have an overriding flag set.
+ * <p>
  * Multiple regions spanning the same area will be prioritised based off the {@link #priority()} parameter.
  * When querying a location for a flag, the region with the highest priority that has that flag should return the flag value.
  * <p>
  * Regions that have the same priority and conflicting flags have undefined behaviour.
  * In these cases, admins should be warned about possible issues.
  */
-public class Region implements RegionQuery.Flag.Queryable, Comparable<Region> {
+public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Region>
+        permits GlobalRegion {
 
     public static final Codec<Region> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     Codec.STRING.fieldOf("name").forGetter(Region::name),
+                    Codec.STRING.listOf().fieldOf("parents").forGetter(r -> r.parents().stream()
+                            .map(Region::name)
+                            .toList()),
                     MutableRegionFlag.CODEC
                             .listOf()
                             .fieldOf("flags")
@@ -65,24 +76,34 @@ public class Region implements RegionQuery.Flag.Queryable, Comparable<Region> {
             .apply(instance, Region::new));
 
     private final String name;
-    private final Map<Key, MutableRegionFlag<?>> flags;
+    private final Set<Region> parents;
+    protected final Map<Key, MutableRegionFlag<?>> flags;
     private final Area area;
 
     private int priority;
 
     public Region(String name) {
         this.name = name;
+        this.parents = new HashSet<>();
         this.flags = new HashMap<>();
         this.area = new CuboidArea();
         this.priority = 1;
     }
 
-    private Region(String name, List<MutableRegionFlag<?>> flags, Area area, int priority) {
+    private Region(
+            String name,
+            List<String> parents,
+            List<MutableRegionFlag<?>> flags,
+            Area area,
+            int priority) {
         this.name = name;
+        this.parents = new HashSet<>();
+        parents.forEach(parentName -> CodecContext.queue().beg(Region.class, this.parents::add));
         this.flags = new HashMap<>();
         flags.forEach(mu -> this.flags.put(mu.key(), mu));
         this.area = area;
         this.priority = priority;
+        CodecContext.queue().rewardPatience(this);
     }
 
     /**
@@ -93,6 +114,30 @@ public class Region implements RegionQuery.Flag.Queryable, Comparable<Region> {
      */
     public String name() {
         return name;
+    }
+
+    /**
+     * Gets the parents of this region.
+     * @return the parents
+     */
+    public Set<Region> parents() {
+        return Set.copyOf(parents);
+    }
+
+    /**
+     * Adds a parent to this region.
+     * @param region the parent to add
+     */
+    public void addParent(Region region) {
+        parents.add(region);
+    }
+
+    /**
+     * Removes a parent from this region.
+     * @param region the parent to remove
+     */
+    public void removeParent(Region region) {
+        parents.remove(region);
     }
 
     /**
@@ -159,9 +204,29 @@ public class Region implements RegionQuery.Flag.Queryable, Comparable<Region> {
         final Optional<MutableRegionFlag<?>> foundFlag =
                 stream.filter(mu -> mu.equals(flag.flag())).findAny();
         Optional<FR> foundValue;
-        foundValue = foundFlag.flatMap(
-                mutableRegionFlag -> Optional.of((FR) mutableRegionFlag.getValue()));
+        foundValue = foundFlag
+                .flatMap(mutableRegionFlag -> Optional.of((FR) mutableRegionFlag.getValue()))
+                .or(() -> parents.stream()
+                        .sorted(Comparator.reverseOrder())
+                        .map(r -> r.query(flag))
+                        .map(RegionQuery.Result::result)
+                        .findAny()
+                        .orElse(Optional.empty()));
         return flag.resultBuilder().query(flag).result(foundValue).build();
+    }
+
+    /**
+     * Gets whether this region is a "global region".
+     * <p>
+     * A global region is a region that encompasses a world.
+     * @return true if global
+     */
+    public boolean isGlobal() {
+        return this instanceof GlobalRegion;
+    }
+
+    public RegionType<?> getType() {
+        return RegionType.NORMAL;
     }
 
     @Override

@@ -60,7 +60,7 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     @Override
     public RegionQuery.Position.Result query(RegionQuery.Position position) {
         final Set<Region> result = regions.stream()
-                .filter(r -> r.area().contains(position.position()))
+                .filter(r -> r.isGlobal() || r.area().contains(position.position()))
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return position.resultBuilder().query(position).result(result).build();

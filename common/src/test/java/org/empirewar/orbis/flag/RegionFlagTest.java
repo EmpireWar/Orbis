@@ -51,4 +51,28 @@ public class RegionFlagTest {
         assertTrue(newResult.isPresent());
         assertTrue(newResult.get());
     }
+
+    @Test
+    void testRegionParentFlags() {
+        Region region = new Region("test");
+        Region region2 = new Region("test2");
+        region2.addFlag(DefaultFlags.CAN_BREAK);
+        region2.setFlag(DefaultFlags.CAN_BREAK, false);
+        region.addParent(region2);
+
+        final Optional<Boolean> result =
+                region.query(RegionQuery.Flag.builder(DefaultFlags.CAN_BREAK)).result();
+        assertTrue(result.isPresent());
+        assertFalse(result.get());
+
+        Region region3 = new Region("test3");
+        region3.priority(100);
+        region3.addFlag(DefaultFlags.CAN_BREAK);
+        region.addParent(region3);
+
+        final Optional<Boolean> priorityResult =
+                region.query(RegionQuery.Flag.builder(DefaultFlags.CAN_BREAK)).result();
+        assertTrue(priorityResult.isPresent());
+        assertTrue(priorityResult.get());
+    }
 }

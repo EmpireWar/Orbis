@@ -26,10 +26,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.region.RegionType;
+import org.empirewar.orbis.registry.Registries;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
@@ -40,9 +43,10 @@ public final class RegionAdapter implements JsonSerializer<Region>, JsonDeserial
 
     @Override
     public JsonElement serialize(Region region, Type typeOfSrc, JsonSerializationContext context) {
-        final Optional<JsonElement> result = Region.CODEC
-                .encodeStart(JsonOps.INSTANCE, region)
-                .resultOrPartial(System.out::println);
+        final Codec<Region> dispatch =
+                Registries.REGION_TYPE.getCodec().dispatch(Region::getType, RegionType::codec);
+        final Optional<JsonElement> result =
+                dispatch.encodeStart(JsonOps.INSTANCE, region).resultOrPartial(System.out::println);
         return result.orElse(null);
     }
 
@@ -55,8 +59,10 @@ public final class RegionAdapter implements JsonSerializer<Region>, JsonDeserial
         // TODO datafixer
         fixed = dynamic.getValue();
 
+        final Codec<Region> dispatch =
+                Registries.REGION_TYPE.getCodec().dispatch(Region::getType, RegionType::codec);
         final Optional<Region> result =
-                Region.CODEC.parse(JsonOps.INSTANCE, fixed).resultOrPartial(System.out::println);
+                dispatch.parse(JsonOps.INSTANCE, fixed).resultOrPartial(System.out::println);
         return result.orElse(null);
     }
 }
