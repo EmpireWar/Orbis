@@ -19,26 +19,13 @@
  */
 package org.empirewar.orbis.area;
 
-import com.mojang.datafixers.Products;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import org.empirewar.orbis.util.ExtraCodecs;
 import org.joml.Vector3i;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract non-sealed class EncompassingArea implements Area {
-
-    protected static <A extends EncompassingArea>
-            Products.P1<RecordCodecBuilder.Mu<A>, List<Vector3i>> fillFields(
-                    RecordCodecBuilder.Instance<A> instance) {
-        return instance.group(
-                ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(a -> a.points().stream()
-                        .toList()));
-    }
+public abstract sealed class EncompassingArea implements Area permits CuboidArea {
 
     protected final Set<Vector3i> points;
     protected final Vector3i min = new Vector3i();

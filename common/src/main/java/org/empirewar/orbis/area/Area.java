@@ -45,6 +45,7 @@ public sealed interface Area permits EncompassingArea {
      * another point, e.g a cuboid exceeding 4 points.
      *
      * @param point the point to add
+     * @return true if the point is able to fit into this area
      */
     boolean addPoint(Vector3i point);
 

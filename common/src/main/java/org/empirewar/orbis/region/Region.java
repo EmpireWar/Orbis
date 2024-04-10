@@ -20,6 +20,7 @@
 package org.empirewar.orbis.region;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -47,6 +48,9 @@ import java.util.stream.Stream;
  * <p>
  * Multiple regions spanning the same area will be prioritised based off the {@link #priority()} parameter.
  * When querying a location for a flag, the region with the highest priority that has that flag should return the flag value.
+ * <p>
+ * Regions that have the same priority and conflicting flags have undefined behaviour.
+ * In these cases, admins should be warned about possible issues.
  */
 public class Region implements RegionQuery.Flag.Queryable, Comparable<Region> {
 
@@ -81,30 +85,68 @@ public class Region implements RegionQuery.Flag.Queryable, Comparable<Region> {
         this.priority = priority;
     }
 
+    /**
+     * Gets the name of this region.
+     * <p>
+     * A region name should never include spaces and is considered an identifier.
+     * @return the name
+     */
     public String name() {
         return name;
     }
 
+    /**
+     * Gets the area of this region.
+     * @return the area
+     */
     public Area area() {
         return area;
     }
 
+    /**
+     * Gets the priority of this region.
+     * <p>
+     * A priority is always positive (including zero) and a higher priority gives precedence over other regions when checking flags.
+     * @return the priority
+     */
     public int priority() {
         return priority;
     }
 
+    /**
+     * @see #priority()
+     * @param priority the priority
+     */
     public void priority(int priority) {
+        Preconditions.checkState(priority >= 0, "Priority must be positive");
         this.priority = priority;
     }
 
+    /**
+     * Adds a flag to this region.
+     * The flag is transformed into a <i>mutable</i> flag.
+     * @see RegionFlag#asMutable()
+     * @param flag the flag to add
+     */
     public void addFlag(RegionFlag<?> flag) {
         flags.put(flag.key(), flag.asMutable());
     }
 
+    /**
+     * Removes a flag from this region.
+     * @param flag the flag to remove
+     * @return true if flag existed and was removed
+     */
     public boolean removeFlag(RegionFlag<?> flag) {
         return flags.remove(flag.key()) == null;
     }
 
+    /**
+     * Sets the value of a flag.
+     * @param flag the flag
+     * @param value the value
+     * @param <T> value type
+     */
     public <T> void setFlag(RegionFlag<T> flag, T value) {
         final MutableRegionFlag<T> mu = (MutableRegionFlag<T>) flags.get(flag.key());
         mu.setValue(value);

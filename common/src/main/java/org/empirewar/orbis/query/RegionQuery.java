@@ -42,6 +42,10 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
 
     // TODO add query for players - RegionQuery<Set<Player>>
 
+    /**
+     * Represents a query to find a flag in a region, with optional values to filter the result.
+     * @param <FR> the flag type
+     */
     non-sealed interface Flag<FR> extends RegionQuery<Optional<FR>> {
 
         /**
