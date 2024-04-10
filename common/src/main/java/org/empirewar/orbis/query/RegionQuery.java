@@ -26,6 +26,7 @@ import org.joml.Vector3d;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 /**
  * Represents some kind of query on a region.
@@ -37,7 +38,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
      *
      * @return the result builder
      */
-    Result.Builder<R, ? extends RegionQuery<R>> resultBuilder();
+    Result.Builder<? extends Result<R, ?>, R, ? extends RegionQuery<R>> resultBuilder();
 
     // TODO add query for players - RegionQuery<Set<Player>>
 
@@ -55,13 +56,18 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
         // TODO Optional<Player> to check flags against a specific player
 
         @Override
-        default Result.Builder<Optional<FR>, Flag<FR>> resultBuilder() {
+        default Result.Builder<Result<Optional<FR>, Flag<FR>>, Optional<FR>, Flag<FR>>
+                resultBuilder() {
             return RegionQuery.Result.builder();
         }
 
         interface Queryable {
 
             <FR> Result<Optional<FR>, Flag<FR>> query(Flag<FR> flag);
+
+            default <FR> Result<Optional<FR>, Flag<FR>> query(Builder<FR> flag) {
+                return query(flag.build());
+            }
         }
 
         sealed interface Builder<FR> permits RegionQueryFlagBuilder {
@@ -75,6 +81,10 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
 
         static <FR> Builder<FR> builder() {
             return new RegionQueryFlagBuilder<>();
+        }
+
+        static <FR> Builder<FR> builder(RegionFlag<FR> flag) {
+            return new RegionQueryFlagBuilder<FR>().flag(flag);
         }
     }
 
@@ -93,25 +103,62 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
         Vector3d position();
 
         @Override
-        default Result.Builder<Set<Region>, Position> resultBuilder() {
-            return RegionQuery.Result.builder();
+        default Result.Builder<Result, Set<Region>, Position> resultBuilder() {
+            return RegionQuery.Result.builder((q, r) -> new Result() {
+                @Override
+                public Position query() {
+                    return q;
+                }
+
+                @Override
+                public Set<Region> result() {
+                    return r;
+                }
+            });
         }
 
         interface Queryable {
 
             /**
              * Queries for a set of regions for a specific {@link Position} query.
-             *
-             * @param position
-             *            the position query
+             * <p>
+             * The returned {@link Set<Region>} result is ordered with the region of the highest priority first.
+             * @param position the position query
              * @return the query {@link Result}
+             * @see Region#priority()
              */
-            Result<Set<Region>, Position> query(Position position);
+            Result query(Position position);
+
+            default Result query(Position.Builder position) {
+                return query(position.build());
+            }
+        }
+
+        interface Result extends RegionQuery.Result<Set<Region>, Position>, Flag.Queryable {
+
+            @Override
+            default <FR> RegionQuery.Result<Optional<FR>, Flag<FR>> query(Flag<FR> flag) {
+                final Set<Region> regions = result();
+                for (Region region : regions) {
+                    final RegionQuery.Result<Optional<FR>, Flag<FR>> query = region.query(flag);
+                    if (query.result().isPresent()) {
+                        return query;
+                    }
+                }
+                return RegionQuery.Result.<Optional<FR>, Flag<FR>>builder()
+                        .query(flag)
+                        .result(Optional.empty())
+                        .build();
+            }
         }
 
         sealed interface Builder permits RegionQueryPositionBuilder {
 
             Builder position(Vector3d position);
+
+            default Builder position(double x, double y, double z) {
+                return position(new Vector3d(x, y, z));
+            }
 
             Position build();
         }
@@ -140,17 +187,34 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
          */
         R result();
 
-        interface Builder<R, Q extends RegionQuery<R>> {
+        interface Builder<RQR extends RegionQuery.Result<R, Q>, R, Q extends RegionQuery<R>> {
 
-            Builder<R, Q> query(Q query);
+            Builder<RQR, R, Q> query(Q query);
 
-            Builder<R, Q> result(R result);
+            Builder<RQR, R, Q> result(R result);
 
-            RegionQuery.Result<R, Q> build();
+            RQR build();
         }
 
-        static <R, Q extends RegionQuery<R>> Builder<R, Q> builder() {
-            return new QueryResultBuilder<>();
+        static <RQR extends RegionQuery.Result<R, Q>, R, Q extends RegionQuery<R>>
+                Builder<RQR, R, Q> builder(BiFunction<Q, R, RQR> transformer) {
+            return new QueryResultBuilder<>(transformer);
+        }
+
+        static <R, Q extends RegionQuery<R>> Builder<RegionQuery.Result<R, Q>, R, Q> builder() {
+            BiFunction<Q, R, RegionQuery.Result<R, Q>> function =
+                    (query, result) -> new Result<>() {
+                        @Override
+                        public Q query() {
+                            return query;
+                        }
+
+                        @Override
+                        public R result() {
+                            return result;
+                        }
+                    };
+            return new QueryResultBuilder<>(function);
         }
     }
 }

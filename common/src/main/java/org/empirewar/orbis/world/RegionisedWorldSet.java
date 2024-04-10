@@ -23,7 +23,9 @@ import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -56,11 +58,11 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     }
 
     @Override
-    public RegionQuery.Result<Set<Region>, RegionQuery.Position> query(
-            RegionQuery.Position position) {
+    public RegionQuery.Position.Result query(RegionQuery.Position position) {
         final Set<Region> result = regions.stream()
                 .filter(r -> r.area().contains(position.position()))
-                .collect(Collectors.toSet());
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         return position.resultBuilder().query(position).result(result).build();
     }
 

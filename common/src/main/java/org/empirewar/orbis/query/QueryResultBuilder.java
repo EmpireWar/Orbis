@@ -22,44 +22,37 @@ package org.empirewar.orbis.query;
 import com.google.common.base.Preconditions;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 
-final class QueryResultBuilder<R, Q extends RegionQuery<R>>
-        implements RegionQuery.Result.Builder<R, Q> {
+final class QueryResultBuilder<RQR extends RegionQuery.Result<R, Q>, R, Q extends RegionQuery<R>>
+        implements RegionQuery.Result.Builder<RQR, R, Q> {
 
+    private final BiFunction<Q, R, RQR> transformer;
     private R result;
     private Q query;
 
-    QueryResultBuilder() {}
+    QueryResultBuilder(BiFunction<Q, R, RQR> transformer) {
+        this.transformer = transformer;
+    }
 
     @Override
-    public QueryResultBuilder<R, Q> query(Q query) {
+    public QueryResultBuilder<RQR, R, Q> query(Q query) {
         Objects.requireNonNull(query, "Query cannot be null");
         this.query = query;
         return this;
     }
 
     @Override
-    public QueryResultBuilder<R, Q> result(R result) {
+    public QueryResultBuilder<RQR, R, Q> result(R result) {
         Objects.requireNonNull(result, "Result cannot be null");
         this.result = result;
         return this;
     }
 
     @Override
-    public RegionQuery.Result<R, Q> build() {
+    public RQR build() {
         Preconditions.checkState(this.query != null, "Query cannot be empty");
         Preconditions.checkState(this.result != null, "Result cannot be empty");
-
-        return new RegionQuery.Result<>() {
-            @Override
-            public Q query() {
-                return query;
-            }
-
-            @Override
-            public R result() {
-                return result;
-            }
-        };
+        return transformer.apply(query, result);
     }
 }

@@ -77,6 +77,18 @@ public final class RegionCommand {
                         NamedTextColor.RED));
     }
 
+    @Command("region|rg setpriority <region> <priority>")
+    public void onSetPriority(
+            OrbisSession session,
+            @Argument("region") Region region,
+            @Argument("priority") int priority) {
+        region.priority(priority);
+        session.audience()
+                .sendMessage(Component.text(
+                        "Set priority of region '" + region.name() + "' to " + priority + ".",
+                        NamedTextColor.GREEN));
+    }
+
     @Command("region|rg flag set <region> <flag> <value>")
     public <T> void onFlagSet(
             OrbisSession session,

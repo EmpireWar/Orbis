@@ -30,6 +30,7 @@ import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +39,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class Region implements RegionQuery.Flag.Queryable {
+/**
+ * Represents a region within a world.
+ * <p>
+ * Regions hold an {@link Area} to define the locations affected by the region.
+ * They also hold a set of {@link MutableRegionFlag}s.
+ * <p>
+ * Multiple regions spanning the same area will be prioritised based off the {@link #priority()} parameter.
+ * When querying a location for a flag, the region with the highest priority that has that flag should return the flag value.
+ */
+public class Region implements RegionQuery.Flag.Queryable, Comparable<Region> {
 
     public static final Codec<Region> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     Codec.STRING.fieldOf("name").forGetter(Region::name),
@@ -46,24 +56,29 @@ public class Region implements RegionQuery.Flag.Queryable {
                             .listOf()
                             .fieldOf("flags")
                             .forGetter(r -> r.flags.values().stream().toList()),
-                    Area.CODEC.fieldOf("area").forGetter(Region::area))
+                    Area.CODEC.fieldOf("area").forGetter(Region::area),
+                    Codec.INT.fieldOf("priority").forGetter(Region::priority))
             .apply(instance, Region::new));
 
     private final String name;
     private final Map<Key, MutableRegionFlag<?>> flags;
     private final Area area;
 
+    private int priority;
+
     public Region(String name) {
         this.name = name;
         this.flags = new HashMap<>();
         this.area = new CuboidArea();
+        this.priority = 1;
     }
 
-    private Region(String name, List<MutableRegionFlag<?>> flags, Area area) {
+    private Region(String name, List<MutableRegionFlag<?>> flags, Area area, int priority) {
         this.name = name;
         this.flags = new HashMap<>();
         flags.forEach(mu -> this.flags.put(mu.key(), mu));
         this.area = area;
+        this.priority = priority;
     }
 
     public String name() {
@@ -72,6 +87,14 @@ public class Region implements RegionQuery.Flag.Queryable {
 
     public Area area() {
         return area;
+    }
+
+    public int priority() {
+        return priority;
+    }
+
+    public void priority(int priority) {
+        this.priority = priority;
     }
 
     public void addFlag(RegionFlag<?> flag) {
@@ -118,5 +141,10 @@ public class Region implements RegionQuery.Flag.Queryable {
     @Override
     public int hashCode() {
         return Objects.hashCode(name());
+    }
+
+    @Override
+    public int compareTo(@NotNull Region o) {
+        return Integer.compare(this.priority, o.priority());
     }
 }

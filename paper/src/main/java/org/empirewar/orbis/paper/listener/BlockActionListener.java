@@ -32,11 +32,8 @@ import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.paper.OrbisPaper;
 import org.empirewar.orbis.query.RegionQuery;
-import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.joml.Vector3d;
-
-import java.util.Set;
 
 public record BlockActionListener(OrbisPaper plugin) implements Listener {
 
@@ -66,16 +63,10 @@ public record BlockActionListener(OrbisPaper plugin) implements Listener {
     private boolean shouldPreventBlockAction(Block block, RegionFlag<Boolean> flag) {
         final Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());
         final RegionisedWorld world = plugin.getRegionisedWorld(block.getWorld().getUID());
-        final Set<Region> regionsAtPos = world.query(
-                        RegionQuery.Position.builder().position(pos).build())
-                .result();
-        for (Region region : regionsAtPos) {
-            if (!region.query(RegionQuery.Flag.<Boolean>builder().flag(flag).build())
-                    .result()
-                    .orElse(true)) {
-                return true;
-            }
-        }
-        return false;
+        final boolean canAct = world.query(RegionQuery.Position.builder().position(pos))
+                .query(RegionQuery.Flag.builder(flag))
+                .result()
+                .orElse(true);
+        return !canAct;
     }
 }
