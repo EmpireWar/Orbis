@@ -32,10 +32,12 @@ import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.paper.command.Commands;
 import org.empirewar.orbis.paper.listener.BlockActionListener;
+import org.empirewar.orbis.paper.listener.InteractEntityListener;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
+import org.slf4j.Logger;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
@@ -113,6 +115,7 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
         final PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(this, this);
         pluginManager.registerEvents(new BlockActionListener(this), this);
+        pluginManager.registerEvents(new InteractEntityListener(this), this);
     }
 
     private void loadWorld(World world) {
@@ -191,5 +194,10 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
     @Override
     public ConfigurationNode config() {
         return rootNode;
+    }
+
+    @Override
+    public Logger logger() {
+        return getSLF4JLogger();
     }
 }

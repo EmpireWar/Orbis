@@ -68,7 +68,7 @@ public final class RegionisedWorldParser<C>
             super(
                     RegionisedWorldParser.class,
                     context,
-                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGION_NOT_FOUND,
+                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND,
                     CaptionVariable.of("input", input));
             this.input = input;
         }

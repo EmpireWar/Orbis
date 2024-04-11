@@ -24,15 +24,22 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
 import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Farmland;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.BlockInventoryHolder;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.paper.OrbisPaper;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
 public record BlockActionListener(OrbisPaper plugin) implements Listener {
@@ -60,11 +67,30 @@ public record BlockActionListener(OrbisPaper plugin) implements Listener {
         }
     }
 
-    private boolean shouldPreventBlockAction(Block block, RegionFlag<Boolean> flag) {
+    @EventHandler
+    public void onAttemptAccess(InventoryOpenEvent event) {
+        if (event.getInventory().getHolder() instanceof BlockInventoryHolder blockHolder) {
+            final Block block = blockHolder.getBlock();
+            event.setCancelled(
+                    shouldPreventBlockAction(block, DefaultFlags.BLOCK_INVENTORY_ACCESS));
+        }
+    }
+
+    @EventHandler
+    public void onRedstoneUse(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.PHYSICAL)
+            return;
+        final Block block = event.getClickedBlock();
+        if (block instanceof Farmland) return;
+        if (shouldPreventBlockAction(block, DefaultFlags.TRIGGER_REDSTONE)) {
+            event.setUseInteractedBlock(Event.Result.DENY);
+        }
+    }
+
+    private boolean shouldPreventBlockAction(@Nullable Block block, RegionFlag<Boolean> flag) {
+        if (block == null) return false;
         final Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());
         final RegionisedWorld world = plugin.getRegionisedWorld(block.getWorld().getUID());
-        System.out.println("regions at pos: "
-                + world.query(RegionQuery.Position.builder().position(pos)).result());
         final boolean canAct = world.query(RegionQuery.Position.builder().position(pos))
                 .query(RegionQuery.Flag.builder(flag))
                 .result()

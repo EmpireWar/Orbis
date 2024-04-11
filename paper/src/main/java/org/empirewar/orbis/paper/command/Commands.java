@@ -22,7 +22,12 @@ package org.empirewar.orbis.paper.command;
 import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.empirewar.orbis.command.RegionCommand;
 import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
 import org.empirewar.orbis.command.parser.FlagValueParser;
@@ -31,6 +36,7 @@ import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
+import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
 import org.empirewar.orbis.paper.OrbisPaper;
 import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.empirewar.orbis.player.OrbisSession;
@@ -110,5 +116,21 @@ public class Commands {
                 .registerTo(manager);
 
         annotationParser.parse(new RegionCommand());
+
+        manager.command(manager.commandBuilder("orbis")
+                .literal("migrate")
+                .literal("worldguard")
+                .handler(context -> {
+                    final ConsoleOrbisSession sender = context.sender();
+                    final Plugin worldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard");
+                    if (worldGuard == null || !worldGuard.isEnabled()) {
+                        sender.audience()
+                                .sendMessage(Component.text(
+                                        "WorldGuard is not installed. WorldGuard must be installed for migration to work.",
+                                        NamedTextColor.RED));
+                        return;
+                    }
+                    new WorldGuardMigrator(sender.audience());
+                }));
     }
 }

@@ -30,6 +30,12 @@ public final class DefaultFlags {
     // spotless:off
     public static final RegionFlag<Boolean> CAN_BREAK = register("can_break", true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PLACE = register("can_place", true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_PVP = register("can_pvp", true, Codec.BOOL);
+    public static final RegionFlag<Boolean> FALL_DAMAGE = register("fall_damage", true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_DROP_ITEMS = register("can_drop_items", true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_PICKUP_ITEMS = register("can_pickup_items", true, Codec.BOOL);
+    public static final RegionFlag<Boolean> BLOCK_INVENTORY_ACCESS = register("block_inventory_access", true, Codec.BOOL);
+    public static final RegionFlag<Boolean> TRIGGER_REDSTONE = register("trigger_redstone", true, Codec.BOOL);
     // spotless:on
 
     private static <T> RegionFlag<T> register(String name, T defaultValue, Codec<T> codec) {

@@ -23,6 +23,7 @@ import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.serialization.StaticGsonProvider;
 import org.empirewar.orbis.serialization.context.CodecContext;
 import org.empirewar.orbis.world.RegionisedWorld;
+import org.slf4j.Logger;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import java.io.File;
@@ -57,6 +58,8 @@ public interface Orbis {
     Path dataFolder();
 
     ConfigurationNode config();
+
+    Logger logger();
 
     default void loadRegions() throws IOException {
         File regionsFolder = dataFolder().resolve("regions").toFile();
