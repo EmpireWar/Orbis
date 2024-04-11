@@ -58,7 +58,8 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     }
 
     @Override
-    public RegionQuery.Position.Result query(RegionQuery.Position position) {
+    public RegionQuery.FilterableRegionResult<RegionQuery.Position> query(
+            RegionQuery.Position position) {
         final Set<Region> result = regions.stream()
                 .filter(r -> r.isGlobal() || r.area().contains(position.position()))
                 .sorted(Comparator.reverseOrder())
