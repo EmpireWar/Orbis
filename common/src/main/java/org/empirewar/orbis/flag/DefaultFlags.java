@@ -28,24 +28,27 @@ import org.empirewar.orbis.util.ExtraCodecs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public final class DefaultFlags {
 
     // spotless:off
-    public static final RegionFlag<Boolean> CAN_BREAK = register("can_break", true, Codec.BOOL);
-    public static final RegionFlag<Boolean> CAN_PLACE = register("can_place", true, Codec.BOOL);
-    public static final RegionFlag<Boolean> CAN_PVP = register("can_pvp", true, Codec.BOOL);
-    public static final RegionFlag<List<Key>> DAMAGEABLE_ENTITIES = register("damageable_entities", new ArrayList<>(), ExtraCodecs.KEY.listOf());
-    public static final RegionFlag<Boolean> FALL_DAMAGE = register("fall_damage", true, Codec.BOOL);
-    public static final RegionFlag<Boolean> CAN_DROP_ITEMS = register("can_drop_items", true, Codec.BOOL);
-    public static final RegionFlag<Boolean> CAN_PICKUP_ITEMS = register("can_pickup_items", true, Codec.BOOL);
-    public static final RegionFlag<Boolean> BLOCK_INVENTORY_ACCESS = register("block_inventory_access", true, Codec.BOOL);
-    public static final RegionFlag<Boolean> TRIGGER_REDSTONE = register("trigger_redstone", true, Codec.BOOL);
-    public static final RegionFlag<Boolean> CORAL_DECAY = register("coral_decay", true, Codec.BOOL);
-    public static final RegionFlag<Boolean> LEAF_DECAY = register("leaf_decay", true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_BREAK = register("can_break", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_PLACE = register("can_place", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_PVP = register("can_pvp", () -> true, Codec.BOOL);
+    public static final RegionFlag<List<Key>> DAMAGEABLE_ENTITIES = register("damageable_entities", ArrayList::new, ExtraCodecs.KEY.listOf());
+    public static final RegionFlag<Boolean> FALL_DAMAGE = register("fall_damage", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_DROP_ITEMS = register("can_drop_items", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_PICKUP_ITEMS = register("can_pickup_items", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> BLOCK_INVENTORY_ACCESS = register("block_inventory_access", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> TRIGGER_REDSTONE = register("trigger_redstone", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CORAL_DECAY = register("coral_decay", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> LEAF_DECAY = register("leaf_decay", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> BLOCK_TRAMPLE = register("block_trample", () -> true, Codec.BOOL);
     // spotless:on
 
-    private static <T> RegionFlag<T> register(String name, T defaultValue, Codec<T> codec) {
+    private static <T> RegionFlag<T> register(
+            String name, Supplier<T> defaultValue, Codec<T> codec) {
         final Key key = Key.key("orbis", name);
         final RegionFlag<T> entry = RegionFlag.<T>builder()
                 .key(key)

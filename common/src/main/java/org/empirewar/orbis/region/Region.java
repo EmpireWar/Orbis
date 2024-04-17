@@ -204,14 +204,25 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
         return flags.remove(flag.key()) == null;
     }
 
+    public boolean hasFlag(RegionFlag<?> flag) {
+        return flags.containsKey(flag.key());
+    }
+
+    public <T> Optional<MutableRegionFlag<T>> getFlag(RegionFlag<T> flag) {
+        return Optional.ofNullable((MutableRegionFlag<T>) flags.get(flag.key()));
+    }
+
     /**
      * Sets the value of a flag.
+     * @throws IllegalArgumentException if the flag is not present
      * @param flag the flag
      * @param value the value
      * @param <T> value type
      */
     public <T> void setFlag(RegionFlag<T> flag, T value) {
-        final MutableRegionFlag<T> mu = (MutableRegionFlag<T>) flags.get(flag.key());
+        MutableRegionFlag<T> mu = getFlag(flag)
+                .orElseThrow(() -> new IllegalArgumentException("Region '" + name
+                        + "' does not have a flag by key '" + flag.key().asString() + "'!"));
         mu.setValue(value);
     }
 

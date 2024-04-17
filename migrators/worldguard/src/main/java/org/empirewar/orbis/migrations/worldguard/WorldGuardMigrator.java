@@ -28,20 +28,26 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Keyed;
+import org.bukkit.Registry;
 import org.bukkit.World;
+import org.bukkit.entity.EntityType;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.joml.Vector3i;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -71,20 +77,52 @@ public final class WorldGuardMigrator {
                 DefaultFlags.TRIGGER_REDSTONE,
                 "coral-fade",
                 DefaultFlags.CORAL_DECAY));
-        FLAG_MAPPINGS.putAll(Map.of("leaf-decay", DefaultFlags.LEAF_DECAY));
+        FLAG_MAPPINGS.putAll(Map.of(
+                "leaf-decay",
+                DefaultFlags.LEAF_DECAY,
+                "block-trampling",
+                DefaultFlags.BLOCK_TRAMPLE,
+                "entity-painting-destroy",
+                DefaultFlags.DAMAGEABLE_ENTITIES,
+                "entity-item-frame-destroy",
+                DefaultFlags.DAMAGEABLE_ENTITIES));
     }
 
     private static final Map<RegionFlag<?>, FlagTransformer> TRANSFORMERS = Map.of(
             DefaultFlags.DAMAGEABLE_ENTITIES, (audience, region, flag, orbisRegion, orbisFlag) -> {
                 StateFlag stateFlag = (StateFlag) flag;
                 final StateFlag.State value = region.getFlag(stateFlag);
-                // Don't add if allowed - all entities can be attacked
-                if (value == StateFlag.State.ALLOW) {
-                    return;
+                MutableRegionFlag<List<Key>> existing = (MutableRegionFlag<List<Key>>)
+                        orbisRegion.getFlag(orbisFlag).orElse(null);
+                if (existing == null) {
+                    existing = (MutableRegionFlag<List<Key>>) orbisFlag.asMutable();
                 }
 
-                // No entities can be attacked
-                orbisRegion.addFlag(orbisFlag);
+                if (value == StateFlag.State.ALLOW) {
+                    if (flag.getName().equals("damage-animals")) {
+                        final List<Key> valid = Registry.ENTITY_TYPE.stream()
+                                .filter(EntityType::isAlive)
+                                .map(Keyed::key)
+                                .toList();
+                        existing.getValue().addAll(valid);
+                    }
+
+                    if (flag.getName().equals("entity-painting-destroy")) {
+                        existing.getValue().add(EntityType.PAINTING.key());
+                    }
+
+                    if (flag.getName().equals("entity-item-frame-destroy")) {
+                        existing.getValue().add(EntityType.ITEM_FRAME.key());
+                        existing.getValue().add(EntityType.GLOW_ITEM_FRAME.key());
+                    }
+                } else {
+                    // State is DENY
+                    if (!orbisRegion.hasFlag(orbisFlag)) {
+                        // No entities can be attacked
+                        orbisRegion.addFlag(orbisFlag);
+                    }
+                    // Else, do nothing. If not in list, not allowed.
+                }
             });
 
     public WorldGuardMigrator(Audience actor) {

@@ -36,8 +36,7 @@ project.version = "1.0.0-SNAPSHOT"
 dependencies {
     constraints {
         // Define dependency versions as constraints
-        implementation("org.apache.commons:commons-text:1.11.0")
-        implementation("org.joml:joml:1.10.5")
+        compileOnly("org.joml:joml:1.10.5")
         testImplementation("org.joml:joml:1.10.5")
         compileOnly("net.kyori:adventure-api:4.16.0")
         testImplementation("net.kyori:adventure-api:4.16.0")

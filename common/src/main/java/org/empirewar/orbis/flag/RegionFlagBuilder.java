@@ -25,11 +25,12 @@ import com.mojang.serialization.Codec;
 import net.kyori.adventure.key.Key;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 final class RegionFlagBuilder<T> implements RegionFlag.Builder<T> {
 
     private Key key;
-    private T defaultValue;
+    private Supplier<T> defaultValue;
     private Codec<T> codec;
 
     RegionFlagBuilder() {}
@@ -50,7 +51,7 @@ final class RegionFlagBuilder<T> implements RegionFlag.Builder<T> {
     }
 
     @Override
-    public RegionFlag.Builder<T> defaultValue(T value) {
+    public RegionFlag.Builder<T> defaultValue(Supplier<T> value) {
         Objects.requireNonNull(value, "Value cannot be null");
         this.defaultValue = value;
         return this;

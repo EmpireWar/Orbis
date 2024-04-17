@@ -28,6 +28,7 @@ import org.empirewar.orbis.registry.Registries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Represents the flag of a {@link org.empirewar.orbis.region.Region}.
@@ -40,12 +41,14 @@ import java.util.Objects;
 public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
 
     protected final Key key;
+    private final Supplier<T> defaultValueSupplier;
     protected final T defaultValue;
     protected final Codec<T> codec;
 
-    protected RegionFlag(Key key, T defaultValue, Codec<T> codec) {
+    protected RegionFlag(Key key, Supplier<T> defaultValue, Codec<T> codec) {
         this.key = key;
-        this.defaultValue = defaultValue;
+        this.defaultValueSupplier = defaultValue;
+        this.defaultValue = defaultValue.get();
         this.codec = codec;
     }
 
@@ -62,7 +65,7 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
      * @return mutable representation
      */
     public MutableRegionFlag<T> asMutable() {
-        return new MutableRegionFlag<>(key, defaultValue, codec);
+        return new MutableRegionFlag<>(key, defaultValueSupplier.get(), codec);
     }
 
     /**
@@ -74,7 +77,7 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
      * @return the codec
      */
     public Codec<? extends RegionFlag<T>> getCodec(RegionFlag<?> registry) {
-        return Codec.unit(() -> new RegionFlag<>(key, defaultValue, codec));
+        return Codec.unit(() -> new RegionFlag<>(key, defaultValueSupplier, codec));
     }
 
     @Override
@@ -102,7 +105,7 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
 
         Builder<T> key(Key key);
 
-        Builder<T> defaultValue(T value);
+        Builder<T> defaultValue(Supplier<T> value);
 
         Builder<T> codec(Codec<T> codec);
 
