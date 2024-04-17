@@ -75,7 +75,7 @@ public record BlockActionListener(OrbisPaper plugin) implements Listener {
             return;
         final Block block = event.getClickedBlock();
         if (block instanceof Farmland) {
-            if (shouldPreventBlockAction(block, DefaultFlags.BLOCK_TRAMPLE)) {
+            if (event.getAction() == Action.PHYSICAL && shouldPreventBlockAction(block, DefaultFlags.BLOCK_TRAMPLE)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setCancelled(true);
             }
