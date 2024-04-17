@@ -65,7 +65,7 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
      * @return mutable representation
      */
     public MutableRegionFlag<T> asMutable() {
-        return new MutableRegionFlag<>(key, defaultValueSupplier.get(), codec);
+        return new MutableRegionFlag<>(key, defaultValueSupplier, codec);
     }
 
     /**

@@ -19,6 +19,7 @@
  */
 package org.empirewar.orbis.paper.listener;
 
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 
 import net.kyori.adventure.key.Key;
@@ -80,13 +81,21 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
         final Player player = event.getPlayer();
-        event.setCancelled(shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEMS));
+        event.setCancelled(shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEM));
     }
 
     @EventHandler
     public void onPickup(PlayerAttemptPickupItemEvent event) {
         event.setCancelled(
-                shouldPreventEntityAction(event.getPlayer(), DefaultFlags.CAN_PICKUP_ITEMS));
+                shouldPreventEntityAction(event.getPlayer(), DefaultFlags.CAN_PICKUP_ITEM));
+    }
+
+    // I added this event to Paper back in 2021, now it helps me again :)
+    @EventHandler
+    public void onRotate(PlayerItemFrameChangeEvent event) {
+        if (event.getAction() == PlayerItemFrameChangeEvent.ItemFrameChangeAction.ROTATE) {
+            event.setCancelled(shouldPreventEntityAction(event.getItemFrame(), DefaultFlags.ROTATE_ITEM_FRAME));
+        }
     }
 
     private boolean shouldPreventEntityAction(Entity entity, RegionFlag<Boolean> flag) {

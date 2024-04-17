@@ -19,6 +19,8 @@
  */
 package org.empirewar.orbis.paper.listener;
 
+import net.kyori.adventure.key.Key;
+import org.bukkit.Registry;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Farmland;
@@ -28,11 +30,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFadeEvent;
+import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
+import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.paper.OrbisPaper;
@@ -41,7 +46,9 @@ import org.empirewar.orbis.world.RegionisedWorld;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
-public record BlockActionListener(OrbisPaper plugin) implements Listener {
+import java.util.List;
+
+public record BlockActionListener(Orbis orbis) implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
@@ -75,7 +82,8 @@ public record BlockActionListener(OrbisPaper plugin) implements Listener {
             return;
         final Block block = event.getClickedBlock();
         if (block instanceof Farmland) {
-            if (event.getAction() == Action.PHYSICAL && shouldPreventBlockAction(block, DefaultFlags.BLOCK_TRAMPLE)) {
+            if (event.getAction() == Action.PHYSICAL
+                    && shouldPreventBlockAction(block, DefaultFlags.BLOCK_TRAMPLE)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setCancelled(true);
             }
@@ -103,10 +111,26 @@ public record BlockActionListener(OrbisPaper plugin) implements Listener {
         }
     }
 
+    @EventHandler
+    public void onGrow(BlockGrowEvent event) {
+        final Block block = event.getBlock();
+        final RegionisedWorld world = orbis.getRegionisedWorld(block.getWorld().getUID());
+        final List<Key> growable = world.query(RegionQuery.Position.builder()
+                        .position(block.getX(), block.getY(), block.getZ()))
+                .query(RegionQuery.Flag.builder(DefaultFlags.GROWABLE_BLOCKS))
+                .result()
+                .orElse(null);
+        if (growable == null) return;
+
+        if (!growable.contains(block.getType().key())) {
+            event.setCancelled(true);
+        }
+    }
+
     private boolean shouldPreventBlockAction(@Nullable Block block, RegionFlag<Boolean> flag) {
         if (block == null) return false;
         final Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());
-        final RegionisedWorld world = plugin.getRegionisedWorld(block.getWorld().getUID());
+        final RegionisedWorld world = orbis.getRegionisedWorld(block.getWorld().getUID());
         final boolean canAct = world.query(RegionQuery.Position.builder().position(pos))
                 .query(RegionQuery.Flag.builder(flag))
                 .result()

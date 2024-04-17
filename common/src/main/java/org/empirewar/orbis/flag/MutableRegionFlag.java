@@ -26,6 +26,8 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.registry.Registries;
 
+import java.util.function.Supplier;
+
 /**
  * Represents a flag that has a changeable {@link T} value.
  * <p>
@@ -47,9 +49,9 @@ public final class MutableRegionFlag<T> extends RegionFlag<T> {
 
     private T value;
 
-    MutableRegionFlag(Key key, T defaultValue, Codec<T> codec) {
+    MutableRegionFlag(Key key, Supplier<T> defaultValue, Codec<T> codec) {
         super(key, defaultValue, codec);
-        this.value = defaultValue;
+        this.value = defaultValue.get();
     }
 
     public T getValue() {

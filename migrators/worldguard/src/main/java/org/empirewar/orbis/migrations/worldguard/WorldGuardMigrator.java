@@ -35,7 +35,9 @@ import net.kyori.adventure.text.format.TextDecoration;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
+import org.bukkit.Material;
 import org.bukkit.Registry;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.empirewar.orbis.OrbisAPI;
@@ -51,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+// Is this class bad? Yes. Do I care? No, just migrate the data!
 public final class WorldGuardMigrator {
 
     private static final Map<String, RegionFlag<?>> FLAG_MAPPINGS;
@@ -68,9 +71,9 @@ public final class WorldGuardMigrator {
                 "fall-damage",
                 DefaultFlags.FALL_DAMAGE,
                 "item-drop",
-                DefaultFlags.CAN_DROP_ITEMS,
+                DefaultFlags.CAN_DROP_ITEM,
                 "item-pickup",
-                DefaultFlags.CAN_PICKUP_ITEMS,
+                DefaultFlags.CAN_PICKUP_ITEM,
                 "chest-access",
                 DefaultFlags.BLOCK_INVENTORY_ACCESS,
                 "use",
@@ -85,7 +88,19 @@ public final class WorldGuardMigrator {
                 "entity-painting-destroy",
                 DefaultFlags.DAMAGEABLE_ENTITIES,
                 "entity-item-frame-destroy",
-                DefaultFlags.DAMAGEABLE_ENTITIES));
+                DefaultFlags.DAMAGEABLE_ENTITIES,
+                "item-frame-rotation",
+                DefaultFlags.ROTATE_ITEM_FRAME,
+                "mushroom-growth",
+                DefaultFlags.GROWABLE_BLOCKS,
+                "vine-growth",
+                DefaultFlags.GROWABLE_BLOCKS,
+                "rock-growth",
+                DefaultFlags.GROWABLE_BLOCKS));
+        FLAG_MAPPINGS.putAll(Map.of(
+                "crop-growth",
+                DefaultFlags.GROWABLE_BLOCKS
+        ));
     }
 
     private static final Map<RegionFlag<?>, FlagTransformer> TRANSFORMERS = Map.of(
@@ -123,6 +138,38 @@ public final class WorldGuardMigrator {
                     }
                     // Else, do nothing. If not in list, not allowed.
                 }
+            },
+            DefaultFlags.GROWABLE_BLOCKS, (audience, region, flag, orbisRegion, orbisFlag) -> {
+                if (!orbisRegion.hasFlag(orbisFlag)) {
+                    orbisRegion.addFlag(orbisFlag);
+                }
+
+                final MutableRegionFlag<List<Key>> mu = (MutableRegionFlag<List<Key>>) orbisRegion.getFlag(orbisFlag).orElseThrow();
+                StateFlag stateFlag = (StateFlag) flag;
+                if (region.getFlag(stateFlag) != StateFlag.State.ALLOW) return;
+
+                final List<Key> value = mu.getValue();
+                switch (flag.getName()) {
+                    case "mushroom-growth" -> {
+                        value.add(Material.RED_MUSHROOM.key());
+                        value.add(Material.BROWN_MUSHROOM.key());
+                        value.add(Material.CRIMSON_FUNGUS.key());
+                        value.add(Material.WARPED_FUNGUS.key());
+                    }
+                    case "vine-growth" -> {
+                        value.add(Material.VINE.key());
+                        value.add(Material.CAVE_VINES.key());
+                        value.add(Material.TWISTING_VINES.key());
+                        value.add(Material.WEEPING_VINES.key());
+                    }
+                    case "rock-growth" -> value.add(Material.DRIPSTONE_BLOCK.key());
+                    case "crop-growth" -> {
+                        for (Material cropsValue : Tag.CROPS.getValues()) {
+                            value.add(cropsValue.key());
+                        }
+                    }
+                }
+
             });
 
     public WorldGuardMigrator(Audience actor) {

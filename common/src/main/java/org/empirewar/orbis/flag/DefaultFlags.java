@@ -38,13 +38,15 @@ public final class DefaultFlags {
     public static final RegionFlag<Boolean> CAN_PVP = register("can_pvp", () -> true, Codec.BOOL);
     public static final RegionFlag<List<Key>> DAMAGEABLE_ENTITIES = register("damageable_entities", ArrayList::new, ExtraCodecs.KEY.listOf());
     public static final RegionFlag<Boolean> FALL_DAMAGE = register("fall_damage", () -> true, Codec.BOOL);
-    public static final RegionFlag<Boolean> CAN_DROP_ITEMS = register("can_drop_items", () -> true, Codec.BOOL);
-    public static final RegionFlag<Boolean> CAN_PICKUP_ITEMS = register("can_pickup_items", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_DROP_ITEM = register("can_drop_item", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_PICKUP_ITEM = register("can_pickup_item", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> BLOCK_INVENTORY_ACCESS = register("block_inventory_access", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> TRIGGER_REDSTONE = register("trigger_redstone", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> CORAL_DECAY = register("coral_decay", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> LEAF_DECAY = register("leaf_decay", () -> true, Codec.BOOL);
+    public static final RegionFlag<List<Key>> GROWABLE_BLOCKS = register("growable_blocks", ArrayList::new, ExtraCodecs.KEY.listOf());
     public static final RegionFlag<Boolean> BLOCK_TRAMPLE = register("block_trample", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> ROTATE_ITEM_FRAME = register("rotate_item_frame", () -> true, Codec.BOOL);
     // spotless:on
 
     private static <T> RegionFlag<T> register(
