@@ -21,6 +21,8 @@ package org.empirewar.orbis.paper.listener;
 
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 
+import net.kyori.adventure.key.Key;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,6 +34,9 @@ import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
+import org.empirewar.orbis.world.RegionisedWorld;
+
+import java.util.List;
 
 public record InteractEntityListener(Orbis orbis) implements Listener {
 
@@ -40,8 +45,27 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
         if (!event.willAttack()) return;
 
         final Entity attacked = event.getAttacked();
+        if (!attacked.getType().isAlive()) return;
+
+        // Check PvP flag for players
         if (attacked instanceof Player) {
-            event.setCancelled(shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP));
+            if (shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
+                event.setCancelled(true);
+            }
+            return;
+        }
+
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(attacked.getWorld().getUID());
+        final List<Key> damageable = world.query(RegionQuery.Position.builder()
+                        .position(attacked.getX(), attacked.getY(), attacked.getZ()))
+                .query(RegionQuery.Flag.builder(DefaultFlags.DAMAGEABLE_ENTITIES))
+                .result()
+                .orElse(null);
+        if (damageable == null) return;
+
+        if (!damageable.contains(attacked.getType().key())) {
+            event.setCancelled(true);
         }
     }
 

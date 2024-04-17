@@ -26,11 +26,13 @@ import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.player.OrbisSession;
+import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.annotation.specifier.Greedy;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.Flag;
 import org.incendo.cloud.annotations.Permission;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
@@ -39,7 +41,10 @@ import org.joml.Vector3i;
 public final class RegionCommand {
 
     @Command("region|rg create <name>")
-    public void onCreate(OrbisSession session, @Argument("name") String regionName) {
+    public void onCreate(
+            OrbisSession session,
+            @Flag("global") boolean global,
+            @Argument("name") String regionName) {
         if (OrbisAPI.get().getGlobalWorld().getByName(regionName).isPresent()) {
             session.audience()
                     .sendMessage(Component.text(
@@ -47,11 +52,13 @@ public final class RegionCommand {
             return;
         }
 
-        final Region region = new Region(regionName);
+        final Region region = global ? new GlobalRegion(regionName) : new Region(regionName);
         OrbisAPI.get().getGlobalWorld().add(region);
         session.audience()
                 .sendMessage(Component.text(
-                        "Created region with name '" + regionName + "'!", NamedTextColor.GREEN));
+                        "Created " + (global ? "global " : "") + "region with name '" + regionName
+                                + "'!",
+                        NamedTextColor.GREEN));
     }
 
     @Command("region|rg flag add <region> <flag> [value]")

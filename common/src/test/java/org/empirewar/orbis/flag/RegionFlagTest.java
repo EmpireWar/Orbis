@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.empirewar.orbis.query.RegionQuery;
+import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.junit.jupiter.api.Test;
 
@@ -55,7 +56,7 @@ public class RegionFlagTest {
     @Test
     void testRegionParentFlags() {
         Region region = new Region("test");
-        Region region2 = new Region("test2");
+        GlobalRegion region2 = new GlobalRegion("test2");
         region2.addFlag(DefaultFlags.CAN_BREAK);
         region2.setFlag(DefaultFlags.CAN_BREAK, false);
         region.addParent(region2);

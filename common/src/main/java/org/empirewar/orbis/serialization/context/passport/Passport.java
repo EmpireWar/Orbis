@@ -23,17 +23,17 @@ import com.google.common.base.MoreObjects;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class Passport<P> {
 
-    private final List<Consumer<P>> suppliers = new ArrayList<>();
+    private final List<Function<P, Boolean>> suppliers = new ArrayList<>();
 
-    public List<Consumer<P>> getSuppliers() {
+    public List<Function<P, Boolean>> getSuppliers() {
         return suppliers;
     }
 
-    public void add(Consumer<P> supplier) {
+    public void add(Function<P, Boolean> supplier) {
         suppliers.add(supplier);
     }
 

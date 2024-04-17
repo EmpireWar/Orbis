@@ -24,6 +24,10 @@ import com.mojang.serialization.Codec;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.util.ExtraCodecs;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class DefaultFlags {
 
@@ -31,11 +35,14 @@ public final class DefaultFlags {
     public static final RegionFlag<Boolean> CAN_BREAK = register("can_break", true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PLACE = register("can_place", true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PVP = register("can_pvp", true, Codec.BOOL);
+    public static final RegionFlag<List<Key>> DAMAGEABLE_ENTITIES = register("damageable_entities", new ArrayList<>(), ExtraCodecs.KEY.listOf());
     public static final RegionFlag<Boolean> FALL_DAMAGE = register("fall_damage", true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_DROP_ITEMS = register("can_drop_items", true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PICKUP_ITEMS = register("can_pickup_items", true, Codec.BOOL);
     public static final RegionFlag<Boolean> BLOCK_INVENTORY_ACCESS = register("block_inventory_access", true, Codec.BOOL);
     public static final RegionFlag<Boolean> TRIGGER_REDSTONE = register("trigger_redstone", true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CORAL_DECAY = register("coral_decay", true, Codec.BOOL);
+    public static final RegionFlag<Boolean> LEAF_DECAY = register("leaf_decay", true, Codec.BOOL);
     // spotless:on
 
     private static <T> RegionFlag<T> register(String name, T defaultValue, Codec<T> codec) {

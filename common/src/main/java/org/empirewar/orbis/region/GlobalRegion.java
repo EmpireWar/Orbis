@@ -24,6 +24,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.flag.MutableRegionFlag;
+import org.empirewar.orbis.serialization.context.CodecContext;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 
 import java.util.List;
@@ -48,10 +49,16 @@ public final class GlobalRegion extends Region {
         this.priority(0);
     }
 
+    public GlobalRegion(String name) {
+        super(name);
+        this.priority(0);
+    }
+
     private GlobalRegion(String name, List<MutableRegionFlag<?>> flags) {
         super(name);
         this.priority(0);
         flags.forEach(mu -> this.flags.put(mu.key(), mu));
+        CodecContext.queue().rewardPatience(Region.class, this);
     }
 
     @Override

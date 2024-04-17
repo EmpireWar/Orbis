@@ -31,6 +31,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,6 +61,8 @@ public interface Orbis {
 
     ConfigurationNode config();
 
+    void saveConfig();
+
     Logger logger();
 
     default void loadRegions() throws IOException {
@@ -85,6 +89,19 @@ public interface Orbis {
             try (FileWriter writer = new FileWriter(regionFile)) {
                 StaticGsonProvider.GSON.toJson(region, writer);
             }
+        }
+
+        for (RegionisedWorld world : OrbisAPI.get().getRegionisedWorlds()) {
+            final ConfigurationNode node =
+                    config().node("worlds", world.worldName().orElseThrow(), "regions");
+            final List<String> regionsInWorld = node.getList(String.class, new ArrayList<>());
+            for (Region region : world.regions()) {
+                if (!regionsInWorld.contains(region.name())) {
+                    regionsInWorld.add(region.name());
+                }
+            }
+            node.setList(String.class, regionsInWorld);
+            saveConfig();
         }
     }
 }

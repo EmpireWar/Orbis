@@ -55,11 +55,12 @@ public class RegionisedWorldTest {
     void testWorldPositionQuery() {
         RegionisedWorldSet set = new RegionisedWorldSet();
         Region region = new Region("test");
-        region.area().addPoint(new Vector3i());
-        region.area().addPoint(new Vector3i(5, 5, 5));
+        // Based on a real-world example
+        region.area().addPoint(new Vector3i(-467, 147, 49));
+        region.area().addPoint(new Vector3i(-652, 4, -87));
         set.add(region);
         assertTrue(set.query(RegionQuery.Position.builder()
-                        .position(new Vector3d(4, 4, 4))
+                        .position(new Vector3d(-580, 81, -26))
                         .build())
                 .result()
                 .contains(region));
@@ -102,13 +103,14 @@ public class RegionisedWorldTest {
     void testChainedWorldPositionQuery() {
         RegionisedWorldSet set = new RegionisedWorldSet();
         Region region = new Region("test");
-        region.area().addPoint(new Vector3i());
-        region.area().addPoint(new Vector3i(5, 5, 5));
+        // Based on a real-world example
+        region.area().addPoint(new Vector3i(-467, 147, 49));
+        region.area().addPoint(new Vector3i(-652, 4, -87));
         region.addFlag(DefaultFlags.CAN_BREAK);
         region.setFlag(DefaultFlags.CAN_BREAK, false);
         set.add(region);
 
-        final boolean canAct = set.query(RegionQuery.Position.builder().position(4, 4, 4))
+        final boolean canAct = set.query(RegionQuery.Position.builder().position(-580, 81, -26))
                 .query(RegionQuery.Flag.builder(DefaultFlags.CAN_BREAK))
                 .result()
                 .orElse(true);

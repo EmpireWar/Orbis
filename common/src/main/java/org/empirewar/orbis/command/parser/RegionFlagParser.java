@@ -43,9 +43,7 @@ public final class RegionFlagParser<C>
             @NonNull CommandContext<@NonNull C> commandContext,
             @NonNull CommandInput commandInput) {
         final String input = commandInput.peekString();
-        System.out.println("asd");
         final Optional<RegionFlag<?>> regionFlag = Registries.FLAGS.get(Key.key(input));
-        System.out.println("op: " + regionFlag);
         return regionFlag
                 .<ArgumentParseResult<RegionFlag<?>>>map(f -> {
                     commandInput.readString();

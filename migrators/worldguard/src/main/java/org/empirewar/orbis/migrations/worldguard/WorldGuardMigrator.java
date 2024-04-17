@@ -38,29 +38,54 @@ import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.world.RegionisedWorld;
 import org.joml.Vector3i;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public final class WorldGuardMigrator {
 
-    private static final Map<String, RegionFlag<?>> FLAG_MAPPINGS = Map.of(
-            "block-break",
-            DefaultFlags.CAN_BREAK,
-            "block-place",
-            DefaultFlags.CAN_PLACE,
-            "pvp",
-            DefaultFlags.CAN_PVP,
-            "fall-damage",
-            DefaultFlags.FALL_DAMAGE,
-            "item-drop",
-            DefaultFlags.CAN_DROP_ITEMS,
-            "item-pickup",
-            DefaultFlags.CAN_PICKUP_ITEMS,
-            "chest-access",
-            DefaultFlags.BLOCK_INVENTORY_ACCESS,
-            "use",
-            DefaultFlags.TRIGGER_REDSTONE);
+    private static final Map<String, RegionFlag<?>> FLAG_MAPPINGS;
+
+    static {
+        FLAG_MAPPINGS = new HashMap<>(Map.of(
+                "block-break",
+                DefaultFlags.CAN_BREAK,
+                "block-place",
+                DefaultFlags.CAN_PLACE,
+                "pvp",
+                DefaultFlags.CAN_PVP,
+                "damage-animals",
+                DefaultFlags.DAMAGEABLE_ENTITIES,
+                "fall-damage",
+                DefaultFlags.FALL_DAMAGE,
+                "item-drop",
+                DefaultFlags.CAN_DROP_ITEMS,
+                "item-pickup",
+                DefaultFlags.CAN_PICKUP_ITEMS,
+                "chest-access",
+                DefaultFlags.BLOCK_INVENTORY_ACCESS,
+                "use",
+                DefaultFlags.TRIGGER_REDSTONE,
+                "coral-fade",
+                DefaultFlags.CORAL_DECAY));
+        FLAG_MAPPINGS.putAll(Map.of("leaf-decay", DefaultFlags.LEAF_DECAY));
+    }
+
+    private static final Map<RegionFlag<?>, FlagTransformer> TRANSFORMERS = Map.of(
+            DefaultFlags.DAMAGEABLE_ENTITIES, (audience, region, flag, orbisRegion, orbisFlag) -> {
+                StateFlag stateFlag = (StateFlag) flag;
+                final StateFlag.State value = region.getFlag(stateFlag);
+                // Don't add if allowed - all entities can be attacked
+                if (value == StateFlag.State.ALLOW) {
+                    return;
+                }
+
+                // No entities can be attacked
+                orbisRegion.addFlag(orbisFlag);
+            });
 
     public WorldGuardMigrator(Audience actor) {
         final WorldGuard instance = WorldGuard.getInstance();
@@ -77,22 +102,29 @@ public final class WorldGuardMigrator {
                     NamedTextColor.GREEN));
             final RegionManager regionManager =
                     instance.getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
+            final RegionisedWorld regionisedWorld =
+                    OrbisAPI.get().getRegionisedWorld(world.getUID());
             for (ProtectedRegion region : regionManager.getRegions().values()) {
+                // If added by another world
+                final Optional<Region> possibleExisting =
+                        OrbisAPI.get().getGlobalWorld().getByName(region.getId());
+                if (possibleExisting.isPresent()) {
+                    regionisedWorld.add(possibleExisting.get());
+                    continue;
+                }
+
                 audience.sendMessage(Component.text(
                         "Processing region " + region.getId() + "...", NamedTextColor.YELLOW));
                 Region orbisRegion = region.getId().equals("__global__")
-                        ? OrbisAPI.get()
-                                .getRegionisedWorld(world.getUID())
-                                .getByName(world.key().asString())
-                                .orElseThrow()
+                        ? regionisedWorld.getByName(world.key().asString()).orElseThrow()
                         : new Region(region.getId());
 
                 if (!orbisRegion.isGlobal()) {
                     // TODO poly support
-                    final BlockVector3 max = region.getMaximumPoint();
                     final BlockVector3 min = region.getMinimumPoint();
+                    final BlockVector3 max = region.getMaximumPoint();
                     orbisRegion.area().addPoint(new Vector3i(min.getX(), min.getY(), min.getZ()));
-                    orbisRegion.area().addPoint(new Vector3i(max.getY(), max.getY(), max.getZ()));
+                    orbisRegion.area().addPoint(new Vector3i(max.getX(), max.getY(), max.getZ()));
                 }
 
                 for (Flag<?> flag : region.getFlags().keySet()) {
@@ -105,25 +137,37 @@ public final class WorldGuardMigrator {
                         continue;
                     }
 
-                    orbisRegion.addFlag(orbisFlag);
-
-                    if (flag instanceof StateFlag stateFlag) {
-                        final StateFlag.State state = region.getFlag(stateFlag);
-                        switch (state) {
-                            case DENY -> orbisRegion.setFlag(
-                                    (RegionFlag<Boolean>) orbisFlag, false);
-                            case ALLOW -> orbisRegion.setFlag(
-                                    (RegionFlag<Boolean>) orbisFlag, true);
-                        }
-                        audience.sendMessage(Component.text(
-                                "Processed state flag '" + name + "' with state '" + state + "'...",
-                                NamedTextColor.LIGHT_PURPLE));
-                    }
+                    final FlagTransformer transformer =
+                            TRANSFORMERS.getOrDefault(orbisFlag, FlagTransformer.DEFAULT);
+                    transformer.transform(audience, region, flag, orbisRegion, orbisFlag);
                 }
-                OrbisAPI.get().getRegionisedWorld(world.getUID()).add(orbisRegion);
+                regionisedWorld.add(orbisRegion);
                 OrbisAPI.get().getGlobalWorld().add(orbisRegion);
                 audience.sendMessage(Component.text(
                         "Added region '" + orbisRegion.name() + "'.", NamedTextColor.GREEN));
+            }
+
+            for (ProtectedRegion region : regionManager.getRegions().values()) {
+                final ProtectedRegion parent = region.getParent();
+                if (parent != null) {
+                    final Optional<Region> orbisRegion = regionisedWorld.getByName(region.getId());
+                    if (orbisRegion.isEmpty()) continue;
+                    final Optional<Region> orbisParentRegion =
+                            regionisedWorld.getByName(parent.getId());
+                    if (orbisParentRegion.isEmpty()) {
+                        audience.sendMessage(Component.text(
+                                "Unable to find parent '" + parent.getId() + "' for region '"
+                                        + region.getId() + "'.",
+                                NamedTextColor.RED));
+                        errors++;
+                        continue;
+                    }
+
+                    orbisRegion.get().addParent(orbisParentRegion.get());
+                    audience.sendMessage(Component.text(
+                            "Added parent '" + parent.getId() + "' to '" + region.getId() + "'.",
+                            NamedTextColor.GREEN));
+                }
             }
             worldIndex++;
         }

@@ -21,6 +21,7 @@ package org.empirewar.orbis.command.parser;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.DataResult;
 
@@ -46,6 +47,7 @@ import org.incendo.cloud.suggestion.SuggestionProvider;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 
 public record FlagValueParser<C>(CommandManager<?> manager)
@@ -55,7 +57,7 @@ public record FlagValueParser<C>(CommandManager<?> manager)
     public @NonNull CompletableFuture<@NonNull ArgumentParseResult<FlagValue<?>>> parseFuture(
             @NonNull CommandContext<@NonNull C> commandContext,
             @NonNull CommandInput commandInput) {
-        final String input = commandInput.peekString();
+        final String input = this.parseGreedy(commandInput).parsedValue().orElseThrow();
         final RegionFlag<?> flag = commandContext.get("flag");
         // spotless:off
         // Take in the string as a JSON representation, parse it for primitives, then pass it into the codec
@@ -64,16 +66,21 @@ public record FlagValueParser<C>(CommandManager<?> manager)
         final Gson gson = new GsonBuilder()
                 .registerTypeAdapter(FlagValueParseResult.class, new FlagValueAdapter<>(flag))
                 .create();
-        final FlagValueParseResult parsed = gson.fromJson(input, FlagValueParseResult.class);
 
-        final Either<?, ? extends DataResult.PartialResult<?>> get = parsed.result();
-        if (get.left().isEmpty()) {
-            return ArgumentParseResult.failureFuture(new FlagValueParserException(
-                    input, get.right().orElseThrow().message(), commandContext));
+        try {
+            final FlagValueParseResult parsed = gson.fromJson(input, FlagValueParseResult.class);
+
+            final Either<?, ? extends DataResult.PartialResult<?>> get = parsed.result();
+            if (get.left().isEmpty()) {
+                return ArgumentParseResult.failureFuture(new FlagValueParserException(
+                        input, get.right().orElseThrow().message(), commandContext));
+            }
+
+            return ArgumentParseResult.successFuture(new FlagValue<>(get.left().get()));
+        } catch (JsonSyntaxException e) {
+            return ArgumentParseResult.failureFuture(
+                    new FlagValueParserException(input, e.getMessage(), commandContext));
         }
-
-        commandInput.readString();
-        return ArgumentParseResult.successFuture(new FlagValue<>(get.left().get()));
     }
 
     @Override
@@ -89,6 +96,25 @@ public record FlagValueParser<C>(CommandManager<?> manager)
             return parser.get().suggestionProvider().suggestionsFuture(context, input);
         }
         return CompletableFuture.completedFuture(List.of());
+    }
+
+    private @NonNull ArgumentParseResult<String> parseGreedy(
+            final @NonNull CommandInput commandInput) {
+        final int size = commandInput.remainingTokens();
+        final StringJoiner stringJoiner = new StringJoiner(" ");
+
+        for (int i = 0; i < size; i++) {
+            final String string = commandInput.peekString();
+
+            if (string.isEmpty()) {
+                break;
+            }
+
+            stringJoiner.add(
+                    commandInput.readStringSkipWhitespace(false /* preserveSingleSpace */));
+        }
+
+        return ArgumentParseResult.success(stringJoiner.toString());
     }
 
     public static final class FlagValueParserException extends ParserException {

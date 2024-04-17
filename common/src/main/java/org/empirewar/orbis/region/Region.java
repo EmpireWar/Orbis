@@ -98,12 +98,18 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
             int priority) {
         this.name = name;
         this.parents = new HashSet<>();
-        parents.forEach(parentName -> CodecContext.queue().beg(Region.class, this.parents::add));
+        parents.forEach(parentName -> CodecContext.queue().beg(Region.class, r -> {
+            if (r.name.equals(parentName)) {
+                this.addParent(r);
+                return true;
+            }
+            return false;
+        }));
         this.flags = new HashMap<>();
         flags.forEach(mu -> this.flags.put(mu.key(), mu));
         this.area = area;
         this.priority = priority;
-        CodecContext.queue().rewardPatience(this);
+        CodecContext.queue().rewardPatience(Region.class, this);
     }
 
     /**
@@ -129,6 +135,18 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
      * @param region the parent to add
      */
     public void addParent(Region region) {
+        if (region.equals(this)) {
+            throw new IllegalArgumentException("Cannot add parent of self!");
+        }
+
+        if (region.parents.contains(this)) {
+            throw new IllegalArgumentException("Cannot have a parent loop!");
+        }
+
+        if (parents.stream().anyMatch(p -> p.parents.contains(region))) {
+            throw new IllegalArgumentException("Cannot have a parent loop!");
+        }
+
         parents.add(region);
     }
 

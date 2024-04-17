@@ -39,6 +39,7 @@ import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
 import org.spongepowered.configurate.serialize.SerializationException;
@@ -66,13 +67,13 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
 
     @Override
     public void onEnable() {
+        this.registerListeners();
         new Commands(this);
         this.loadConfig();
-        this.registerListeners();
         try {
             this.loadRegions();
         } catch (IOException e) {
-            getSLF4JLogger().error("Error loading regions", e);
+            logger().error("Error loading regions", e);
         }
         Bukkit.getWorlds().forEach(this::loadWorld);
     }
@@ -82,7 +83,7 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
         try {
             saveRegions();
         } catch (IOException e) {
-            getSLF4JLogger().error("Error saving regions", e);
+            logger().error("Error saving regions", e);
         }
     }
 
@@ -96,6 +97,7 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
         this.worldSets.remove(event.getWorld().getUID());
     }
 
+    private ConfigurationLoader<CommentedConfigurationNode> loader;
     private ConfigurationNode rootNode;
 
     private void loadConfig() {
@@ -103,11 +105,19 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
             final Path configPath = dataFolder().resolve("config.yml");
             saveResource("config.yml", false);
 
-            ConfigurationLoader<CommentedConfigurationNode> loader =
-                    YamlConfigurationLoader.builder().path(configPath).build();
+            loader = YamlConfigurationLoader.builder().path(configPath).build();
             rootNode = loader.load();
         } catch (IOException e) {
-            getSLF4JLogger().error("Error loading config", e);
+            logger().error("Error loading config", e);
+        }
+    }
+
+    @Override
+    public void saveConfig() {
+        try {
+            loader.save(config());
+        } catch (ConfigurateException e) {
+            logger().error("Error saving config", e);
         }
     }
 
@@ -120,7 +130,8 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
 
     private void loadWorld(World world) {
         try {
-            final List<String> regionNames = config().node("worlds", world.getName(), "regions")
+            final List<String> regionNames = config().node(
+                            "worlds", world.key().asString(), "regions")
                     .getList(String.class, new ArrayList<>());
 
             final RegionisedWorldSet set =
@@ -133,8 +144,7 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
                     .filter(r -> {
                         // Can somebody really be this stupid?
                         if (!r.isGlobal()) {
-                            getSLF4JLogger()
-                                    .error(
+                            logger().error(
                                             "Region name conflict! Region with name {} exists and matches a world name, but it is not global! Destroying invalid region!",
                                             set.worldName().orElseThrow());
                             OrbisAPI.get().getGlobalWorld().remove(r);
@@ -148,15 +158,16 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
             OrbisAPI.get().getGlobalWorld().add(globalRegion);
             for (String regionName : regionNames) {
                 if (regionName.equals(set.worldName().orElseThrow())) {
-                    System.out.println("Illegal region name in world set");
+                    logger().error("Illegal region name in world set");
                     continue;
                 }
 
                 final Region region =
                         OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
                 if (region == null) {
-                    System.out.println("Error: Region by name '" + regionName
-                            + "' could not be found, ignoring...");
+                    logger().warn(
+                                    "Region by name '{}' could not be found, ignoring...",
+                                    regionName);
                     continue;
                 }
 
@@ -167,7 +178,7 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
             regions.forEach(set::add);
             worldSets.put(world.getUID(), set);
         } catch (SerializationException e) {
-            getSLF4JLogger().error("Error loading world set {}", world.getUID(), e);
+            logger().error("Error loading world set {}", world.getUID(), e);
         }
     }
 

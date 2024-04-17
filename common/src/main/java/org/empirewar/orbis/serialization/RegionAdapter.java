@@ -30,6 +30,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.region.RegionType;
 import org.empirewar.orbis.registry.Registries;
@@ -39,14 +40,12 @@ import java.util.Optional;
 
 public final class RegionAdapter implements JsonSerializer<Region>, JsonDeserializer<Region> {
 
-    // TODO fix println usage
-
     @Override
     public JsonElement serialize(Region region, Type typeOfSrc, JsonSerializationContext context) {
         final Codec<Region> dispatch =
                 Registries.REGION_TYPE.getCodec().dispatch(Region::getType, RegionType::codec);
-        final Optional<JsonElement> result =
-                dispatch.encodeStart(JsonOps.INSTANCE, region).resultOrPartial(System.out::println);
+        final Optional<JsonElement> result = dispatch.encodeStart(JsonOps.INSTANCE, region)
+                .resultOrPartial(OrbisAPI.get().logger()::error);
         return result.orElse(null);
     }
 
@@ -61,8 +60,8 @@ public final class RegionAdapter implements JsonSerializer<Region>, JsonDeserial
 
         final Codec<Region> dispatch =
                 Registries.REGION_TYPE.getCodec().dispatch(Region::getType, RegionType::codec);
-        final Optional<Region> result =
-                dispatch.parse(JsonOps.INSTANCE, fixed).resultOrPartial(System.out::println);
+        final Optional<Region> result = dispatch.parse(JsonOps.INSTANCE, fixed)
+                .resultOrPartial(OrbisAPI.get().logger()::error);
         return result.orElse(null);
     }
 }

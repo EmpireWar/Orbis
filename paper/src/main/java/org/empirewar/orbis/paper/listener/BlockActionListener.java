@@ -19,10 +19,7 @@
  */
 package org.empirewar.orbis.paper.listener;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Farmland;
 import org.bukkit.event.Event;
@@ -30,7 +27,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
@@ -48,12 +47,6 @@ public record BlockActionListener(OrbisPaper plugin) implements Listener {
     public void onBreak(BlockBreakEvent event) {
         final Block block = event.getBlock();
         if (shouldPreventBlockAction(block, DefaultFlags.CAN_BREAK)) {
-            System.out.println("cannot break!");
-            event.getPlayer()
-                    .sendMessage(Component.text("Hey!", NamedTextColor.RED, TextDecoration.BOLD)
-                            .append(Component.space())
-                            .append(Component.text(
-                                    "Sorry, but you can't break that here.", NamedTextColor.GRAY)));
             event.setCancelled(true);
         }
     }
@@ -84,6 +77,22 @@ public record BlockActionListener(OrbisPaper plugin) implements Listener {
         if (block instanceof Farmland) return;
         if (shouldPreventBlockAction(block, DefaultFlags.TRIGGER_REDSTONE)) {
             event.setUseInteractedBlock(Event.Result.DENY);
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onFade(BlockFadeEvent event) {
+        final Block block = event.getBlock();
+        if (Tag.CORALS.isTagged(block.getType())) {
+            event.setCancelled(shouldPreventBlockAction(block, DefaultFlags.CORAL_DECAY));
+        }
+    }
+
+    @EventHandler
+    public void onDecay(LeavesDecayEvent event) {
+        if (shouldPreventBlockAction(event.getBlock(), DefaultFlags.LEAF_DECAY)) {
+            event.setCancelled(true);
         }
     }
 

@@ -19,36 +19,74 @@
  */
 package org.empirewar.orbis.serialization.context;
 
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.serialization.context.passport.Passport;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
+/**
+ * This class is a bit of a mess but I can't think of a better way and I also don't want to copy over everything
+ * from our private projects.
+ */
 public final class ContextQueue {
 
     private final Map<Class<?>, Passport<?>> blindPatienceMappings = new HashMap<>();
+    private final Map<Class<?>, List<?>> resolved = new HashMap<>();
 
     ContextQueue() {}
 
     public void clear() {
         if (!blindPatienceMappings.isEmpty()) {
-            System.out.println(
-                    "There were existing blind patience mappings: " + blindPatienceMappings);
+            OrbisAPI.get()
+                    .logger()
+                    .error(
+                            "There were existing blind patience mappings: {}",
+                            blindPatienceMappings);
         }
         blindPatienceMappings.clear();
+        resolved.clear();
     }
 
-    public <T> void beg(Class<T> passport, Consumer<T> consumer) {
+    public <T> void beg(Class<T> passport, Function<T, Boolean> consumer) {
+        if (resolved.containsKey(passport)) {
+            final List<?> list = resolved.get(passport);
+            for (Object o : list) {
+                if (consumer.apply((T) o)) {
+                    return;
+                }
+            }
+        }
+
         final Passport<T> passportSupplier =
                 (Passport<T>) blindPatienceMappings.getOrDefault(passport, new Passport<>());
         passportSupplier.add(consumer);
         blindPatienceMappings.put(passport, passportSupplier);
     }
 
-    public <T> void rewardPatience(T object) {
-        final Passport<?> passport = blindPatienceMappings.remove(object.getClass());
+    public <T> void rewardPatience(Class<? extends T> type, T object) {
+        final List<T> list = (List<T>) resolved.getOrDefault(object.getClass(), new ArrayList<>());
+        list.add(object);
+        resolved.put(type, list);
+
+        final Passport<?> passport = blindPatienceMappings.get(type);
         if (passport == null) return;
-        passport.getSuppliers().forEach(consumer -> ((Consumer<T>) consumer).accept(object));
+
+        final Iterator<? extends Function<?, Boolean>> iterator =
+                passport.getSuppliers().iterator();
+        while (iterator.hasNext()) {
+            final Function<T, Boolean> next = (Function<T, Boolean>) iterator.next();
+            if (next.apply(object)) {
+                iterator.remove();
+            }
+        }
+
+        if (passport.getSuppliers().isEmpty()) {
+            blindPatienceMappings.remove(type);
+        }
     }
 }
