@@ -25,7 +25,10 @@ import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import net.kyori.adventure.key.Key;
 
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Painting;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -46,6 +49,27 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
         if (!event.willAttack()) return;
 
         final Entity attacked = event.getAttacked();
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(attacked.getWorld().getUID());
+        final RegionQuery.FilterableRegionResult<RegionQuery.Position> query = world.query(RegionQuery.Position.builder()
+                .position(attacked.getX(), attacked.getY(), attacked.getZ()));
+        if (attacked instanceof Vehicle) {
+            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_VEHICLE)).result().orElse(true)) {
+                event.setCancelled(true);
+            }
+            return;
+        } else if (attacked instanceof Painting) {
+            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_PAINTING)).result().orElse(true)) {
+                event.setCancelled(true);
+            }
+            return;
+        } else if (attacked instanceof ItemFrame) {
+            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_ITEM_FRAME)).result().orElse(true)) {
+                event.setCancelled(true);
+            }
+            return;
+        }
+
         if (!attacked.getType().isAlive()) return;
 
         // Check PvP flag for players
@@ -56,10 +80,7 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
             return;
         }
 
-        final RegionisedWorld world =
-                orbis.getRegionisedWorld(attacked.getWorld().getUID());
-        final List<Key> damageable = world.query(RegionQuery.Position.builder()
-                        .position(attacked.getX(), attacked.getY(), attacked.getZ()))
+        final List<Key> damageable = query
                 .query(RegionQuery.Flag.builder(DefaultFlags.DAMAGEABLE_ENTITIES))
                 .result()
                 .orElse(null);
@@ -94,7 +115,11 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
     @EventHandler
     public void onRotate(PlayerItemFrameChangeEvent event) {
         if (event.getAction() == PlayerItemFrameChangeEvent.ItemFrameChangeAction.ROTATE) {
-            event.setCancelled(shouldPreventEntityAction(event.getItemFrame(), DefaultFlags.ROTATE_ITEM_FRAME));
+            event.setCancelled(shouldPreventEntityAction(
+                    event.getItemFrame(), DefaultFlags.ITEM_FRAME_ROTATE));
+        } else if (event.getAction() == PlayerItemFrameChangeEvent.ItemFrameChangeAction.PLACE) {
+            event.setCancelled(shouldPreventEntityAction(
+                    event.getItemFrame(), DefaultFlags.ITEM_FRAME_ITEM_PLACE));
         }
     }
 

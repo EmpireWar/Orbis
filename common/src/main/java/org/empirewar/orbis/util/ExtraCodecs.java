@@ -26,6 +26,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import org.joml.Vector3i;
 
 import java.util.UUID;
@@ -55,4 +57,6 @@ public final class ExtraCodecs {
                 }
             },
             UUID::toString);
+
+    public static final Codec<Component> COMPONENT = Codec.STRING.comapFlatMap(json -> DataResult.success(JSONComponentSerializer.json().deserialize(json)), component -> JSONComponentSerializer.json().serialize(component));
 }

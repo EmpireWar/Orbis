@@ -86,91 +86,81 @@ public final class WorldGuardMigrator {
                 "block-trampling",
                 DefaultFlags.BLOCK_TRAMPLE,
                 "entity-painting-destroy",
-                DefaultFlags.DAMAGEABLE_ENTITIES,
+                DefaultFlags.CAN_DESTROY_PAINTING,
                 "entity-item-frame-destroy",
-                DefaultFlags.DAMAGEABLE_ENTITIES,
+                DefaultFlags.CAN_DESTROY_ITEM_FRAME,
                 "item-frame-rotation",
-                DefaultFlags.ROTATE_ITEM_FRAME,
+                DefaultFlags.ITEM_FRAME_ROTATE,
                 "mushroom-growth",
                 DefaultFlags.GROWABLE_BLOCKS,
                 "vine-growth",
                 DefaultFlags.GROWABLE_BLOCKS,
                 "rock-growth",
                 DefaultFlags.GROWABLE_BLOCKS));
-        FLAG_MAPPINGS.putAll(Map.of(
-                "crop-growth",
-                DefaultFlags.GROWABLE_BLOCKS
-        ));
+        FLAG_MAPPINGS.putAll(Map.of("crop-growth", DefaultFlags.GROWABLE_BLOCKS, "vehicle-destroy", DefaultFlags.CAN_DESTROY_VEHICLE));
     }
 
     private static final Map<RegionFlag<?>, FlagTransformer> TRANSFORMERS = Map.of(
-            DefaultFlags.DAMAGEABLE_ENTITIES, (audience, region, flag, orbisRegion, orbisFlag) -> {
-                StateFlag stateFlag = (StateFlag) flag;
-                final StateFlag.State value = region.getFlag(stateFlag);
-                MutableRegionFlag<List<Key>> existing = (MutableRegionFlag<List<Key>>)
-                        orbisRegion.getFlag(orbisFlag).orElse(null);
-                if (existing == null) {
-                    existing = (MutableRegionFlag<List<Key>>) orbisFlag.asMutable();
-                }
-
-                if (value == StateFlag.State.ALLOW) {
-                    if (flag.getName().equals("damage-animals")) {
-                        final List<Key> valid = Registry.ENTITY_TYPE.stream()
-                                .filter(EntityType::isAlive)
-                                .map(Keyed::key)
-                                .toList();
-                        existing.getValue().addAll(valid);
-                    }
-
-                    if (flag.getName().equals("entity-painting-destroy")) {
-                        existing.getValue().add(EntityType.PAINTING.key());
-                    }
-
-                    if (flag.getName().equals("entity-item-frame-destroy")) {
-                        existing.getValue().add(EntityType.ITEM_FRAME.key());
-                        existing.getValue().add(EntityType.GLOW_ITEM_FRAME.key());
-                    }
-                } else {
-                    // State is DENY
-                    if (!orbisRegion.hasFlag(orbisFlag)) {
-                        // No entities can be attacked
-                        orbisRegion.addFlag(orbisFlag);
-                    }
-                    // Else, do nothing. If not in list, not allowed.
-                }
-            },
-            DefaultFlags.GROWABLE_BLOCKS, (audience, region, flag, orbisRegion, orbisFlag) -> {
-                if (!orbisRegion.hasFlag(orbisFlag)) {
-                    orbisRegion.addFlag(orbisFlag);
-                }
-
-                final MutableRegionFlag<List<Key>> mu = (MutableRegionFlag<List<Key>>) orbisRegion.getFlag(orbisFlag).orElseThrow();
-                StateFlag stateFlag = (StateFlag) flag;
-                if (region.getFlag(stateFlag) != StateFlag.State.ALLOW) return;
-
-                final List<Key> value = mu.getValue();
-                switch (flag.getName()) {
-                    case "mushroom-growth" -> {
-                        value.add(Material.RED_MUSHROOM.key());
-                        value.add(Material.BROWN_MUSHROOM.key());
-                        value.add(Material.CRIMSON_FUNGUS.key());
-                        value.add(Material.WARPED_FUNGUS.key());
-                    }
-                    case "vine-growth" -> {
-                        value.add(Material.VINE.key());
-                        value.add(Material.CAVE_VINES.key());
-                        value.add(Material.TWISTING_VINES.key());
-                        value.add(Material.WEEPING_VINES.key());
-                    }
-                    case "rock-growth" -> value.add(Material.DRIPSTONE_BLOCK.key());
-                    case "crop-growth" -> {
-                        for (Material cropsValue : Tag.CROPS.getValues()) {
-                            value.add(cropsValue.key());
+            DefaultFlags.DAMAGEABLE_ENTITIES,
+                    (audience, region, flag, orbisRegion, orbisFlag) -> {
+                        StateFlag stateFlag = (StateFlag) flag;
+                        final StateFlag.State value = region.getFlag(stateFlag);
+                        MutableRegionFlag<List<Key>> existing = (MutableRegionFlag<List<Key>>)
+                                orbisRegion.getFlag(orbisFlag).orElse(null);
+                        if (existing == null) {
+                            existing = (MutableRegionFlag<List<Key>>) orbisFlag.asMutable();
                         }
-                    }
-                }
 
-            });
+                        if (value == StateFlag.State.ALLOW) {
+                            if (flag.getName().equals("damage-animals")) {
+                                final List<Key> valid = Registry.ENTITY_TYPE.stream()
+                                        .filter(EntityType::isAlive)
+                                        .map(Keyed::key)
+                                        .toList();
+                                existing.getValue().addAll(valid);
+                            }
+                        } else {
+                            // State is DENY
+                            if (!orbisRegion.hasFlag(orbisFlag)) {
+                                // No entities can be attacked
+                                orbisRegion.addFlag(orbisFlag);
+                            }
+                            // Else, do nothing. If not in list, not allowed.
+                        }
+                    },
+            DefaultFlags.GROWABLE_BLOCKS,
+                    (audience, region, flag, orbisRegion, orbisFlag) -> {
+                        if (!orbisRegion.hasFlag(orbisFlag)) {
+                            orbisRegion.addFlag(orbisFlag);
+                        }
+
+                        final MutableRegionFlag<List<Key>> mu = (MutableRegionFlag<List<Key>>)
+                                orbisRegion.getFlag(orbisFlag).orElseThrow();
+                        StateFlag stateFlag = (StateFlag) flag;
+                        if (region.getFlag(stateFlag) != StateFlag.State.ALLOW) return;
+
+                        final List<Key> value = mu.getValue();
+                        switch (flag.getName()) {
+                            case "mushroom-growth" -> {
+                                value.add(Material.RED_MUSHROOM.key());
+                                value.add(Material.BROWN_MUSHROOM.key());
+                                value.add(Material.CRIMSON_FUNGUS.key());
+                                value.add(Material.WARPED_FUNGUS.key());
+                            }
+                            case "vine-growth" -> {
+                                value.add(Material.VINE.key());
+                                value.add(Material.CAVE_VINES.key());
+                                value.add(Material.TWISTING_VINES.key());
+                                value.add(Material.WEEPING_VINES.key());
+                            }
+                            case "rock-growth" -> value.add(Material.DRIPSTONE_BLOCK.key());
+                            case "crop-growth" -> {
+                                for (Material cropsValue : Tag.CROPS.getValues()) {
+                                    value.add(cropsValue.key());
+                                }
+                            }
+                        }
+                    });
 
     public WorldGuardMigrator(Audience actor) {
         final WorldGuard instance = WorldGuard.getInstance();

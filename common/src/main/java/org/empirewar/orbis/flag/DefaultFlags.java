@@ -37,6 +37,9 @@ public final class DefaultFlags {
     public static final RegionFlag<Boolean> CAN_PLACE = register("can_place", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PVP = register("can_pvp", () -> true, Codec.BOOL);
     public static final RegionFlag<List<Key>> DAMAGEABLE_ENTITIES = register("damageable_entities", ArrayList::new, ExtraCodecs.KEY.listOf());
+    public static final RegionFlag<Boolean> CAN_DESTROY_ITEM_FRAME = register("can_destroy_item_frame", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_DESTROY_PAINTING = register("can_destroy_painting", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_DESTROY_VEHICLE = register("can_destroy_vehicle", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> FALL_DAMAGE = register("fall_damage", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_DROP_ITEM = register("can_drop_item", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PICKUP_ITEM = register("can_pickup_item", () -> true, Codec.BOOL);
@@ -46,7 +49,9 @@ public final class DefaultFlags {
     public static final RegionFlag<Boolean> LEAF_DECAY = register("leaf_decay", () -> true, Codec.BOOL);
     public static final RegionFlag<List<Key>> GROWABLE_BLOCKS = register("growable_blocks", ArrayList::new, ExtraCodecs.KEY.listOf());
     public static final RegionFlag<Boolean> BLOCK_TRAMPLE = register("block_trample", () -> true, Codec.BOOL);
-    public static final RegionFlag<Boolean> ROTATE_ITEM_FRAME = register("rotate_item_frame", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> ITEM_FRAME_ROTATE = register("item_frame_rotate", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> ITEM_FRAME_ITEM_PLACE = register("item_frame_item_place", () -> true, Codec.BOOL);
+//    public static final RegionFlag<Component> DENY_MESSAGE = register("deny_message", () -> Component.text("You can't do that here.", TextColor.color(244, 61, 61)), ExtraCodecs.COMPONENT);
     // spotless:on
 
     private static <T> RegionFlag<T> register(
