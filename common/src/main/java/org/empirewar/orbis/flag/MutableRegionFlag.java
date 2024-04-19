@@ -36,7 +36,7 @@ import java.util.function.Supplier;
  * A {@link RegionFlag} may be converted to a Mutable instance by calling {@link RegionFlag#asMutable()}.
  * @param <T> the type this flag has
  */
-public final class MutableRegionFlag<T> extends RegionFlag<T> {
+public sealed class MutableRegionFlag<T> extends RegionFlag<T> permits GroupedMutableRegionFlag {
 
     // This feels a bit abusive of dispatch but it works perfect
     // Map from mutable -> constant region flag in registry
@@ -46,6 +46,10 @@ public final class MutableRegionFlag<T> extends RegionFlag<T> {
             .getCodec()
             .dispatch(mu -> Registries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asMutable()
                     .getCodec(r));
+
+    public static final Codec<MutableRegionFlag<?>> TYPE_CODEC = Registries.FLAG_TYPE
+            .getCodec()
+            .dispatch(MutableRegionFlag::getType, RegionFlagType::codec);
 
     private T value;
 
@@ -62,8 +66,12 @@ public final class MutableRegionFlag<T> extends RegionFlag<T> {
         this.value = value;
     }
 
+    public RegionFlagType<?> getType() {
+        return RegionFlagType.MUTABLE;
+    }
+
     @Override
-    public Codec<MutableRegionFlag<T>> getCodec(RegionFlag<?> registry) {
+    public Codec<? extends MutableRegionFlag<T>> getCodec(RegionFlag<?> registry) {
         return RecordCodecBuilder.create(instance -> instance.group(
                         codec.fieldOf("value").forGetter(MutableRegionFlag::getValue))
                 .apply(instance, (value) -> {

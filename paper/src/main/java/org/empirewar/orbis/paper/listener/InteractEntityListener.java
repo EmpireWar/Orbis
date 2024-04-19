@@ -51,20 +51,27 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
         final Entity attacked = event.getAttacked();
         final RegionisedWorld world =
                 orbis.getRegionisedWorld(attacked.getWorld().getUID());
-        final RegionQuery.FilterableRegionResult<RegionQuery.Position> query = world.query(RegionQuery.Position.builder()
-                .position(attacked.getX(), attacked.getY(), attacked.getZ()));
+        final RegionQuery.FilterableRegionResult<RegionQuery.Position> query =
+                world.query(RegionQuery.Position.builder()
+                        .position(attacked.getX(), attacked.getY(), attacked.getZ()));
         if (attacked instanceof Vehicle) {
-            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_VEHICLE)).result().orElse(true)) {
+            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_VEHICLE))
+                    .result()
+                    .orElse(true)) {
                 event.setCancelled(true);
             }
             return;
         } else if (attacked instanceof Painting) {
-            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_PAINTING)).result().orElse(true)) {
+            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_PAINTING))
+                    .result()
+                    .orElse(true)) {
                 event.setCancelled(true);
             }
             return;
         } else if (attacked instanceof ItemFrame) {
-            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_ITEM_FRAME)).result().orElse(true)) {
+            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_ITEM_FRAME))
+                    .result()
+                    .orElse(true)) {
                 event.setCancelled(true);
             }
             return;
@@ -80,8 +87,8 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
             return;
         }
 
-        final List<Key> damageable = query
-                .query(RegionQuery.Flag.builder(DefaultFlags.DAMAGEABLE_ENTITIES))
+        final List<Key> damageable = query.query(
+                        RegionQuery.Flag.builder(DefaultFlags.DAMAGEABLE_ENTITIES))
                 .result()
                 .orElse(null);
         if (damageable == null) return;

@@ -97,7 +97,11 @@ public final class WorldGuardMigrator {
                 DefaultFlags.GROWABLE_BLOCKS,
                 "rock-growth",
                 DefaultFlags.GROWABLE_BLOCKS));
-        FLAG_MAPPINGS.putAll(Map.of("crop-growth", DefaultFlags.GROWABLE_BLOCKS, "vehicle-destroy", DefaultFlags.CAN_DESTROY_VEHICLE));
+        FLAG_MAPPINGS.putAll(Map.of(
+                "crop-growth",
+                DefaultFlags.GROWABLE_BLOCKS,
+                "vehicle-destroy",
+                DefaultFlags.CAN_DESTROY_VEHICLE));
     }
 
     private static final Map<RegionFlag<?>, FlagTransformer> TRANSFORMERS = Map.of(

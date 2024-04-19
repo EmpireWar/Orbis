@@ -17,9 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.sponge;
+package org.empirewar.orbis.member;
 
-import org.spongepowered.plugin.builtin.jvm.Plugin;
-
-@Plugin("orbis")
-public class OrbisSponge {}
+/**
+ * Represents a member group that a {@link org.empirewar.orbis.flag.GroupedMutableRegionFlag} can affect.
+ */
+public enum FlagMemberGroup {
+    /**
+     * Represents a player that is not a member of a region.
+     */
+    NONMEMBER,
+    /**
+     * Represents a player that is a member of a region.
+     */
+    MEMBER
+}

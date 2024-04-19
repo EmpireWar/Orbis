@@ -26,6 +26,7 @@ import org.joml.Vector3d;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiFunction;
 
 /**
@@ -55,9 +56,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
          */
         RegionFlag<FR> flag();
 
-        // OrbisSession session();
-
-        // TODO Optional<Player> to check flags against a specific player
+        Optional<UUID> player();
 
         @Override
         default Result.Builder<Result<Optional<FR>, Flag<FR>>, Optional<FR>, Flag<FR>>
@@ -78,7 +77,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
 
             Builder<FR> flag(RegionFlag<FR> flag);
 
-            // Builder player(); TODO
+            Builder<FR> player(UUID player);
 
             Flag<FR> build();
         }

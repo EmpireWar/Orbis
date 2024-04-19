@@ -17,9 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.sponge;
+package org.empirewar.orbis.flag;
 
-import org.spongepowered.plugin.builtin.jvm.Plugin;
+import com.mojang.serialization.Codec;
 
-@Plugin("orbis")
-public class OrbisSponge {}
+import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.Registry;
+
+public interface RegionFlagType<F extends MutableRegionFlag<?>> {
+
+    // spotless:off
+    RegionFlagType<MutableRegionFlag<?>> MUTABLE = register("mutable", MutableRegionFlag.CODEC);
+    RegionFlagType<GroupedMutableRegionFlag<?>> GROUPED_MUTABLE = register("grouped_mutable", GroupedMutableRegionFlag.CODEC);
+    // spotless:on
+
+    Codec<F> codec();
+
+    private static <F extends MutableRegionFlag<?>> RegionFlagType<F> register(
+            String id, Codec<F> codec) {
+        return Registry.register(Registries.FLAG_TYPE, id, () -> codec);
+    }
+}

@@ -28,8 +28,11 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.area.CuboidArea;
+import org.empirewar.orbis.flag.GroupedMutableRegionFlag;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.member.FlagMemberGroup;
+import org.empirewar.orbis.member.Member;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.serialization.context.CodecContext;
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +56,10 @@ import java.util.stream.Stream;
  * Regions may have region <i>parents</i> defined, where they will inherit the flags of those parents
  * if it does not have an overriding flag set.
  * <p>
+ * There is also a set of {@link Member}s.
+ * Members may be influenced differently by a {@link org.empirewar.orbis.flag.GroupedMutableRegionFlag}.
+ * By default, flags affect all members in a region.
+ * <p>
  * Multiple regions spanning the same area will be prioritised based off the {@link #priority()} parameter.
  * When querying a location for a flag, the region with the highest priority that has that flag should return the flag value.
  * <p>
@@ -67,7 +74,9 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
                     Codec.STRING.listOf().fieldOf("parents").forGetter(r -> r.parents().stream()
                             .map(Region::name)
                             .toList()),
-                    MutableRegionFlag.CODEC
+                    Member.CODEC.listOf().fieldOf("members").forGetter(r -> r.members().stream()
+                            .toList()),
+                    MutableRegionFlag.TYPE_CODEC
                             .listOf()
                             .fieldOf("flags")
                             .forGetter(r -> r.flags.values().stream().toList()),
@@ -77,6 +86,7 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
 
     private final String name;
     private final Set<Region> parents;
+    private final Set<Member> members;
     protected final Map<Key, MutableRegionFlag<?>> flags;
     private final Area area;
 
@@ -85,6 +95,7 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
     public Region(String name) {
         this.name = name;
         this.parents = new HashSet<>();
+        this.members = new HashSet<>();
         this.flags = new HashMap<>();
         this.area = new CuboidArea();
         this.priority = 1;
@@ -93,6 +104,7 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
     private Region(
             String name,
             List<String> parents,
+            List<Member> members,
             List<MutableRegionFlag<?>> flags,
             Area area,
             int priority) {
@@ -105,6 +117,7 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
             }
             return false;
         }));
+        this.members = new HashSet<>(members);
         this.flags = new HashMap<>();
         flags.forEach(mu -> this.flags.put(mu.key(), mu));
         this.area = area;
@@ -159,6 +172,22 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
     }
 
     /**
+     * Gets the members of this region.
+     * @return the members
+     */
+    public Set<Member> members() {
+        return Set.copyOf(members);
+    }
+
+    public void addMember(Member member) {
+        members.add(member);
+    }
+
+    public void removeMember(Member member) {
+        members.remove(member);
+    }
+
+    /**
      * Gets the area of this region.
      * @return the area
      */
@@ -193,6 +222,17 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
      */
     public void addFlag(RegionFlag<?> flag) {
         flags.put(flag.key(), flag.asMutable());
+    }
+
+    /**
+     * Adds a grouped flag to this region with the initial set of groups.
+     * @param flag the flag to add
+     * @param groups the groups to add to the flag
+     */
+    public void addGroupedFlag(RegionFlag<?> flag, Set<FlagMemberGroup> groups) {
+        final GroupedMutableRegionFlag<?> grouped = flag.asGrouped();
+        flags.put(flag.key(), grouped);
+        groups.forEach(grouped::addGroup);
     }
 
     /**

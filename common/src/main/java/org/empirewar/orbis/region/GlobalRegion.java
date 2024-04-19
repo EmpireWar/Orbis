@@ -38,7 +38,7 @@ public final class GlobalRegion extends Region {
     public static final Codec<GlobalRegion> CODEC =
             RecordCodecBuilder.create(instance -> instance.group(
                             Codec.STRING.fieldOf("name").forGetter(Region::name),
-                            MutableRegionFlag.CODEC
+                            MutableRegionFlag.TYPE_CODEC
                                     .listOf()
                                     .fieldOf("flags")
                                     .forGetter(r -> r.flags.values().stream().toList()))

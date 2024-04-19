@@ -24,23 +24,43 @@ import com.google.common.base.Preconditions;
 import org.empirewar.orbis.flag.RegionFlag;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 non-sealed class RegionQueryFlagBuilder<FR> implements RegionQuery.Flag.Builder<FR> {
 
     private RegionFlag<FR> flag;
+    private UUID player;
 
     RegionQueryFlagBuilder() {}
 
     @Override
     public RegionQuery.Flag<FR> build() {
         Preconditions.checkState(this.flag != null, "Flag cannot be empty");
-        return () -> flag;
+        return new RegionQuery.Flag<>() {
+            @Override
+            public RegionFlag<FR> flag() {
+                return flag;
+            }
+
+            @Override
+            public Optional<UUID> player() {
+                return Optional.ofNullable(player);
+            }
+        };
     }
 
     @Override
     public RegionQuery.Flag.Builder<FR> flag(RegionFlag<FR> flag) {
         Objects.requireNonNull(flag, "Flag cannot be null");
         this.flag = flag;
+        return this;
+    }
+
+    @Override
+    public RegionQuery.Flag.Builder<FR> player(UUID player) {
+        Objects.requireNonNull(player, "Player cannot be null");
+        this.player = player;
         return this;
     }
 }

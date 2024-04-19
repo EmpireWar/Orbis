@@ -29,6 +29,9 @@ Use Mojang Codecs for this, like Battlegrounds.
 ## Testing
 Common module should be mostly unit tested. Plugin modules can be tested where applicable.
 
+## Groups/members
+By default, flags affect a group of everyone. A flag may affect a set of specific groups.
+
 ## Commands
 Commands must be cross-platform. We need to specify a custom sender type.
 

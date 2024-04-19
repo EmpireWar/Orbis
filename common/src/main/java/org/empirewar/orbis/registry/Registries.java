@@ -26,6 +26,8 @@ import net.kyori.adventure.key.Key;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegionFlagType;
+import org.empirewar.orbis.member.MemberType;
 import org.empirewar.orbis.region.RegionType;
 
 import java.util.Map;
@@ -39,11 +41,17 @@ public final class Registries {
     public static final Registry<RegionFlag<?>> FLAGS =
             create(Key.key("orbis", "flags"), r -> DefaultFlags.CAN_BREAK);
 
+    public static final Registry<RegionFlagType<?>> FLAG_TYPE =
+            create(Key.key("orbis", "flag_type"), r -> RegionFlagType.MUTABLE);
+
     public static final Registry<AreaType<?>> AREA_TYPE =
             create(Key.key("orbis", "area_type"), r -> AreaType.CUBOID);
 
     public static final Registry<RegionType<?>> REGION_TYPE =
             create(Key.key("orbis", "region_type"), r -> RegionType.NORMAL);
+
+    public static final Registry<MemberType<?>> MEMBER_TYPE =
+            create(Key.key("orbis", "member_type"), r -> MemberType.PLAYER);
 
     private static <T> Registry<T> create(Key key, Initializer<T> initializer) {
         final Registry<T> registry = new SimpleRegistry<>(key);

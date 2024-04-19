@@ -17,9 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.sponge;
+package org.empirewar.orbis.member;
 
-import org.spongepowered.plugin.builtin.jvm.Plugin;
+import com.mojang.serialization.Codec;
 
-@Plugin("orbis")
-public class OrbisSponge {}
+import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.Registry;
+
+public interface MemberType<M extends Member> {
+
+    // spotless:off
+    MemberType<PlayerMember> PLAYER = register("player", PlayerMember.CODEC);
+    // spotless:on
+
+    Codec<M> codec();
+
+    private static <M extends Member> MemberType<M> register(String id, Codec<M> codec) {
+        return Registry.register(Registries.MEMBER_TYPE, id, () -> codec);
+    }
+}

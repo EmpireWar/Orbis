@@ -25,30 +25,29 @@ import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
+
 import org.joml.Vector3i;
 
 import java.util.UUID;
 
-public final class ExtraCodecs {
+public interface ExtraCodecs {
 
-    public static final Codec<Vector3i> VEC_3I =
-            RecordCodecBuilder.create(instance -> instance.group(
-                            Codec.INT.fieldOf("x").forGetter(Vector3i::x),
-                            Codec.INT.fieldOf("y").forGetter(Vector3i::y),
-                            Codec.INT.fieldOf("z").forGetter(Vector3i::z))
-                    .apply(instance, Vector3i::new));
+    Codec<Vector3i> VEC_3I = RecordCodecBuilder.create(instance -> instance.group(
+                    Codec.INT.fieldOf("x").forGetter(Vector3i::x),
+                    Codec.INT.fieldOf("y").forGetter(Vector3i::y),
+                    Codec.INT.fieldOf("z").forGetter(Vector3i::z))
+            .apply(instance, Vector3i::new));
 
-    public static final Codec<Key> KEY =
+    Codec<Key> KEY =
             Codec.STRING.comapFlatMap(ExtraCodecs::validateKey, Key::asString).stable();
 
     private static DataResult<Key> validateKey(final String id) {
         return DataResult.success(Key.key(id));
     }
 
-    public static final Codec<UUID> STRING_UUID = Codec.STRING.comapFlatMap(
+    Codec<UUID> STRING_UUID = Codec.STRING.comapFlatMap(
             string -> {
                 try {
                     return DataResult.success(UUID.fromString(string), Lifecycle.stable());
@@ -58,5 +57,7 @@ public final class ExtraCodecs {
             },
             UUID::toString);
 
-    public static final Codec<Component> COMPONENT = Codec.STRING.comapFlatMap(json -> DataResult.success(JSONComponentSerializer.json().deserialize(json)), component -> JSONComponentSerializer.json().serialize(component));
+    Codec<Component> COMPONENT = Codec.STRING.comapFlatMap(
+            json -> DataResult.success(JSONComponentSerializer.json().deserialize(json)),
+            component -> JSONComponentSerializer.json().serialize(component));
 }
