@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 public record FlagValueParser<C>(CommandManager<?> manager)
         implements ArgumentParser.FutureArgumentParser<C, FlagValue<?>>, SuggestionProvider<C> {
@@ -98,6 +99,9 @@ public record FlagValueParser<C>(CommandManager<?> manager)
         return CompletableFuture.completedFuture(List.of());
     }
 
+    private static final Pattern FLAG_PATTERN =
+            Pattern.compile("(-[A-Za-z_\\-0-9])|(--[A-Za-z_\\-0-9]*)");
+
     private @NonNull ArgumentParseResult<String> parseGreedy(
             final @NonNull CommandInput commandInput) {
         final int size = commandInput.remainingTokens();
@@ -107,6 +111,11 @@ public record FlagValueParser<C>(CommandManager<?> manager)
             final String string = commandInput.peekString();
 
             if (string.isEmpty()) {
+                break;
+            }
+
+            // The pattern requires a leading space.
+            if (FLAG_PATTERN.matcher(string).matches()) {
                 break;
             }
 

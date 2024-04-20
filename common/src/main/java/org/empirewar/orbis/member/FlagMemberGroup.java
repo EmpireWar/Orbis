@@ -26,9 +26,19 @@ public enum FlagMemberGroup {
     /**
      * Represents a player that is not a member of a region.
      */
-    NONMEMBER,
+    NONMEMBER("Anyone that is not a direct member of the region."),
     /**
      * Represents a player that is a member of a region.
      */
-    MEMBER
+    MEMBER("Represents anyone that is a member of the region.");
+
+    private final String description;
+
+    FlagMemberGroup(String description) {
+        this.description = description;
+    }
+
+    public String description() {
+        return description;
+    }
 }

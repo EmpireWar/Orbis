@@ -30,7 +30,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
-import org.empirewar.orbis.paper.command.Commands;
+import org.empirewar.orbis.paper.command.PaperCommands;
 import org.empirewar.orbis.paper.listener.BlockActionListener;
 import org.empirewar.orbis.paper.listener.InteractEntityListener;
 import org.empirewar.orbis.region.GlobalRegion;
@@ -68,7 +68,7 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
     @Override
     public void onEnable() {
         this.registerListeners();
-        new Commands(this);
+        new PaperCommands(this);
         this.loadConfig();
         try {
             this.loadRegions();

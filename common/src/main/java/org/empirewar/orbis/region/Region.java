@@ -33,6 +33,7 @@ import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.member.FlagMemberGroup;
 import org.empirewar.orbis.member.Member;
+import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.serialization.context.CodecContext;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +46,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
+import java.util.UUID;
 
 /**
  * Represents a region within a world.
@@ -219,20 +220,26 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
      * The flag is transformed into a <i>mutable</i> flag.
      * @see RegionFlag#asMutable()
      * @param flag the flag to add
+     * @return the transformed flag instance
      */
-    public void addFlag(RegionFlag<?> flag) {
-        flags.put(flag.key(), flag.asMutable());
+    public <T> MutableRegionFlag<T> addFlag(RegionFlag<T> flag) {
+        final MutableRegionFlag<T> mutable = flag.asMutable();
+        flags.put(flag.key(), mutable);
+        return mutable;
     }
 
     /**
      * Adds a grouped flag to this region with the initial set of groups.
      * @param flag the flag to add
      * @param groups the groups to add to the flag
+     * @return the transformed flag instance
      */
-    public void addGroupedFlag(RegionFlag<?> flag, Set<FlagMemberGroup> groups) {
-        final GroupedMutableRegionFlag<?> grouped = flag.asGrouped();
+    public <T> GroupedMutableRegionFlag<T> addGroupedFlag(
+            RegionFlag<T> flag, Set<FlagMemberGroup> groups) {
+        final GroupedMutableRegionFlag<T> grouped = flag.asGrouped();
         flags.put(flag.key(), grouped);
         groups.forEach(grouped::addGroup);
+        return grouped;
     }
 
     /**
@@ -269,12 +276,32 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
     @Override
     public <FR> RegionQuery.Result<Optional<FR>, RegionQuery.Flag<FR>> query(
             RegionQuery.Flag<FR> flag) {
-        final Stream<MutableRegionFlag<?>> stream = flags.values().stream();
-        final Optional<MutableRegionFlag<?>> foundFlag =
-                stream.filter(mu -> mu.equals(flag.flag())).findAny();
+        final Optional<MutableRegionFlag<FR>> foundFlag = getFlag(flag.flag());
+        final Optional<UUID> player = flag.player();
+        final PlayerMember playerMember = player.flatMap(uuid -> members.stream()
+                        .filter(PlayerMember.class::isInstance)
+                        .map(PlayerMember.class::cast)
+                        .filter(member -> member.playerId().equals(uuid))
+                        .findAny())
+                .orElse(null);
+
         Optional<FR> foundValue;
         foundValue = foundFlag
-                .flatMap(mutableRegionFlag -> Optional.of((FR) mutableRegionFlag.getValue()))
+                .flatMap(mutableRegionFlag -> {
+                    // TODO add test case
+                    if (player.isPresent()
+                            && mutableRegionFlag instanceof GroupedMutableRegionFlag<?> group) {
+                        if (playerMember == null
+                                && !group.groups().contains(FlagMemberGroup.NONMEMBER)) {
+                            return Optional.empty();
+                        } else if (playerMember != null
+                                && !group.groups().contains(FlagMemberGroup.MEMBER)) {
+                            return Optional.empty();
+                        }
+                    }
+
+                    return Optional.of(mutableRegionFlag.getValue());
+                })
                 .or(() -> parents.stream()
                         .sorted(Comparator.reverseOrder())
                         .map(r -> r.query(flag))

@@ -30,12 +30,17 @@ import org.incendo.cloud.context.CommandInput;
 import org.incendo.cloud.exception.parsing.ParserException;
 import org.incendo.cloud.parser.ArgumentParseResult;
 import org.incendo.cloud.parser.ArgumentParser;
+import org.incendo.cloud.parser.ParserDescriptor;
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider;
 
 import java.util.Optional;
 
 public final class RegionParser<C>
         implements ArgumentParser<C, Region>, BlockingSuggestionProvider.Strings<C> {
+
+    public static <C> @NonNull ParserDescriptor<C, Region> regionParser() {
+        return ParserDescriptor.of(new RegionParser<>(), Region.class);
+    }
 
     @Override
     public @NonNull ArgumentParseResult<@NonNull Region> parse(

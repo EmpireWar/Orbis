@@ -24,6 +24,7 @@ import net.kyori.adventure.key.Key;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Farmland;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -51,7 +52,7 @@ public record BlockActionListener(Orbis orbis) implements Listener {
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
         final Block block = event.getBlock();
-        if (shouldPreventBlockAction(block, DefaultFlags.CAN_BREAK)) {
+        if (shouldPreventBlockAction(block, event.getPlayer(), DefaultFlags.CAN_BREAK)) {
             event.setCancelled(true);
         }
     }
@@ -59,7 +60,7 @@ public record BlockActionListener(Orbis orbis) implements Listener {
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         final Block block = event.getBlock();
-        if (shouldPreventBlockAction(block, DefaultFlags.CAN_PLACE)) {
+        if (shouldPreventBlockAction(block, event.getPlayer(), DefaultFlags.CAN_PLACE)) {
             event.setCancelled(true);
             event.setBuild(false);
         }
@@ -78,17 +79,19 @@ public record BlockActionListener(Orbis orbis) implements Listener {
     public void onRedstoneUse(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.PHYSICAL)
             return;
+
+        final Player player = event.getPlayer();
         final Block block = event.getClickedBlock();
         if (block instanceof Farmland) {
             if (event.getAction() == Action.PHYSICAL
-                    && shouldPreventBlockAction(block, DefaultFlags.BLOCK_TRAMPLE)) {
+                    && shouldPreventBlockAction(block, player, DefaultFlags.BLOCK_TRAMPLE)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setCancelled(true);
             }
             return;
         }
 
-        if (shouldPreventBlockAction(block, DefaultFlags.TRIGGER_REDSTONE)) {
+        if (shouldPreventBlockAction(block, player, DefaultFlags.TRIGGER_REDSTONE)) {
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setCancelled(true);
         }
@@ -126,11 +129,19 @@ public record BlockActionListener(Orbis orbis) implements Listener {
     }
 
     private boolean shouldPreventBlockAction(@Nullable Block block, RegionFlag<Boolean> flag) {
+        return shouldPreventBlockAction(block, null, flag);
+    }
+
+    // spotless:off
+    private boolean shouldPreventBlockAction(@Nullable Block block, @Nullable Player player, RegionFlag<Boolean> flag) {
+        // spotless:on
         if (block == null) return false;
         final Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());
         final RegionisedWorld world = orbis.getRegionisedWorld(block.getWorld().getUID());
+        final RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);
+        if (player != null) builder.player(player.getUniqueId());
         final boolean canAct = world.query(RegionQuery.Position.builder().position(pos))
-                .query(RegionQuery.Flag.builder(flag))
+                .query(builder)
                 .result()
                 .orElse(true);
         return !canAct;

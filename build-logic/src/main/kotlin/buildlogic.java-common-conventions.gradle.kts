@@ -75,4 +75,9 @@ tasks {
     build {
         dependsOn(shadowJar)
     }
+
+    shadowJar {
+        archiveBaseName.set("orbis-${project.name}")
+        archiveClassifier.set(null as String?)
+    }
 }

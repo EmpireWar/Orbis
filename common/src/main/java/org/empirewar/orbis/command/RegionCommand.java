@@ -19,12 +19,14 @@
  */
 package org.empirewar.orbis.command;
 
-import net.kyori.adventure.text.Component;
+import static net.kyori.adventure.text.Component.text;
+
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
+import org.empirewar.orbis.member.FlagMemberGroup;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
@@ -34,8 +36,16 @@ import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.Flag;
 import org.incendo.cloud.annotations.Permission;
+import org.incendo.cloud.annotations.suggestion.Suggestions;
+import org.incendo.cloud.context.CommandContext;
+import org.incendo.cloud.context.CommandInput;
+import org.incendo.cloud.minecraft.extras.suggestion.ComponentTooltipSuggestion;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Permission("orbis.manage")
 public final class RegionCommand {
@@ -47,15 +57,14 @@ public final class RegionCommand {
             @Argument("name") String regionName) {
         if (OrbisAPI.get().getGlobalWorld().getByName(regionName).isPresent()) {
             session.audience()
-                    .sendMessage(Component.text(
-                            "Region by that name already exists.", NamedTextColor.RED));
+                    .sendMessage(text("Region by that name already exists.", NamedTextColor.RED));
             return;
         }
 
         final Region region = global ? new GlobalRegion(regionName) : new Region(regionName);
         OrbisAPI.get().getGlobalWorld().add(region);
         session.audience()
-                .sendMessage(Component.text(
+                .sendMessage(text(
                         "Created " + (global ? "global " : "") + "region with name '" + regionName
                                 + "'!",
                         NamedTextColor.GREEN));
@@ -64,16 +73,31 @@ public final class RegionCommand {
     @Command("region|rg flag add <region> <flag> [value]")
     public <T> void onFlagAdd(
             OrbisSession session,
+            @Flag(value = "groups", suggestions = "groups") @Nullable String[] groups,
             @Argument("region") Region region,
             @Argument("flag") RegionFlag<?> flag,
             @Argument("value") @Nullable FlagValue<?> value) {
-        region.addFlag(flag);
+        if (groups == null) {
+            region.addFlag(flag);
+        } else {
+            try {
+                region.addGroupedFlag(
+                        flag,
+                        Arrays.stream(groups)
+                                .map(FlagMemberGroup::valueOf)
+                                .collect(Collectors.toSet()));
+            } catch (IllegalArgumentException e) {
+                session.audience()
+                        .sendMessage(text("Invalid group specified.", NamedTextColor.RED));
+            }
+        }
+
         if (value != null) {
             RegionFlag<T> cast = (RegionFlag<T>) flag;
             region.setFlag(cast, (T) value.instance());
         }
         session.audience()
-                .sendMessage(Component.text(
+                .sendMessage(text(
                         "Added flag '" + flag.key().asString() + "' to region " + region.name()
                                 + "!",
                         NamedTextColor.GREEN));
@@ -86,10 +110,32 @@ public final class RegionCommand {
             @Argument("flag") RegionFlag<?> flag) {
         region.removeFlag(flag);
         session.audience()
-                .sendMessage(Component.text(
-                        "Removed flag '" + flag.key().asString() + "' to region " + region.name()
+                .sendMessage(text(
+                        "Removed flag '" + flag.key().asString() + "' from region " + region.name()
                                 + "!",
                         NamedTextColor.RED));
+    }
+
+    @Command("region|rg flag set <region> <flag> <value>")
+    public <T> void onFlagSet(
+            OrbisSession session,
+            @Flag(value = "groups", suggestions = "groups") @Nullable String[] groups,
+            @Argument("region") Region region,
+            @Argument("flag") RegionFlag<?> flag,
+            @Argument("value") @Greedy FlagValue<?> value) {
+        if (!region.hasFlag(flag)) {
+            onFlagAdd(session, groups, region, flag, value);
+            return;
+        } else if (groups != null) {
+            onFlagRemove(session, region, flag);
+            onFlagAdd(session, groups, region, flag, value);
+            return;
+        }
+
+        // Is there a better way? I'm not sure...
+        RegionFlag<T> cast = (RegionFlag<T>) flag;
+        region.setFlag(cast, (T) value.instance());
+        session.audience().sendMessage(text("success"));
     }
 
     @Command("region|rg setpriority <region> <priority>")
@@ -99,7 +145,7 @@ public final class RegionCommand {
             @Argument("priority") int priority) {
         region.priority(priority);
         session.audience()
-                .sendMessage(Component.text(
+                .sendMessage(text(
                         "Set priority of region '" + region.name() + "' to " + priority + ".",
                         NamedTextColor.GREEN));
     }
@@ -111,7 +157,7 @@ public final class RegionCommand {
             @Argument("parent") Region parent) {
         region.addParent(parent);
         session.audience()
-                .sendMessage(Component.text(
+                .sendMessage(text(
                         "Added parent '" + parent.name() + "' to '" + region.name() + "'.",
                         NamedTextColor.GREEN));
     }
@@ -123,21 +169,9 @@ public final class RegionCommand {
             @Argument("parent") Region parent) {
         region.removeParent(parent);
         session.audience()
-                .sendMessage(Component.text(
+                .sendMessage(text(
                         "Removed parent '" + parent.name() + "' from '" + region.name() + "'.",
                         NamedTextColor.RED));
-    }
-
-    @Command("region|rg flag set <region> <flag> <value>")
-    public <T> void onFlagSet(
-            OrbisSession session,
-            @Argument("region") Region region,
-            @Argument("flag") RegionFlag<?> flag,
-            @Argument("value") @Greedy FlagValue<?> value) {
-        // Is there a better way? I'm not sure...
-        RegionFlag<T> cast = (RegionFlag<T>) flag;
-        region.setFlag(cast, (T) value.instance());
-        session.audience().sendMessage(Component.text("success"));
     }
 
     @Command("region|rg world add <region> <world>")
@@ -147,14 +181,14 @@ public final class RegionCommand {
             @Argument("world") RegionisedWorld world) {
         if (region.isGlobal()) {
             session.audience()
-                    .sendMessage(Component.text(
-                            "Can't assign world to a global region.", NamedTextColor.RED));
+                    .sendMessage(
+                            text("Can't assign world to a global region.", NamedTextColor.RED));
             return;
         }
 
         if (world.add(region)) {
             session.audience()
-                    .sendMessage(Component.text(
+                    .sendMessage(text(
                             "Added region '" + region.name() + "' to world '"
                                     + world.worldName().orElseThrow() + "'.",
                             NamedTextColor.GREEN));
@@ -168,14 +202,14 @@ public final class RegionCommand {
             @Argument("world") RegionisedWorld world) {
         if (region.isGlobal()) {
             session.audience()
-                    .sendMessage(Component.text(
-                            "Can't assign world to a global region.", NamedTextColor.RED));
+                    .sendMessage(
+                            text("Can't assign world to a global region.", NamedTextColor.RED));
             return;
         }
 
         if (world.remove(region)) {
             session.audience()
-                    .sendMessage(Component.text(
+                    .sendMessage(text(
                             "Removed region '" + region.name() + "' to world '"
                                     + world.worldName().orElseThrow() + "'.",
                             NamedTextColor.RED));
@@ -190,6 +224,15 @@ public final class RegionCommand {
             @Argument("y") int y,
             @Argument("z") int z) {
         region.area().addPoint(new Vector3i(x, y, z));
-        session.audience().sendMessage(Component.text("Added position!"));
+        session.audience().sendMessage(text("Added position!"));
+    }
+
+    @Suggestions("groups")
+    public List<ComponentTooltipSuggestion> groupSuggestions(
+            CommandContext<OrbisSession> context, CommandInput input) {
+        return Arrays.stream(FlagMemberGroup.values())
+                .map(fmg ->
+                        ComponentTooltipSuggestion.suggestion(fmg.name(), text(fmg.description())))
+                .toList();
     }
 }

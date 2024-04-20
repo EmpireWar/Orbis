@@ -49,7 +49,7 @@ public sealed class MutableRegionFlag<T> extends RegionFlag<T> permits GroupedMu
 
     public static final Codec<MutableRegionFlag<?>> TYPE_CODEC = Registries.FLAG_TYPE
             .getCodec()
-            .dispatch(MutableRegionFlag::getType, RegionFlagType::codec);
+            .dispatch("region_flag_type", MutableRegionFlag::getType, RegionFlagType::codec);
 
     private T value;
 
