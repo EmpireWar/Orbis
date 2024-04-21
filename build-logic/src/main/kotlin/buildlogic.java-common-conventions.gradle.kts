@@ -78,6 +78,6 @@ tasks {
 
     shadowJar {
         archiveBaseName.set("orbis-${project.name}")
-        archiveClassifier.set(null as String?)
+        archiveClassifier.set("")
     }
 }
