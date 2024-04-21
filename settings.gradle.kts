@@ -17,4 +17,4 @@ plugins {
 }
 
 rootProject.name = "Orbis"
-include("common", "migrators:worldguard", "paper", "sponge")
+include("common", "migrators:worldguard", "paper", "api:paper-api", "sponge", "api:sponge-api")

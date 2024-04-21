@@ -31,6 +31,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -100,33 +101,53 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
 
     @EventHandler
     public void onFallDamage(EntityDamageEvent event) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
-            final Entity entity = event.getEntity();
-            event.setCancelled(shouldPreventEntityAction(entity, DefaultFlags.FALL_DAMAGE));
+        final Entity entity = event.getEntity();
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL
+                && shouldPreventEntityAction(entity, DefaultFlags.FALL_DAMAGE)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onMobDirectDamage(EntityDamageByEntityEvent event) {
+        final Entity entity = event.getEntity();
+        final Entity damager = event.getDamager();
+        if (!(entity instanceof Player)) return;
+
+        if (!(damager instanceof Player)) {
+            if (shouldPreventEntityAction(entity, DefaultFlags.CAN_TAKE_MOB_DAMAGE_SOURCES)) {
+                event.setCancelled(true);
+            }
         }
     }
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
         final Player player = event.getPlayer();
-        event.setCancelled(shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEM));
+        if (shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEM)) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onPickup(PlayerAttemptPickupItemEvent event) {
-        event.setCancelled(
-                shouldPreventEntityAction(event.getPlayer(), DefaultFlags.CAN_PICKUP_ITEM));
+        if (shouldPreventEntityAction(event.getPlayer(), DefaultFlags.CAN_PICKUP_ITEM)) {
+            event.setCancelled(true);
+        }
     }
 
     // I added this event to Paper back in 2021, now it helps me again :)
     @EventHandler
     public void onRotate(PlayerItemFrameChangeEvent event) {
         if (event.getAction() == PlayerItemFrameChangeEvent.ItemFrameChangeAction.ROTATE) {
-            event.setCancelled(shouldPreventEntityAction(
-                    event.getItemFrame(), DefaultFlags.ITEM_FRAME_ROTATE));
+            if (shouldPreventEntityAction(event.getItemFrame(), DefaultFlags.ITEM_FRAME_ROTATE)) {
+                event.setCancelled(true);
+            }
         } else if (event.getAction() == PlayerItemFrameChangeEvent.ItemFrameChangeAction.PLACE) {
-            event.setCancelled(shouldPreventEntityAction(
-                    event.getItemFrame(), DefaultFlags.ITEM_FRAME_ITEM_PLACE));
+            if (shouldPreventEntityAction(
+                    event.getItemFrame(), DefaultFlags.ITEM_FRAME_ITEM_PLACE)) {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -134,7 +155,7 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
         return !orbis.getRegionisedWorld(entity.getWorld().getUID())
                 .query(RegionQuery.Position.builder()
                         .position(entity.getX(), entity.getY(), entity.getZ()))
-                .query(RegionQuery.Flag.builder(flag))
+                .query(RegionQuery.Flag.builder(flag).player(entity.getUniqueId()))
                 .result()
                 .orElse(true);
     }

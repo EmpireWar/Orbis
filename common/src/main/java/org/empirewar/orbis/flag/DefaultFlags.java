@@ -30,12 +30,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * The default flags that Orbis provides.
+ */
 public final class DefaultFlags {
 
     // spotless:off
     public static final RegionFlag<Boolean> CAN_BREAK = register("can_break", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PLACE = register("can_place", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_PVP = register("can_pvp", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_TAKE_MOB_DAMAGE_SOURCES = register("can_take_mob_damage_sources", () -> true, Codec.BOOL);
     public static final RegionFlag<List<Key>> DAMAGEABLE_ENTITIES = register("damageable_entities", ArrayList::new, ExtraCodecs.KEY.listOf());
     public static final RegionFlag<Boolean> CAN_DESTROY_ITEM_FRAME = register("can_destroy_item_frame", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> CAN_DESTROY_PAINTING = register("can_destroy_painting", () -> true, Codec.BOOL);
@@ -51,6 +55,10 @@ public final class DefaultFlags {
     public static final RegionFlag<Boolean> BLOCK_TRAMPLE = register("block_trample", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> ITEM_FRAME_ROTATE = register("item_frame_rotate", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> ITEM_FRAME_ITEM_PLACE = register("item_frame_item_place", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> CAN_ENTER = register("can_enter", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> DRAIN_HUNGER = register("drain_hunger", () -> true, Codec.BOOL);
+    public static final RegionFlag<Boolean> FIRE_SPREAD = register("fire_spread", () -> true, Codec.BOOL);
+    public static final RegionFlag<Long> TIME = register("time", () -> 12000L, Codec.LONG);
 //    public static final RegionFlag<Component> DENY_MESSAGE = register("deny_message", () -> Component.text("You can't do that here.", TextColor.color(244, 61, 61)), ExtraCodecs.COMPONENT);
     // spotless:on
 

@@ -33,6 +33,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -124,6 +125,15 @@ public record BlockActionListener(Orbis orbis) implements Listener {
         if (growable == null) return;
 
         if (!growable.contains(block.getType().key())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onSpread(BlockSpreadEvent event) {
+        final Block block = event.getBlock();
+        if (Tag.FIRE.isTagged(block.getType())
+                && shouldPreventBlockAction(block, DefaultFlags.FIRE_SPREAD)) {
             event.setCancelled(true);
         }
     }

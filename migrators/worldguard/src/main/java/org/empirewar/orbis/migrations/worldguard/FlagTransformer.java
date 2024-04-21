@@ -28,19 +28,42 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.member.FlagMemberGroup;
 import org.empirewar.orbis.region.Region;
+
+import java.util.Set;
 
 @FunctionalInterface
 public interface FlagTransformer {
 
     FlagTransformer DEFAULT = (audience, region, flag, orbisRegion, orbisFlag) -> {
-        orbisRegion.addFlag(orbisFlag);
+        final boolean group = flag.getName().equals("entry") || flag.getName().equals("exit");
+        // From WorldGuard docs:
+        // The entry and exit flags default to "non-member", meaning setting them to "deny" will
+        // prevent non-members from entering/exiting the region.
+        if (group) {
+            orbisRegion.addGroupedFlag(orbisFlag, Set.of(FlagMemberGroup.NONMEMBER));
+        } else {
+            orbisRegion.addFlag(orbisFlag);
+        }
+
         if (flag instanceof StateFlag stateFlag) {
             final StateFlag.State state = region.getFlag(stateFlag);
-            switch (state) {
-                case DENY -> orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, false);
-                case ALLOW -> orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, true);
+
+            // invincible flag is flipped
+            if (flag.getName().equals("invincible")) {
+                if (state == StateFlag.State.ALLOW) {
+                    orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, false);
+                } else {
+                    orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, true);
+                }
+            } else {
+                switch (state) {
+                    case DENY -> orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, false);
+                    case ALLOW -> orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, true);
+                }
             }
+
             audience.sendMessage(Component.text(
                     "Processed state flag '" + flag.getName() + "' with state '" + state + "'...",
                     NamedTextColor.LIGHT_PURPLE));

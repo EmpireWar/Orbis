@@ -33,6 +33,8 @@ import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.paper.command.PaperCommands;
 import org.empirewar.orbis.paper.listener.BlockActionListener;
 import org.empirewar.orbis.paper.listener.InteractEntityListener;
+import org.empirewar.orbis.paper.listener.MovementListener;
+import org.empirewar.orbis.paper.listener.RegionEnterLeaveListener;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
@@ -126,6 +128,8 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
         pluginManager.registerEvents(this, this);
         pluginManager.registerEvents(new BlockActionListener(this), this);
         pluginManager.registerEvents(new InteractEntityListener(this), this);
+        pluginManager.registerEvents(new MovementListener(this), this);
+        pluginManager.registerEvents(new RegionEnterLeaveListener(this), this);
     }
 
     private void loadWorld(World world) {

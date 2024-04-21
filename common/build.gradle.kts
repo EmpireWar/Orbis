@@ -1,5 +1,5 @@
 plugins {
-    id("buildlogic.java-common-conventions")
+    id("buildlogic.java-publish-conventions")
 }
 
 dependencies {
@@ -9,9 +9,4 @@ dependencies {
     compileOnly("org.incendo:cloud-minecraft-extras:2.0.0-beta.5")
     compileOnly("org.incendo:cloud-brigadier:2.0.0-beta.4")
     compileOnly("org.slf4j:slf4j-api:2.0.12")
-}
-
-java {
-    withSourcesJar()
-    withJavadocJar()
 }

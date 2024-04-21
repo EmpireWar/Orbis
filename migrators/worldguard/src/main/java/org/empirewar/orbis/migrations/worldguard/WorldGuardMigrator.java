@@ -44,6 +44,8 @@ import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.member.PlayerMember;
+import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.joml.Vector3i;
@@ -52,6 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 // Is this class bad? Yes. Do I care? No, just migrate the data!
 public final class WorldGuardMigrator {
@@ -101,7 +104,15 @@ public final class WorldGuardMigrator {
                 "crop-growth",
                 DefaultFlags.GROWABLE_BLOCKS,
                 "vehicle-destroy",
-                DefaultFlags.CAN_DESTROY_VEHICLE));
+                DefaultFlags.CAN_DESTROY_VEHICLE,
+                "entry",
+                DefaultFlags.CAN_ENTER,
+                "invincible",
+                DefaultFlags.CAN_TAKE_MOB_DAMAGE_SOURCES,
+                "fire-spread",
+                DefaultFlags.FIRE_SPREAD,
+                "time-lock",
+                DefaultFlags.TIME));
     }
 
     private static final Map<RegionFlag<?>, FlagTransformer> TRANSFORMERS = Map.of(
@@ -220,6 +231,7 @@ public final class WorldGuardMigrator {
                             TRANSFORMERS.getOrDefault(orbisFlag, FlagTransformer.DEFAULT);
                     transformer.transform(audience, region, flag, orbisRegion, orbisFlag);
                 }
+
                 regionisedWorld.add(orbisRegion);
                 OrbisAPI.get().getGlobalWorld().add(orbisRegion);
                 audience.sendMessage(Component.text(
@@ -227,10 +239,11 @@ public final class WorldGuardMigrator {
             }
 
             for (ProtectedRegion region : regionManager.getRegions().values()) {
+                final Optional<Region> orbisRegion = regionisedWorld.getByName(region.getId());
+                if (orbisRegion.isEmpty()) continue;
+
                 final ProtectedRegion parent = region.getParent();
                 if (parent != null) {
-                    final Optional<Region> orbisRegion = regionisedWorld.getByName(region.getId());
-                    if (orbisRegion.isEmpty()) continue;
                     final Optional<Region> orbisParentRegion =
                             regionisedWorld.getByName(parent.getId());
                     if (orbisParentRegion.isEmpty()) {
@@ -246,6 +259,27 @@ public final class WorldGuardMigrator {
                     audience.sendMessage(Component.text(
                             "Added parent '" + parent.getId() + "' to '" + region.getId() + "'.",
                             NamedTextColor.GREEN));
+                }
+
+                for (UUID uniqueId : region.getMembers().getUniqueIds()) {
+                    orbisRegion.get().addMember(new PlayerMember(uniqueId));
+                }
+
+                // TODO member groups
+            }
+
+            for (Region region : regionisedWorld.regions()) {
+                // Apply worldguard default protection rules
+                if (region.query(RegionQuery.Flag.builder(DefaultFlags.CAN_BREAK))
+                        .result()
+                        .isEmpty()) {
+                    region.addFlag(DefaultFlags.CAN_BREAK).setValue(false);
+                }
+
+                if (region.query(RegionQuery.Flag.builder(DefaultFlags.CAN_PLACE))
+                        .result()
+                        .isEmpty()) {
+                    region.addFlag(DefaultFlags.CAN_PLACE).setValue(false);
                 }
             }
             worldIndex++;

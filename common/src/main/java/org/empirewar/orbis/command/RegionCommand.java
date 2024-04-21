@@ -89,6 +89,7 @@ public final class RegionCommand {
             } catch (IllegalArgumentException e) {
                 session.audience()
                         .sendMessage(text("Invalid group specified.", NamedTextColor.RED));
+                return;
             }
         }
 
