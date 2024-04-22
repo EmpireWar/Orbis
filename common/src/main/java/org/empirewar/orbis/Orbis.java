@@ -96,6 +96,7 @@ public interface Orbis {
                     config().node("worlds", world.worldName().orElseThrow(), "regions");
             final List<String> regionsInWorld = node.getList(String.class, new ArrayList<>());
             for (Region region : world.regions()) {
+                if (region.name().equals(world.worldName().orElseThrow())) continue;
                 if (!regionsInWorld.contains(region.name())) {
                     regionsInWorld.add(region.name());
                 }

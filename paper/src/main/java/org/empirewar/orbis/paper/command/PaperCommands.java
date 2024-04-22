@@ -41,6 +41,7 @@ import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
 import org.empirewar.orbis.paper.OrbisPaper;
 import org.empirewar.orbis.player.ConsoleOrbisSession;
+import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.Region;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
@@ -51,7 +52,7 @@ import org.incendo.cloud.paper.PaperCommandManager;
 public final class PaperCommands {
 
     public PaperCommands(OrbisPaper plugin) {
-        PaperCommandManager<ConsoleOrbisSession> manager = new PaperCommandManager<>(
+        PaperCommandManager<OrbisSession> manager = new PaperCommandManager<>(
                 plugin, /* 1 */
                 ExecutionCoordinator.asyncCoordinator(), /* 2 */
                 SenderMapper.create(ConsoleOrbisSession::new, session ->
@@ -65,32 +66,28 @@ public final class PaperCommands {
 
         CommonCommands commonCommands = new CommonCommands(plugin, manager);
 
-        final BukkitBrigadierMapper<ConsoleOrbisSession> brigadierMapper =
+        final BukkitBrigadierMapper<OrbisSession> brigadierMapper =
                 new BukkitBrigadierMapper<>(manager, manager.brigadierManager());
         brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionFlagParser<ConsoleOrbisSession>>() {},
-                "resource_location",
-                true);
+                new TypeToken<RegionFlagParser<OrbisSession>>() {}, "resource_location", true);
 
         brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionisedWorldParser<ConsoleOrbisSession>>() {},
-                "resource_location",
-                true);
+                new TypeToken<RegionisedWorldParser<OrbisSession>>() {}, "resource_location", true);
 
         brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionParser<ConsoleOrbisSession>>() {}, "resource_location", true);
+                new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
 
         brigadierMapper.mapSimpleNMS(
-                new TypeToken<FlagValueParser<ConsoleOrbisSession>>() {}, "message", true);
+                new TypeToken<FlagValueParser<OrbisSession>>() {}, "message", true);
 
         brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionParser<ConsoleOrbisSession>>() {}, "resource_location", true);
+                new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
 
         manager.command(manager.commandBuilder("orbis")
                 .literal("migrate")
                 .literal("worldguard")
                 .handler(context -> {
-                    final ConsoleOrbisSession sender = context.sender();
+                    final OrbisSession sender = context.sender();
                     final Plugin worldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard");
                     if (worldGuard == null || !worldGuard.isEnabled()) {
                         sender.audience()
@@ -111,7 +108,7 @@ public final class PaperCommands {
                     final Region region = context.get("region");
                     final OfflinePlayer player = context.get("player");
                     region.addMember(new PlayerMember(player.getUniqueId()));
-                    final ConsoleOrbisSession sender = context.sender();
+                    final OrbisSession sender = context.sender();
                     sender.audience()
                             .sendMessage(Component.text(
                                     "Added " + player.getName() + " as a member to region "
@@ -127,7 +124,7 @@ public final class PaperCommands {
                 .handler(context -> {
                     final Region region = context.get("region");
                     final OfflinePlayer player = context.get("player");
-                    final ConsoleOrbisSession sender = context.sender();
+                    final OrbisSession sender = context.sender();
                     for (Member member : region.members()) {
                         if (member instanceof PlayerMember playerMember
                                 && playerMember.playerId().equals(player.getUniqueId())) {

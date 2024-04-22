@@ -6,15 +6,13 @@ plugins {
     id("org.spongepowered.gradle.plugin") version("2.2.0")
 }
 
-repositories {
-    mavenLocal()
-}
-
 dependencies {
+    compileOnly("org.slf4j:slf4j-api:2.0.12")
     implementation("org.incendo:cloud-sponge:2.0.0-SNAPSHOT")
     implementation("org.incendo:cloud-annotations:2.0.0-beta.4")
     implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.5")
     implementation(project(":common"))
+    implementation(project(":api:sponge-api"))
 }
 
 sponge {

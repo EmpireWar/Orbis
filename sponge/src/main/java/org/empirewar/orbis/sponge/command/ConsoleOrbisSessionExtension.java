@@ -17,18 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.player;
+package org.empirewar.orbis.sponge.command;
 
-import net.kyori.adventure.audience.Audience;
+import org.empirewar.orbis.player.ConsoleOrbisSession;
+import org.spongepowered.api.command.CommandCause;
 
-public class ConsoleOrbisSession extends OrbisSession {
+public class ConsoleOrbisSessionExtension extends ConsoleOrbisSession {
 
-    public ConsoleOrbisSession(Audience audience) {
-        super(audience);
+    private final CommandCause cause;
+
+    public ConsoleOrbisSessionExtension(CommandCause cause) {
+        super(cause.audience());
+        this.cause = cause;
     }
 
-    @Override
-    public boolean hasPermission(String permission) {
-        return true;
+    public CommandCause cause() {
+        return cause;
     }
 }

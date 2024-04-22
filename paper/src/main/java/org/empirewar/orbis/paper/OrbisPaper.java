@@ -145,18 +145,6 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
             Region globalRegion = OrbisAPI.get()
                     .getGlobalWorld()
                     .getByName(set.worldName().orElseThrow())
-                    .filter(r -> {
-                        // Can somebody really be this stupid?
-                        if (!r.isGlobal()) {
-                            logger().error(
-                                            "Region name conflict! Region with name {} exists and matches a world name, but it is not global! Destroying invalid region!",
-                                            set.worldName().orElseThrow());
-                            OrbisAPI.get().getGlobalWorld().remove(r);
-                            OrbisAPI.get().getRegionisedWorlds().forEach(rw -> rw.remove(r));
-                            return false;
-                        }
-                        return true;
-                    })
                     .orElseGet(() -> new GlobalRegion(set));
             globalRegion.priority(0);
             OrbisAPI.get().getGlobalWorld().add(globalRegion);

@@ -30,7 +30,6 @@ import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
-import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
@@ -40,7 +39,7 @@ import org.incendo.cloud.minecraft.extras.MinecraftExceptionHandler;
 
 public final class CommonCommands {
 
-    public CommonCommands(Orbis orbis, CommandManager<ConsoleOrbisSession> manager) {
+    public CommonCommands(Orbis orbis, CommandManager<OrbisSession> manager) {
         // Register our custom caption registry so we can define exception messages for parsers
         manager.captionRegistry().registerProvider(new OrbisCaptionProvider<>());
 
@@ -64,11 +63,11 @@ public final class CommonCommands {
                 .registerParserSupplier(
                         flagValueToken, parserParameters -> new FlagValueParser<>(manager));
 
-        AnnotationParser<ConsoleOrbisSession> annotationParser =
-                new AnnotationParser<>(manager, ConsoleOrbisSession.class);
+        AnnotationParser<OrbisSession> annotationParser =
+                new AnnotationParser<>(manager, OrbisSession.class);
 
         // Override the default exception handlers
-        MinecraftExceptionHandler.<ConsoleOrbisSession>create(OrbisSession::audience)
+        MinecraftExceptionHandler.create(OrbisSession::audience)
                 .defaultInvalidSyntaxHandler()
                 .defaultInvalidSenderHandler()
                 .defaultNoPermissionHandler()

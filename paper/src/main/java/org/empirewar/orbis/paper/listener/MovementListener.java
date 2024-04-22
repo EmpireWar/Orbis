@@ -55,7 +55,8 @@ public record MovementListener(Orbis orbis) implements Listener {
                 .orElse(true);
 
         if (!canMove) {
-            event.setTo(new Location(from.getWorld(), from.x(), from.y(), from.z(), to.getYaw(), to.getPitch()));
+            event.setTo(new Location(
+                    from.getWorld(), from.x(), from.y(), from.z(), to.getYaw(), to.getPitch()));
             return;
         }
 

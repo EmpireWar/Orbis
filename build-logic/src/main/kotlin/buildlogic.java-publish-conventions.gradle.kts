@@ -19,7 +19,6 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = "org.empirewar.orbis"
-            System.out.println("name: " + project.name)
             artifactId = project.name
             version = project.version.toString()
             from(components["java"])
