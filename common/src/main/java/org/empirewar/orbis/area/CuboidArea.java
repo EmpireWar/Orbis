@@ -29,6 +29,9 @@ import org.joml.Vector3i;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Cuboid areas, with 6 faces and only right angles
+ */
 public final class CuboidArea extends EncompassingArea {
 
     public static Codec<CuboidArea> CODEC = RecordCodecBuilder.create(instance -> instance.group(
