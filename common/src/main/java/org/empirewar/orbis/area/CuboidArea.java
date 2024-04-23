@@ -46,11 +46,16 @@ public final class CuboidArea extends EncompassingArea {
 
     @Override
     public boolean contains(Vector3d point) {
-        if (points.size() != getExpectedPoints().orElseThrow()) return false;
-
         final double x = point.x();
         final double y = point.y();
         final double z = point.z();
+        return contains(x, y, z);
+    }
+
+    @Override
+    public boolean contains(double x, double y, double z) {
+        if (points.size() != getExpectedPoints().orElseThrow()) return false;
+
         return x >= min.x()
                 && x <= max.x()
                 && y >= min.y()

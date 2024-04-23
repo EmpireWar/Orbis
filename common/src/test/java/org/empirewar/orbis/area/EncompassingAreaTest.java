@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.joml.Vector3d;
 import org.joml.Vector3i;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -74,18 +73,18 @@ public class EncompassingAreaTest {
     @Order(5)
     void testContains() {
         CuboidArea area = new CuboidArea();
-        assertFalse(area.contains(new Vector3d(0, 0, 0)));
+        assertFalse(area.contains(0, 0, 0));
         area.addPoint(new Vector3i(0, 0, 0));
         area.addPoint(new Vector3i(10, 10, 10));
-        assertTrue(area.contains(new Vector3d(0, 0, 0)));
-        assertTrue(area.contains(new Vector3d(1, 1, 1)));
-        assertTrue(area.contains(new Vector3d(10, 10, 10)));
-        assertFalse(area.contains(new Vector3d(-10, -10, -10)));
+        assertTrue(area.contains(0, 0, 0));
+        assertTrue(area.contains(1, 1, 1));
+        assertTrue(area.contains(10, 10, 10));
+        assertFalse(area.contains(-10, -10, -10));
         area.removePoint(new Vector3i(0, 0, 0));
         area.removePoint(new Vector3i(10, 10, 10));
         // Based on a real-world example
         area.addPoint(new Vector3i(-467, 147, 49));
         area.addPoint(new Vector3i(-652, 4, -87));
-        assertTrue(area.contains(new Vector3d(-580, 81, -26)));
+        assertTrue(area.contains(-580, 81, -26));
     }
 }

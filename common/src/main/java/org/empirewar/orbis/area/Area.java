@@ -60,14 +60,21 @@ public sealed interface Area permits EncompassingArea {
     boolean removePoint(Vector3i point);
 
     /**
+     * @see #contains(double, double, double)
+     */
+    boolean contains(Vector3d point);
+
+    /**
      * Gets whether the specified point is within this area.
      * <p>
      * This method will always return false if the area is incomplete.
      *
-     * @param point the point to check
+     * @param x the x point to check
+     * @param y the y point to check
+     * @param z the z point to check
      * @return true if the point is within the area specified by {@link #points()}
      */
-    boolean contains(Vector3d point);
+    boolean contains(double x, double y, double z);
 
     /**
      * Gets the minimum point of this area.
