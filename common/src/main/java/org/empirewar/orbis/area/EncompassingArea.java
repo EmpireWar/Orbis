@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract sealed class EncompassingArea implements Area permits CuboidArea, PolygonalArea, PolyhedralArea {
+public abstract sealed class EncompassingArea implements Area
+        permits CuboidArea, PolygonalArea, PolyhedralArea {
 
     protected final Set<Vector3i> points;
     protected final Vector3i min = new Vector3i();
