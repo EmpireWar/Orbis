@@ -127,7 +127,6 @@ public class OrbisSponge implements Orbis {
     }
 
     @Listener(order = Order.LATE)
-    @IsCancelled(Tristate.FALSE)
     public void onWorldUnload(UnloadWorldEvent event) {
         this.worldSets.remove(event.world().uniqueId());
     }
