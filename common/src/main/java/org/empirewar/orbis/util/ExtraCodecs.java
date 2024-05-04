@@ -28,6 +28,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 
+import org.joml.Vector2i;
 import org.joml.Vector3i;
 
 import java.util.UUID;
@@ -39,6 +40,11 @@ public interface ExtraCodecs {
                     Codec.INT.fieldOf("y").forGetter(Vector3i::y),
                     Codec.INT.fieldOf("z").forGetter(Vector3i::z))
             .apply(instance, Vector3i::new));
+
+    Codec<Vector2i> VEC_2I = RecordCodecBuilder.create(instance -> instance.group(
+                    Codec.INT.fieldOf("x").forGetter(Vector2i::x),
+                    Codec.INT.fieldOf("y").forGetter(Vector2i::y))
+            .apply(instance, Vector2i::new));
 
     Codec<Key> KEY =
             Codec.STRING.comapFlatMap(ExtraCodecs::validateKey, Key::asString).stable();

@@ -34,7 +34,7 @@ import java.util.Set;
  * <p>
  * Instead, a world contains a set of Areas.
  */
-public sealed interface Area permits EncompassingArea {
+public sealed interface Area extends Iterable<Vector3i> permits EncompassingArea {
 
     Codec<Area> CODEC = Registries.AREA_TYPE.getCodec().dispatch(Area::getType, AreaType::codec);
 

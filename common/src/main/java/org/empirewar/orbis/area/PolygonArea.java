@@ -29,18 +29,18 @@ import org.joml.Vector3i;
 import java.util.List;
 import java.util.Optional;
 
-public final class CuboidArea extends EncompassingArea {
+public final class PolygonArea extends EncompassingArea {
 
-    public static Codec<CuboidArea> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static Codec<PolygonArea> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(c -> c.points().stream()
                             .toList()))
-            .apply(instance, CuboidArea::new));
+            .apply(instance, PolygonArea::new));
 
-    public CuboidArea() {
+    public PolygonArea() {
         super();
     }
 
-    private CuboidArea(List<Vector3i> points) {
+    private PolygonArea(List<Vector3i> points) {
         super(points);
     }
 
@@ -51,23 +51,39 @@ public final class CuboidArea extends EncompassingArea {
 
     @Override
     public boolean contains(double x, double y, double z) {
-        if (points.size() != getExpectedPoints().orElseThrow()) return false;
+        boolean inside = false;
 
-        return x >= min.x()
-                && x <= max.x()
-                && y >= min.y()
-                && y <= max.y()
-                && z >= min.z()
-                && z <= max.z();
+        System.out.println("Testing point (" + x + ", " + z + ")");
+
+        final int vertexCount = points.size();
+        final List<Vector3i> list = points.stream().toList();
+
+        // Ray-casting algorithm
+        for (int i = 0, j = vertexCount - 1; i < vertexCount; j = i++) {
+            Vector3i vertex1 = list.get(i);
+            Vector3i vertex2 = list.get(j);
+
+            System.out.println("Checking edge: " + vertex1 + " -> " + vertex2);
+
+            // spotless:off
+            if ((vertex1.z > z) != (vertex2.z > z) &&
+                    (x < (vertex2.x - vertex1.x) * (z - vertex1.z) / (vertex2.z - vertex1.z) + vertex1.x)) {
+                inside = !inside;
+            }
+            // spotless:on
+        }
+
+        System.out.println("Point is inside polygon: " + inside);
+        return inside;
     }
 
     @Override
     public AreaType<?> getType() {
-        return AreaType.CUBOID;
+        return AreaType.POLYGON;
     }
 
     @Override
     public Optional<Integer> getExpectedPoints() {
-        return Optional.of(2);
+        return Optional.empty();
     }
 }
