@@ -53,17 +53,14 @@ public final class PolygonArea extends EncompassingArea {
     public boolean contains(double x, double y, double z) {
         boolean inside = false;
 
-        System.out.println("Testing point (" + x + ", " + z + ")");
+        // TODO how to fix algorithm so that a position on a block that a polygon line passes over is considered valid?
 
         final int vertexCount = points.size();
         final List<Vector3i> list = points.stream().toList();
-
         // Ray-casting algorithm
         for (int i = 0, j = vertexCount - 1; i < vertexCount; j = i++) {
             Vector3i vertex1 = list.get(i);
             Vector3i vertex2 = list.get(j);
-
-            System.out.println("Checking edge: " + vertex1 + " -> " + vertex2);
 
             // spotless:off
             if ((vertex1.z > z) != (vertex2.z > z) &&
@@ -73,7 +70,6 @@ public final class PolygonArea extends EncompassingArea {
             // spotless:on
         }
 
-        System.out.println("Point is inside polygon: " + inside);
         return inside;
     }
 
