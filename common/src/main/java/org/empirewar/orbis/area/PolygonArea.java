@@ -53,7 +53,8 @@ public final class PolygonArea extends EncompassingArea {
     public boolean contains(double x, double y, double z) {
         boolean inside = false;
 
-        // TODO how to fix algorithm so that a position on a block that a polygon line passes over is considered valid?
+        // TODO how to fix algorithm so that a position on a block that a polygon line passes over
+        // is considered valid?
 
         final int vertexCount = points.size();
         final List<Vector3i> list = points.stream().toList();

@@ -41,8 +41,9 @@ public class PolygonAreaTest {
         assertTrue(area.addPoint(new Vector3i(3, 0, 8)));
         assertTrue(area.contains(3, 0, 4));
         assertTrue(area.contains(4, 0, 4));
-        // TODO how to fix algorithm so that a position on a block that a polygon line passes over is considered valid?
-//        assertTrue(area.contains(5.5, 0, 4.5));
+        // TODO how to fix algorithm so that a position on a block that a polygon line passes over
+        // is considered valid?
+        //        assertTrue(area.contains(5.5, 0, 4.5));
         assertFalse(area.contains(6, 0, 4));
     }
 }
