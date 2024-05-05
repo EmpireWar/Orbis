@@ -32,7 +32,7 @@ import java.util.Optional;
 public final class CuboidArea extends EncompassingArea {
 
     public static Codec<CuboidArea> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(c -> c.points().stream()
+                    ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(c -> c.points.stream()
                             .toList()))
             .apply(instance, CuboidArea::new));
 

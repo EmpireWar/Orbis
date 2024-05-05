@@ -21,6 +21,7 @@ package org.empirewar.orbis.area;
 
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,7 +32,7 @@ import java.util.Set;
 public abstract sealed class EncompassingArea implements Area permits CuboidArea, PolygonArea {
 
     protected final Set<Vector3i> points;
-    protected final Set<Vector3i> blocks;
+    protected final Set<Vector3ic> blocks;
     protected final Vector3i min = new Vector3i();
     protected final Vector3i max = new Vector3i();
 
@@ -53,22 +54,22 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
      */
     protected void calculateEncompassingArea() {
         // Avoid throwing IncompleteAreaException to keep this simple
-        final Vector3i first = points.stream().findFirst().orElse(new Vector3i());
-        int minX = first.x;
-        int minY = first.y;
-        int minZ = first.z;
+        final Vector3ic first = points.stream().findFirst().orElse(new Vector3i());
+        int minX = first.x();
+        int minY = first.y();
+        int minZ = first.z();
         int maxX = minX;
         int maxY = minY;
         int maxZ = minZ;
 
-        for (Vector3i point : points) {
-            minX = Math.min(point.x, minX);
-            minY = Math.min(point.y, minY);
-            minZ = Math.min(point.z, minZ);
+        for (Vector3ic point : points) {
+            minX = Math.min(point.x(), minX);
+            minY = Math.min(point.y(), minY);
+            minZ = Math.min(point.z(), minZ);
 
-            maxX = Math.max(point.x, maxX);
-            maxY = Math.max(point.y, maxY);
-            maxZ = Math.max(point.z, maxZ);
+            maxX = Math.max(point.x(), maxX);
+            maxY = Math.max(point.y(), maxY);
+            maxZ = Math.max(point.z(), maxZ);
         }
 
         min.x = minX;
@@ -129,7 +130,7 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
     }
 
     @Override
-    public Set<Vector3i> points() {
+    public Set<Vector3ic> points() {
         return Set.copyOf(points);
     }
 
@@ -146,7 +147,7 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
     public abstract Optional<Integer> getExpectedPoints();
 
     @NotNull @Override
-    public Iterator<Vector3i> iterator() {
+    public Iterator<Vector3ic> iterator() {
         return blocks.iterator();
     }
 }

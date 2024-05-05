@@ -32,7 +32,7 @@ import java.util.Optional;
 public final class PolygonArea extends EncompassingArea {
 
     public static Codec<PolygonArea> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(c -> c.points().stream()
+                    ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(c -> c.points.stream()
                             .toList()))
             .apply(instance, PolygonArea::new));
 

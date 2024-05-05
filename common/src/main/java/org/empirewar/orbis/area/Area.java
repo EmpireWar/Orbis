@@ -24,6 +24,7 @@ import com.mojang.serialization.Codec;
 import org.empirewar.orbis.registry.Registries;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 
 import java.util.Set;
 
@@ -34,7 +35,7 @@ import java.util.Set;
  * <p>
  * Instead, a world contains a set of Areas.
  */
-public sealed interface Area extends Iterable<Vector3i> permits EncompassingArea {
+public sealed interface Area extends Iterable<Vector3ic> permits EncompassingArea {
 
     Codec<Area> CODEC = Registries.AREA_TYPE.getCodec().dispatch(Area::getType, AreaType::codec);
 
@@ -84,7 +85,7 @@ public sealed interface Area extends Iterable<Vector3i> permits EncompassingArea
      *
      * @return the minimum point
      */
-    Vector3i getMin();
+    Vector3ic getMin();
 
     /**
      * Gets the maximum point of this area.
@@ -94,7 +95,7 @@ public sealed interface Area extends Iterable<Vector3i> permits EncompassingArea
      *
      * @return the maximum point
      */
-    Vector3i getMax();
+    Vector3ic getMax();
 
     /**
      * Gets the set of points that make up this area.
@@ -103,7 +104,7 @@ public sealed interface Area extends Iterable<Vector3i> permits EncompassingArea
      *
      * @return set of points of this area
      */
-    Set<Vector3i> points();
+    Set<Vector3ic> points();
 
     AreaType<?> getType();
 }
