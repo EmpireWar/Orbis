@@ -120,12 +120,12 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
     }
 
     @Override
-    public Vector3i getMin() {
+    public Vector3ic getMin() {
         return min;
     }
 
     @Override
-    public Vector3i getMax() {
+    public Vector3ic getMax() {
         return max;
     }
 
