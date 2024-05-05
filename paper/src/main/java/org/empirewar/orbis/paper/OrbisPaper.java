@@ -20,23 +20,32 @@
 package org.empirewar.orbis.paper;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.paper.command.PaperCommands;
 import org.empirewar.orbis.paper.listener.BlockActionListener;
+import org.empirewar.orbis.paper.listener.ConnectionListener;
 import org.empirewar.orbis.paper.listener.InteractEntityListener;
 import org.empirewar.orbis.paper.listener.MovementListener;
 import org.empirewar.orbis.paper.listener.RegionEnterLeaveListener;
+import org.empirewar.orbis.paper.selection.SelectionListener;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.selection.Selection;
+import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.slf4j.Logger;
@@ -59,6 +68,23 @@ import java.util.stream.Collectors;
 
 public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
 
+    public static final NamespacedKey WAND_KEY = new NamespacedKey("orbis", "wand");
+    public static final ItemStack WAND_ITEM;
+
+    static {
+        WAND_ITEM = new ItemStack(Material.BLAZE_ROD);
+        ItemMeta meta = WAND_ITEM.getItemMeta();
+        meta.displayName(Selection.WAND_NAME);
+        meta.lore(Selection.WAND_LORE);
+        meta.getPersistentDataContainer().set(WAND_KEY, PersistentDataType.BOOLEAN, true);
+        WAND_ITEM.setItemMeta(meta);
+    }
+
+    public static boolean isWand(ItemStack stack) {
+        return stack.getItemMeta().getPersistentDataContainer().has(WAND_KEY);
+    }
+
+    private final SelectionManager selectionManager = new SelectionManager();
     private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
     private final Map<UUID, RegionisedWorldSet> worldSets = new HashMap<>();
 
@@ -130,6 +156,8 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
         pluginManager.registerEvents(new InteractEntityListener(this), this);
         pluginManager.registerEvents(new MovementListener(this), this);
         pluginManager.registerEvents(new RegionEnterLeaveListener(this), this);
+        pluginManager.registerEvents(new ConnectionListener(this), this);
+        pluginManager.registerEvents(new SelectionListener(this), this);
     }
 
     private void loadWorld(World world) {
@@ -175,6 +203,11 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
     }
 
     @Override
+    public SelectionManager selectionManager() {
+        return selectionManager;
+    }
+
+    @Override
     public Set<RegionisedWorld> getRegionisedWorlds() {
         return worldSets.values().stream().collect(Collectors.toUnmodifiableSet());
     }
@@ -187,6 +220,11 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
     @Override
     public RegionisedWorld getRegionisedWorld(UUID worldId) {
         return worldSets.get(worldId);
+    }
+
+    @Override
+    public UUID getPlayerWorld(UUID player) {
+        return Bukkit.getPlayer(player).getWorld().getUID();
     }
 
     @Override

@@ -23,7 +23,9 @@ import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
 
 import org.empirewar.orbis.Orbis;
+import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
+import org.empirewar.orbis.command.parser.AreaTypeParser;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionParser;
@@ -63,6 +65,11 @@ public final class CommonCommands {
                 .registerParserSupplier(
                         flagValueToken, parserParameters -> new FlagValueParser<>(manager));
 
+        final TypeToken<?> areaTypeToken = TypeToken.get(
+                TypeFactory.parameterizedClass(AreaType.class, TypeFactory.unboundWildcard()));
+        manager.parserRegistry()
+                .registerParserSupplier(areaTypeToken, parserParameters -> new AreaTypeParser<>());
+
         AnnotationParser<OrbisSession> annotationParser =
                 new AnnotationParser<>(manager, OrbisSession.class);
 
@@ -75,6 +82,7 @@ public final class CommonCommands {
                 .defaultCommandExecutionHandler()
                 .registerTo(manager);
 
-        annotationParser.parse(new RegionCommand());
+        annotationParser.parse(new RegionCommand(orbis));
+        annotationParser.parse(new SelectionCommand(orbis));
     }
 }

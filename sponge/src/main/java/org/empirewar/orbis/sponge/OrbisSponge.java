@@ -25,10 +25,14 @@ import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.sponge.command.SpongeCommands;
+import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.sponge.listener.BlockActionListener;
+import org.empirewar.orbis.sponge.listener.ConnectionListener;
 import org.empirewar.orbis.sponge.listener.InteractEntityListener;
 import org.empirewar.orbis.sponge.listener.MovementListener;
+import org.empirewar.orbis.sponge.selection.SelectionListener;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.slf4j.Logger;
@@ -38,6 +42,7 @@ import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
@@ -69,6 +74,7 @@ import java.util.stream.Collectors;
 @Plugin("orbis")
 public class OrbisSponge implements Orbis {
 
+    private final SelectionManager selectionManager = new SelectionManager();
     private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
     private final Map<UUID, RegionisedWorldSet> worldSets = new HashMap<>();
 
@@ -77,6 +83,10 @@ public class OrbisSponge implements Orbis {
 
     public PluginContainer pluginContainer() {
         return pluginContainer;
+    }
+
+    public static OrbisSponge get() {
+        return (OrbisSponge) OrbisAPI.get();
     }
 
     @Inject
@@ -117,6 +127,11 @@ public class OrbisSponge implements Orbis {
         } catch (IOException e) {
             logger().error("Error saving regions", e);
         }
+    }
+
+    @Listener
+    private void onRegisterData(final RegisterDataEvent event) {
+        SpongeDataKeys.register(event);
     }
 
     @Listener
@@ -165,6 +180,8 @@ public class OrbisSponge implements Orbis {
         eventManager.registerListeners(pluginContainer, new BlockActionListener(this));
         eventManager.registerListeners(pluginContainer, new InteractEntityListener(this));
         eventManager.registerListeners(pluginContainer, new MovementListener(this));
+        eventManager.registerListeners(pluginContainer, new ConnectionListener(this));
+        eventManager.registerListeners(pluginContainer, new SelectionListener(this));
     }
 
     private void loadWorld(ServerWorld world) {
@@ -210,6 +227,11 @@ public class OrbisSponge implements Orbis {
     }
 
     @Override
+    public SelectionManager selectionManager() {
+        return selectionManager;
+    }
+
+    @Override
     public Set<RegionisedWorld> getRegionisedWorlds() {
         return worldSets.values().stream().collect(Collectors.toUnmodifiableSet());
     }
@@ -222,6 +244,11 @@ public class OrbisSponge implements Orbis {
     @Override
     public RegionisedWorld getRegionisedWorld(UUID worldId) {
         return worldSets.get(worldId);
+    }
+
+    @Override
+    public UUID getPlayerWorld(UUID player) {
+        return Sponge.server().player(player).orElseThrow().world().uniqueId();
     }
 
     @Override

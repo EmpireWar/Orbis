@@ -17,21 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.sponge.command;
+package org.empirewar.orbis.util;
 
-import org.empirewar.orbis.player.ConsoleOrbisSession;
-import org.spongepowered.api.command.CommandCause;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 
-public class ConsoleOrbisSessionExtension extends ConsoleOrbisSession {
+public final class OrbisText {
 
-    private final CommandCause cause;
+    public static final TextColor MAIN = TextColor.fromHexString("#3FA489");
+    public static final TextColor SECONDARY_RED = TextColor.color(244, 61, 61);
+    public static final TextColor SECONDARY_ORANGE = TextColor.fromHexString("#F5AF2F");
+    public static final TextColor EREBOR_GREEN = TextColor.color(4, 219, 100);
 
-    public ConsoleOrbisSessionExtension(CommandCause cause) {
-        super(cause.audience());
-        this.cause = cause;
-    }
-
-    public CommandCause cause() {
-        return cause;
-    }
+    public static final Component PREFIX = Component.text("[\uD83C\uDF0D] ", MAIN);
 }

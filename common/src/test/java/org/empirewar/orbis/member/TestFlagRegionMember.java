@@ -21,6 +21,7 @@ package org.empirewar.orbis.member;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
@@ -33,7 +34,7 @@ public class TestFlagRegionMember {
 
     @Test
     void testRegionWithMemberAndGroupedFlag() {
-        Region region = new Region("Selma");
+        Region region = new Region("Selma", new CuboidArea());
         region.addGroupedFlag(DefaultFlags.ITEM_FRAME_ITEM_PLACE, Set.of(FlagMemberGroup.MEMBER));
         final UUID fakePlayer = UUID.randomUUID();
         final PlayerMember fakeMember = new PlayerMember(fakePlayer);

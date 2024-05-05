@@ -41,6 +41,7 @@ import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
@@ -207,7 +208,7 @@ public final class WorldGuardMigrator {
                         "Processing region " + region.getId() + "...", NamedTextColor.YELLOW));
                 Region orbisRegion = region.getId().equals("__global__")
                         ? regionisedWorld.getByName(world.key().asString()).orElseThrow()
-                        : new Region(region.getId());
+                        : new Region(region.getId(), new CuboidArea());
 
                 if (!orbisRegion.isGlobal()) {
                     // TODO poly support

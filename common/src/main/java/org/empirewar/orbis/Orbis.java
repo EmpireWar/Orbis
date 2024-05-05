@@ -20,6 +20,7 @@
 package org.empirewar.orbis;
 
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.serialization.StaticGsonProvider;
 import org.empirewar.orbis.serialization.context.CodecContext;
 import org.empirewar.orbis.world.RegionisedWorld;
@@ -41,6 +42,8 @@ import java.util.UUID;
  */
 public interface Orbis {
 
+    SelectionManager selectionManager();
+
     /**
      * Gets all regionised worlds.
      * <p>
@@ -56,6 +59,8 @@ public interface Orbis {
     RegionisedWorld getGlobalWorld();
 
     RegionisedWorld getRegionisedWorld(UUID worldId);
+
+    UUID getPlayerWorld(UUID player);
 
     Path dataFolder();
 

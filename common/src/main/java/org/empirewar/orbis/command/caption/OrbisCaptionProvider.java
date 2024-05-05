@@ -54,6 +54,12 @@ public final class OrbisCaptionProvider<C> extends DelegatingCaptionProvider<C> 
     public static final String ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID =
             "Invalid flag value '<input>': <error>";
 
+    /**
+     * Default caption for {@link OrbisCaptionKeys#ARGUMENT_PARSE_FAILURE_AREA_TYPE_NOT_FOUND}.
+     */
+    public static final String ARGUMENT_PARSE_FAILURE_AREA_TYPE_NOT_FOUND =
+            "Could not find area type '<input>'";
+
     private static final CaptionProvider<?> PROVIDER = CaptionProvider.constantProvider()
             .putCaption(
                     OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGION_NOT_FOUND,
@@ -67,6 +73,9 @@ public final class OrbisCaptionProvider<C> extends DelegatingCaptionProvider<C> 
             .putCaption(
                     OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID,
                     ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID)
+            .putCaption(
+                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_AREA_TYPE_NOT_FOUND,
+                    ARGUMENT_PARSE_FAILURE_AREA_TYPE_NOT_FOUND)
             .build();
 
     @Override

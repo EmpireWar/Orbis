@@ -27,7 +27,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.area.Area;
-import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.flag.GroupedMutableRegionFlag;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
@@ -93,12 +92,12 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
 
     private int priority;
 
-    public Region(String name) {
+    public Region(String name, Area area) {
         this.name = name;
         this.parents = new HashSet<>();
         this.members = new HashSet<>();
         this.flags = new HashMap<>();
-        this.area = new CuboidArea();
+        this.area = area;
         this.priority = 1;
     }
 

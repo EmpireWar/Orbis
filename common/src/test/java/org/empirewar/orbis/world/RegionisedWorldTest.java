@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.GlobalRegion;
@@ -44,7 +45,7 @@ public class RegionisedWorldTest {
     @Order(1)
     void testAddingGettingAndRemovingRegion() {
         RegionisedWorldSet set = new RegionisedWorldSet();
-        Region region = new Region("test");
+        Region region = new Region("test", new CuboidArea());
         assertTrue(set.add(region));
         assertTrue(set.getByName("test").isPresent());
         assertTrue(set.remove(region));
@@ -54,7 +55,7 @@ public class RegionisedWorldTest {
     @Order(2)
     void testWorldPositionQuery() {
         RegionisedWorldSet set = new RegionisedWorldSet();
-        Region region = new Region("test");
+        Region region = new Region("test", new CuboidArea());
         // Based on a real-world example
         region.area().addPoint(new Vector3i(-467, 147, 49));
         region.area().addPoint(new Vector3i(-652, 4, -87));
@@ -70,9 +71,9 @@ public class RegionisedWorldTest {
     @Order(3)
     void testWorldPositionPriorityQuery() {
         RegionisedWorldSet set = new RegionisedWorldSet();
-        Region region = new Region("test");
-        Region region2 = new Region("test2");
-        Region region3 = new Region("test3");
+        Region region = new Region("test", new CuboidArea());
+        Region region2 = new Region("test2", new CuboidArea());
+        Region region3 = new Region("test3", new CuboidArea());
 
         region.area().addPoint(new Vector3i());
         region.area().addPoint(new Vector3i(5, 5, 5));
@@ -102,7 +103,7 @@ public class RegionisedWorldTest {
     @Order(4)
     void testChainedWorldPositionQuery() {
         RegionisedWorldSet set = new RegionisedWorldSet();
-        Region region = new Region("test");
+        Region region = new Region("test", new CuboidArea());
         // Based on a real-world example
         region.area().addPoint(new Vector3i(-467, 147, 49));
         region.area().addPoint(new Vector3i(-652, 4, -87));
@@ -121,8 +122,8 @@ public class RegionisedWorldTest {
     @Order(5)
     void testComplexChainedWorldPositionQuery() {
         RegionisedWorldSet set = new RegionisedWorldSet();
-        Region region = new Region("test");
-        Region region2 = new Region("test2");
+        Region region = new Region("test", new CuboidArea());
+        Region region2 = new Region("test2", new CuboidArea());
         region.area().addPoint(new Vector3i());
         region.area().addPoint(new Vector3i(5, 5, 5));
         region.addFlag(DefaultFlags.CAN_BREAK);

@@ -30,8 +30,10 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.empirewar.orbis.command.CommonCommands;
+import org.empirewar.orbis.command.parser.AreaTypeParser;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionParser;
@@ -40,9 +42,11 @@ import org.empirewar.orbis.member.Member;
 import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
 import org.empirewar.orbis.paper.OrbisPaper;
+import org.empirewar.orbis.paper.session.PlayerSession;
 import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.util.OrbisText;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
 import org.incendo.cloud.bukkit.internal.BukkitBrigadierMapper;
@@ -55,8 +59,14 @@ public final class PaperCommands {
         PaperCommandManager<OrbisSession> manager = new PaperCommandManager<>(
                 plugin, /* 1 */
                 ExecutionCoordinator.asyncCoordinator(), /* 2 */
-                SenderMapper.create(ConsoleOrbisSession::new, session ->
-                        (CommandSender) session.audience()) /* 3 */);
+                SenderMapper.create(
+                        sender -> {
+                            if (sender instanceof Player player) {
+                                return new PlayerSession(player);
+                            }
+                            return new ConsoleOrbisSession(sender);
+                        },
+                        session -> (CommandSender) session.audience()) /* 3 */);
 
         if (manager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
             manager.registerBrigadier();
@@ -83,6 +93,9 @@ public final class PaperCommands {
         brigadierMapper.mapSimpleNMS(
                 new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
 
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<AreaTypeParser<OrbisSession>>() {}, "resource_location", true);
+
         manager.command(manager.commandBuilder("orbis")
                 .literal("migrate")
                 .literal("worldguard")
@@ -99,6 +112,13 @@ public final class PaperCommands {
                     new WorldGuardMigrator(sender.audience());
                 }));
 
+        manager.command(manager.commandBuilder("orbis").literal("wand").handler(context -> {
+            final OrbisSession sender = context.sender();
+            if (sender.audience() instanceof Player player) {
+                player.getInventory().addItem(OrbisPaper.WAND_ITEM);
+            }
+        }));
+
         manager.command(manager.commandBuilder("region", "rg")
                 .literal("member")
                 .literal("add")
@@ -110,10 +130,10 @@ public final class PaperCommands {
                     region.addMember(new PlayerMember(player.getUniqueId()));
                     final OrbisSession sender = context.sender();
                     sender.audience()
-                            .sendMessage(Component.text(
+                            .sendMessage(OrbisText.PREFIX.append(Component.text(
                                     "Added " + player.getName() + " as a member to region "
                                             + region.name() + ".",
-                                    NamedTextColor.GREEN));
+                                    OrbisText.EREBOR_GREEN)));
                 }));
 
         manager.command(manager.commandBuilder("region", "rg")

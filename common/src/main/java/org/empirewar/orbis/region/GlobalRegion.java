@@ -45,17 +45,17 @@ public final class GlobalRegion extends Region {
                     .apply(instance, GlobalRegion::new));
 
     public GlobalRegion(RegionisedWorldSet set) {
-        super(set.worldName().orElseThrow());
+        super(set.worldName().orElseThrow(), null);
         this.priority(0);
     }
 
     public GlobalRegion(String name) {
-        super(name);
+        super(name, null);
         this.priority(0);
     }
 
     private GlobalRegion(String name, List<MutableRegionFlag<?>> flags) {
-        super(name);
+        super(name, null);
         this.priority(0);
         flags.forEach(mu -> this.flags.put(mu.key(), mu));
         CodecContext.queue().rewardPatience(Region.class, this);

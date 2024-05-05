@@ -22,6 +22,7 @@ package org.empirewar.orbis.region;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.empirewar.orbis.area.CuboidArea;
 import org.junit.jupiter.api.Test;
 
 public class RegionTest {
@@ -29,9 +30,9 @@ public class RegionTest {
     @Test
     void testParentLoops() {
         // test -> test2 -> test3
-        Region region = new Region("test");
-        Region region2 = new Region("test2");
-        Region region3 = new Region("test3");
+        Region region = new Region("test", new CuboidArea());
+        Region region2 = new Region("test2", new CuboidArea());
+        Region region3 = new Region("test3", new CuboidArea());
         assertDoesNotThrow(() -> region2.addParent(region));
         assertDoesNotThrow(() -> region3.addParent(region2));
         assertThrows(IllegalArgumentException.class, () -> region2.addParent(region2));
@@ -42,7 +43,7 @@ public class RegionTest {
     @Test
     void testInvalidGlobalMethods() {
         GlobalRegion region = new GlobalRegion("test");
-        Region other = new Region("other");
+        Region other = new Region("other", new CuboidArea());
         assertThrows(IllegalStateException.class, region::parents);
         assertThrows(IllegalStateException.class, () -> region.addParent(other));
         assertThrows(IllegalStateException.class, () -> region.removeParent(other));

@@ -22,6 +22,7 @@ package org.empirewar.orbis.flag;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
@@ -33,7 +34,7 @@ public class RegionFlagTest {
 
     @Test
     void testAddingFlagAndQuery() {
-        Region region = new Region("test");
+        Region region = new Region("test", new CuboidArea());
         region.addFlag(DefaultFlags.CAN_BREAK);
 
         region.setFlag(DefaultFlags.CAN_BREAK, false);
@@ -55,7 +56,7 @@ public class RegionFlagTest {
 
     @Test
     void testRegionParentFlags() {
-        Region region = new Region("test");
+        Region region = new Region("test", new CuboidArea());
         GlobalRegion region2 = new GlobalRegion("test2");
         region2.addFlag(DefaultFlags.CAN_BREAK);
         region2.setFlag(DefaultFlags.CAN_BREAK, false);
@@ -66,7 +67,7 @@ public class RegionFlagTest {
         assertTrue(result.isPresent());
         assertFalse(result.get());
 
-        Region region3 = new Region("test3");
+        Region region3 = new Region("test3", new CuboidArea());
         region3.priority(100);
         region3.addFlag(DefaultFlags.CAN_BREAK);
         region.addParent(region3);

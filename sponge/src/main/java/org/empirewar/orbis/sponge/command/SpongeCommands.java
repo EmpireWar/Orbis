@@ -31,11 +31,15 @@ import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.sponge.OrbisSponge;
+import org.empirewar.orbis.sponge.session.ConsoleOrbisSessionExtension;
+import org.empirewar.orbis.sponge.session.PlayerSession;
+import org.empirewar.orbis.util.OrbisText;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.setting.ManagerSetting;
 import org.incendo.cloud.sponge.SpongeCommandManager;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
 public final class SpongeCommands {
 
@@ -44,8 +48,18 @@ public final class SpongeCommands {
                 plugin.pluginContainer(),
                 ExecutionCoordinator.asyncCoordinator(),
                 SenderMapper.create(
-                        ConsoleOrbisSessionExtension::new,
-                        s -> ((ConsoleOrbisSessionExtension) s).cause()));
+                        cause -> {
+                            if (cause.audience() instanceof ServerPlayer player) {
+                                return new PlayerSession(player, cause);
+                            }
+                            return new ConsoleOrbisSessionExtension(cause);
+                        },
+                        session -> {
+                            if (session instanceof PlayerSession player) {
+                                return player.getCause();
+                            }
+                            return ((ConsoleOrbisSessionExtension) session).cause();
+                        }));
 
         manager.settings().set(ManagerSetting.ALLOW_UNSAFE_REGISTRATION, true);
         manager.settings().set(ManagerSetting.OVERRIDE_EXISTING_COMMANDS, true);
@@ -63,10 +77,10 @@ public final class SpongeCommands {
                     region.addMember(new PlayerMember(player.uniqueId()));
                     final OrbisSession sender = context.sender();
                     sender.audience()
-                            .sendMessage(Component.text(
+                            .sendMessage(OrbisText.PREFIX.append(Component.text(
                                     "Added " + player.name() + " as a member to region "
                                             + region.name() + ".",
-                                    NamedTextColor.GREEN));
+                                    OrbisText.EREBOR_GREEN)));
                 }));
 
         manager.command(manager.commandBuilder("region", "rg")
