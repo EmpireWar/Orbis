@@ -21,6 +21,8 @@ package org.empirewar.orbis.command;
 
 import static net.kyori.adventure.text.Component.text;
 
+import net.kyori.adventure.text.Component;
+
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.area.AreaType;
@@ -30,6 +32,8 @@ import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.member.FlagMemberGroup;
+import org.empirewar.orbis.member.Member;
+import org.empirewar.orbis.member.PermissionMember;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.empirewar.orbis.region.GlobalRegion;
@@ -287,6 +291,41 @@ public record RegionCommand(Orbis orbis) {
                 .sendMessage(OrbisText.PREFIX.append(text(
                         "Added point [" + x + ", " + y + ", " + z + "] to '" + region.name() + "'",
                         OrbisText.EREBOR_GREEN)));
+    }
+
+    @Command("region|rg member permission add <region> <permission>")
+    public void onAddPermission(
+            OrbisSession session,
+            @Argument("region") Region region,
+            @Argument("permission") String permission) {
+        region.addMember(new PermissionMember(permission));
+        session.audience()
+                .sendMessage(OrbisText.PREFIX.append(Component.text(
+                        "Added permission " + permission + " as a member to region " + region.name()
+                                + ".",
+                        OrbisText.EREBOR_GREEN)));
+    }
+
+    @Command("region|rg member permission remove <region> <permission>")
+    public void onRemovePermission(
+            OrbisSession session,
+            @Argument("region") Region region,
+            @Argument("permission") String permission) {
+        for (Member member : region.members()) {
+            if (member instanceof PermissionMember permissionMember
+                    && permissionMember.permission().equals(permission)) {
+                region.removeMember(member);
+                session.audience()
+                        .sendMessage(OrbisText.PREFIX.append(Component.text(
+                                "Removed permission member '" + permission + "'.",
+                                OrbisText.EREBOR_GREEN)));
+                return;
+            }
+        }
+
+        session.audience()
+                .sendMessage(OrbisText.PREFIX.append(Component.text(
+                        "Couldn't find a member with that name.", OrbisText.SECONDARY_RED)));
     }
 
     @Suggestions("groups")

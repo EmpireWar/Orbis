@@ -62,6 +62,8 @@ public interface Orbis {
 
     UUID getPlayerWorld(UUID player);
 
+    boolean hasPermission(UUID player, String permission);
+
     Path dataFolder();
 
     ConfigurationNode config();

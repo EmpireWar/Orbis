@@ -22,46 +22,48 @@ package org.empirewar.orbis.member;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import org.empirewar.orbis.util.ExtraCodecs;
+import org.empirewar.orbis.OrbisAPI;
 
 import java.util.Objects;
 import java.util.UUID;
 
-public final class PlayerMember extends Member {
+public final class PermissionMember extends Member {
 
-    public static Codec<PlayerMember> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    ExtraCodecs.STRING_UUID.fieldOf("player_id").forGetter(PlayerMember::playerId))
-            .apply(instance, PlayerMember::new));
+    public static Codec<PermissionMember> CODEC =
+            RecordCodecBuilder.create(instance -> instance.group(Codec.STRING
+                            .fieldOf("permission")
+                            .forGetter(PermissionMember::permission))
+                    .apply(instance, PermissionMember::new));
 
-    private final UUID playerId;
+    private final String permission;
 
-    public PlayerMember(UUID playerId) {
-        this.playerId = playerId;
+    public PermissionMember(String permission) {
+        this.permission = permission;
     }
 
-    public UUID playerId() {
-        return playerId;
+    public String permission() {
+        return permission;
     }
 
     @Override
     public boolean checkMember(UUID member) {
-        return member.equals(playerId);
+        return OrbisAPI.get().hasPermission(member, permission);
     }
 
     @Override
     public MemberType<?> getType() {
-        return MemberType.PLAYER;
+        return MemberType.PERMISSION;
     }
 
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
-        if (!(object instanceof PlayerMember that)) return false;
-        return Objects.equals(playerId, that.playerId);
+        if (!(object instanceof PermissionMember that)) return false;
+        return Objects.equals(permission, that.permission);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(playerId);
+        return Objects.hashCode(permission);
     }
 }

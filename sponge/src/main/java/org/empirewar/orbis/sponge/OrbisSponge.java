@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -251,6 +252,13 @@ public class OrbisSponge implements Orbis {
     @Override
     public UUID getPlayerWorld(UUID player) {
         return Sponge.server().player(player).orElseThrow().world().uniqueId();
+    }
+
+    @Override
+    public boolean hasPermission(UUID player, String permission) {
+        final ServerPlayer sponge = Sponge.server().player(player).orElse(null);
+        if (sponge == null) return false;
+        return sponge.hasPermission(permission);
     }
 
     @Override

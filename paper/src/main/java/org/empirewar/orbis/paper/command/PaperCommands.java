@@ -125,6 +125,7 @@ public final class PaperCommands {
 
         manager.command(manager.commandBuilder("region", "rg")
                 .literal("member")
+                .literal("player")
                 .literal("add")
                 .required("region", regionParser())
                 .required("player", offlinePlayerParser())
@@ -142,6 +143,7 @@ public final class PaperCommands {
 
         manager.command(manager.commandBuilder("region", "rg")
                 .literal("member")
+                .literal("player")
                 .literal("remove")
                 .required("region", regionParser())
                 .required("player", offlinePlayerParser())
@@ -154,15 +156,16 @@ public final class PaperCommands {
                                 && playerMember.playerId().equals(player.getUniqueId())) {
                             region.removeMember(member);
                             sender.audience()
-                                    .sendMessage(Component.text(
+                                    .sendMessage(OrbisText.PREFIX.append(Component.text(
                                             "Removed member '" + player.getName() + "'.",
-                                            NamedTextColor.GREEN));
+                                            OrbisText.EREBOR_GREEN)));
                             return;
                         }
                     }
                     sender.audience()
-                            .sendMessage(Component.text(
-                                    "Couldn't find a member with that name.", NamedTextColor.RED));
+                            .sendMessage(OrbisText.PREFIX.append(Component.text(
+                                    "Couldn't find a member with that name.",
+                                    OrbisText.SECONDARY_RED)));
                 }));
     }
 }

@@ -23,7 +23,6 @@ import static org.empirewar.orbis.command.parser.RegionParser.regionParser;
 import static org.incendo.cloud.sponge.parser.UserParser.userParser;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 import org.empirewar.orbis.command.CommonCommands;
 import org.empirewar.orbis.member.Member;
@@ -83,6 +82,7 @@ public final class SpongeCommands {
 
         manager.command(manager.commandBuilder("region", "rg")
                 .literal("member")
+                .literal("player")
                 .literal("add")
                 .required("region", regionParser())
                 .required("player", userParser())
@@ -100,6 +100,7 @@ public final class SpongeCommands {
 
         manager.command(manager.commandBuilder("region", "rg")
                 .literal("member")
+                .literal("player")
                 .literal("remove")
                 .required("region", regionParser())
                 .required("player", userParser())
@@ -112,15 +113,16 @@ public final class SpongeCommands {
                                 && playerMember.playerId().equals(player.uniqueId())) {
                             region.removeMember(member);
                             sender.audience()
-                                    .sendMessage(Component.text(
+                                    .sendMessage(OrbisText.PREFIX.append(Component.text(
                                             "Removed member '" + player.name() + "'.",
-                                            NamedTextColor.GREEN));
+                                            OrbisText.EREBOR_GREEN)));
                             return;
                         }
                     }
                     sender.audience()
-                            .sendMessage(Component.text(
-                                    "Couldn't find a member with that name.", NamedTextColor.RED));
+                            .sendMessage(OrbisText.PREFIX.append(Component.text(
+                                    "Couldn't find a member with that name.",
+                                    OrbisText.SECONDARY_RED)));
                 }));
     }
 }

@@ -23,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -225,6 +226,13 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
     @Override
     public UUID getPlayerWorld(UUID player) {
         return Bukkit.getPlayer(player).getWorld().getUID();
+    }
+
+    @Override
+    public boolean hasPermission(UUID player, String permission) {
+        final Player bukkit = Bukkit.getPlayer(player);
+        if (bukkit == null) return false;
+        return bukkit.hasPermission(permission);
     }
 
     @Override

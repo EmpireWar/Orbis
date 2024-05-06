@@ -28,6 +28,7 @@ public interface MemberType<M extends Member> {
 
     // spotless:off
     MemberType<PlayerMember> PLAYER = register("player", PlayerMember.CODEC);
+    MemberType<PermissionMember> PERMISSION = register("permission", PermissionMember.CODEC);
     // spotless:on
 
     Codec<M> codec();

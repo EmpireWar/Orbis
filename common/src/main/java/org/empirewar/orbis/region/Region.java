@@ -32,7 +32,6 @@ import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.member.FlagMemberGroup;
 import org.empirewar.orbis.member.Member;
-import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.serialization.context.CodecContext;
 import org.jetbrains.annotations.NotNull;
@@ -277,10 +276,8 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
             RegionQuery.Flag<FR> flag) {
         final Optional<MutableRegionFlag<FR>> foundFlag = getFlag(flag.flag());
         final Optional<UUID> player = flag.player();
-        final PlayerMember playerMember = player.flatMap(uuid -> members.stream()
-                        .filter(PlayerMember.class::isInstance)
-                        .map(PlayerMember.class::cast)
-                        .filter(member -> member.playerId().equals(uuid))
+        final Member playerMember = player.flatMap(uuid -> members.stream()
+                        .filter(member -> member.checkMember(uuid))
                         .findAny())
                 .orElse(null);
 
