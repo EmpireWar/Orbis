@@ -55,12 +55,31 @@ public final class SelectionListener {
     }
 
     @Listener
-    public void onLeftRightClick(InteractBlockEvent event, @Root ServerPlayer player) {
+    public void onRightClick(InteractBlockEvent.Secondary event, @Root ServerPlayer player) {
         final ItemStackSnapshot item =
                 event.context().get(EventContextKeys.USED_ITEM).orElse(ItemStackSnapshot.empty());
-        if (item.isEmpty()) return;
+        if (item.isEmpty() || !item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
 
-        if (!item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
+        final Selection selection = api.selectionManager().get(player.uniqueId()).orElse(null);
+        if (selection == null) {
+            player.sendMessage(OrbisText.PREFIX.append(Component.text("You don't have an active selection.", OrbisText.SECONDARY_RED)));
+            return;
+        }
+
+        final Vector3i last = selection.getPoints().stream()
+                .reduce((first, second) -> second)
+                .orElse(null);
+        if (last == null) return;
+        selection.removePoint(last);
+        player.sendMessage(OrbisText.PREFIX.append(
+                Component.text("Removed the last added point.", OrbisText.SECONDARY_RED)));
+    }
+
+    @Listener
+    public void onLeftClick(InteractBlockEvent.Primary event, @Root ServerPlayer player) {
+        final ItemStackSnapshot item =
+                event.context().get(EventContextKeys.USED_ITEM).orElse(ItemStackSnapshot.empty());
+        if (item.isEmpty() || !item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
 
         final Selection selection = api.selectionManager()
                 .get(player.uniqueId())
@@ -71,17 +90,6 @@ public final class SelectionListener {
                             "Started a new cuboid selection.", OrbisText.EREBOR_GREEN)));
                     return newSelection;
                 });
-
-        if (event instanceof InteractBlockEvent.Secondary) {
-            final Vector3i last = selection.getPoints().stream()
-                    .reduce((first, second) -> second)
-                    .orElse(null);
-            if (last == null) return;
-            selection.removePoint(last);
-            player.sendMessage(OrbisText.PREFIX.append(
-                    Component.text("Removed the last added point.", OrbisText.SECONDARY_RED)));
-            return;
-        }
 
         Vector3i point;
         final BlockSnapshot block = event.block();

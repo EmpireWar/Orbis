@@ -50,9 +50,21 @@ public record SelectionListener(Orbis api) implements Listener {
     public void onLeftRightClick(PlayerInteractEvent event) {
         final Player player = event.getPlayer();
         final ItemStack item = event.getItem();
-        if (item == null) return;
+        if (item == null || !OrbisPaper.isWand(item)) return;
 
-        if (!OrbisPaper.isWand(item)) return;
+        final Action action = event.getAction();
+        if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+            final Selection selection = api.selectionManager().get(player.getUniqueId()).orElse(null);
+            if (selection == null) return;
+            final Vector3i last = selection.getPoints().stream()
+                    .reduce((first, second) -> second)
+                    .orElse(null);
+            if (last == null) return;
+            selection.removePoint(last);
+            player.sendMessage(OrbisText.PREFIX.append(
+                    Component.text("Removed the last added point.", OrbisText.SECONDARY_RED)));
+            return;
+        }
 
         final Selection selection = api.selectionManager()
                 .get(player.getUniqueId())
@@ -63,18 +75,6 @@ public record SelectionListener(Orbis api) implements Listener {
                             "Started a new cuboid selection.", OrbisText.EREBOR_GREEN)));
                     return newSelection;
                 });
-
-        final Action action = event.getAction();
-        if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
-            final Vector3i last = selection.getPoints().stream()
-                    .reduce((first, second) -> second)
-                    .orElse(null);
-            if (last == null) return;
-            selection.removePoint(last);
-            player.sendMessage(OrbisText.PREFIX.append(
-                    Component.text("Removed the last added point.", OrbisText.SECONDARY_RED)));
-            return;
-        }
 
         Vector3i point;
         final Block block = event.getClickedBlock();

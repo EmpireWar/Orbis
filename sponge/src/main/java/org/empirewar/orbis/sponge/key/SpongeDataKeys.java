@@ -44,7 +44,7 @@ public final class SpongeDataKeys {
     public static void initialized() {
         WAND_ITEM = ItemStack.builder().itemType(ItemTypes.BLAZE_ROD).build();
         WAND_ITEM.offer(IS_WAND, true);
-        WAND_ITEM.offer(Keys.DISPLAY_NAME, Selection.WAND_NAME);
+        WAND_ITEM.offer(Keys.CUSTOM_NAME, Selection.WAND_NAME);
         WAND_ITEM.offerAll(Keys.LORE, Selection.WAND_LORE);
     }
 }
