@@ -20,12 +20,14 @@
 package org.empirewar.orbis.migrations.worldguard;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionType;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
@@ -41,7 +43,9 @@ import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.area.CuboidArea;
+import org.empirewar.orbis.area.PolygonArea;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
@@ -204,18 +208,31 @@ public final class WorldGuardMigrator {
                     continue;
                 }
 
+                Area area = region.getType() == RegionType.POLYGON
+                        ? new PolygonArea()
+                        : new CuboidArea();
+
                 audience.sendMessage(Component.text(
                         "Processing region " + region.getId() + "...", NamedTextColor.YELLOW));
                 Region orbisRegion = region.getId().equals("__global__")
                         ? regionisedWorld.getByName(world.key().asString()).orElseThrow()
-                        : new Region(region.getId(), new CuboidArea());
+                        : new Region(region.getId(), area);
 
                 if (!orbisRegion.isGlobal()) {
-                    // TODO poly support
-                    final BlockVector3 min = region.getMinimumPoint();
-                    final BlockVector3 max = region.getMaximumPoint();
-                    orbisRegion.area().addPoint(new Vector3i(min.getX(), min.getY(), min.getZ()));
-                    orbisRegion.area().addPoint(new Vector3i(max.getX(), max.getY(), max.getZ()));
+                    if (area instanceof PolygonArea) {
+                        for (BlockVector2 point : region.getPoints()) {
+                            area.addPoint(new Vector3i(point.getBlockX(), 0, point.getBlockZ()));
+                        }
+                    } else {
+                        final BlockVector3 min = region.getMinimumPoint();
+                        final BlockVector3 max = region.getMaximumPoint();
+                        orbisRegion
+                                .area()
+                                .addPoint(new Vector3i(min.getX(), min.getY(), min.getZ()));
+                        orbisRegion
+                                .area()
+                                .addPoint(new Vector3i(max.getX(), max.getY(), max.getZ()));
+                    }
                 }
 
                 for (Flag<?> flag : region.getFlags().keySet()) {

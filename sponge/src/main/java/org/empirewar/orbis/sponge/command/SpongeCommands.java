@@ -39,6 +39,7 @@ import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.setting.ManagerSetting;
 import org.incendo.cloud.sponge.SpongeCommandManager;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
@@ -73,7 +74,10 @@ public final class SpongeCommands {
                 .handler(context -> {
                     final PlayerSession sender = context.sender();
                     if (sender.audience() instanceof ServerPlayer player) {
-                        player.inventory().offer(SpongeDataKeys.WAND_ITEM);
+                        Sponge.server()
+                                .scheduler()
+                                .executor(plugin.pluginContainer())
+                                .execute(() -> player.inventory().offer(SpongeDataKeys.WAND_ITEM));
                     }
                 }));
 

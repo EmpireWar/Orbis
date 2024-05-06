@@ -40,6 +40,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.math.vector.Vector3d;
@@ -55,7 +56,7 @@ public final class SelectionListener {
     }
 
     @Listener
-    public void onRightClick(InteractBlockEvent.Secondary event, @Root ServerPlayer player) {
+    public void onRightClick(InteractItemEvent.Secondary event, @Root ServerPlayer player) {
         final ItemStackSnapshot item =
                 event.context().get(EventContextKeys.USED_ITEM).orElse(ItemStackSnapshot.empty());
         if (item.isEmpty() || !item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
@@ -77,7 +78,7 @@ public final class SelectionListener {
     }
 
     @Listener
-    public void onLeftClick(InteractBlockEvent.Primary event, @Root ServerPlayer player) {
+    public void onLeftClick(InteractBlockEvent.Primary.Start event, @Root ServerPlayer player) {
         final ItemStackSnapshot item =
                 event.context().get(EventContextKeys.USED_ITEM).orElse(ItemStackSnapshot.empty());
         if (item.isEmpty() || !item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
@@ -126,10 +127,9 @@ public final class SelectionListener {
     }
 
     @Listener
-    public void onBreak(ChangeBlockEvent.Pre event, @Root ServerPlayer player) {
+    public void onBreak(ChangeBlockEvent.All event, @Root ServerPlayer player) {
         final ItemStack item = player.itemInHand(HandTypes.MAIN_HAND.get());
-        if (item.isEmpty()) return;
-        if (!item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
+        if (item.isEmpty() || !item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
         event.setCancelled(true);
     }
 }
