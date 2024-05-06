@@ -32,20 +32,17 @@ import java.util.Set;
 public abstract sealed class EncompassingArea implements Area permits CuboidArea, PolygonArea {
 
     protected final Set<Vector3i> points;
-    protected final Set<Vector3ic> blocks;
     protected final Vector3i min = new Vector3i();
     protected final Vector3i max = new Vector3i();
 
     EncompassingArea() {
         final int expected = getExpectedPoints().orElse(0);
         this.points = new HashSet<>(expected);
-        this.blocks = new HashSet<>();
         calculateEncompassingArea();
     }
 
     EncompassingArea(List<Vector3i> points) {
         this.points = new HashSet<>(points);
-        this.blocks = new HashSet<>();
         calculateEncompassingArea();
     }
 
@@ -79,19 +76,6 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
         max.x = maxX;
         max.y = maxY;
         max.z = maxZ;
-
-        blocks.clear();
-
-        for (int x = min.x; x <= max.x; x++) {
-            for (int y = min.y; y <= max.y; y++) {
-                for (int z = min.z; z <= max.z; z++) {
-                    // Contains considers the implementation (e.g. polygon)
-                    if (contains(x, y, z)) {
-                        blocks.add(new Vector3i(x, y, z));
-                    }
-                }
-            }
-        }
     }
 
     @Override
@@ -148,6 +132,17 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
 
     @NotNull @Override
     public Iterator<Vector3ic> iterator() {
+        Set<Vector3ic> blocks = new HashSet<>();
+        for (int x = min.x; x <= max.x; x++) {
+            for (int y = min.y; y <= max.y; y++) {
+                for (int z = min.z; z <= max.z; z++) {
+                    // Contains considers the implementation (e.g. polygon)
+                    if (contains(x, y, z)) {
+                        blocks.add(new Vector3i(x, y, z));
+                    }
+                }
+            }
+        }
         return blocks.iterator();
     }
 }
