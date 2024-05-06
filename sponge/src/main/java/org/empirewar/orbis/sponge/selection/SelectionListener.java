@@ -60,15 +60,16 @@ public final class SelectionListener {
                 event.context().get(EventContextKeys.USED_ITEM).orElse(ItemStackSnapshot.empty());
         if (item.isEmpty() || !item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
 
-        final Selection selection = api.selectionManager().get(player.uniqueId()).orElse(null);
+        final Selection selection =
+                api.selectionManager().get(player.uniqueId()).orElse(null);
         if (selection == null) {
-            player.sendMessage(OrbisText.PREFIX.append(Component.text("You don't have an active selection.", OrbisText.SECONDARY_RED)));
+            player.sendMessage(OrbisText.PREFIX.append(Component.text(
+                    "You don't have an active selection.", OrbisText.SECONDARY_RED)));
             return;
         }
 
-        final Vector3i last = selection.getPoints().stream()
-                .reduce((first, second) -> second)
-                .orElse(null);
+        final Vector3i last =
+                selection.getPoints().stream().reduce((first, second) -> second).orElse(null);
         if (last == null) return;
         selection.removePoint(last);
         player.sendMessage(OrbisText.PREFIX.append(

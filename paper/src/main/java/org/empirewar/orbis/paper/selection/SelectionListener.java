@@ -54,7 +54,8 @@ public record SelectionListener(Orbis api) implements Listener {
 
         final Action action = event.getAction();
         if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
-            final Selection selection = api.selectionManager().get(player.getUniqueId()).orElse(null);
+            final Selection selection =
+                    api.selectionManager().get(player.getUniqueId()).orElse(null);
             if (selection == null) return;
             final Vector3i last = selection.getPoints().stream()
                     .reduce((first, second) -> second)
