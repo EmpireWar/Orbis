@@ -35,18 +35,16 @@ public final class SpongeDataKeys {
     public static final Key<Value<Boolean>> IS_WAND =
             Key.from(OrbisSponge.get().pluginContainer(), "wand", Boolean.class);
 
-    public static final ItemStack WAND_ITEM;
-
-    static {
-        WAND_ITEM = ItemStack.builder()
-                .itemType(ItemTypes.BLAZE_ROD)
-                .add(IS_WAND, true)
-                .add(Keys.DISPLAY_NAME, Selection.WAND_NAME)
-                .build();
-        WAND_ITEM.offerAll(Keys.LORE, Selection.WAND_LORE);
-    }
+    public static ItemStack WAND_ITEM;
 
     public static void register(RegisterDataEvent event) {
         event.register(DataRegistration.of(IS_WAND, ItemStack.class));
+    }
+
+    public static void initialized() {
+        WAND_ITEM = ItemStack.builder().itemType(ItemTypes.BLAZE_ROD).build();
+        WAND_ITEM.offer(IS_WAND, true);
+        WAND_ITEM.offer(Keys.DISPLAY_NAME, Selection.WAND_NAME);
+        WAND_ITEM.offerAll(Keys.LORE, Selection.WAND_LORE);
     }
 }

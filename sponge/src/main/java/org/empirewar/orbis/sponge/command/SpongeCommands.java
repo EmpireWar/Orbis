@@ -31,6 +31,7 @@ import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.sponge.OrbisSponge;
+import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.sponge.session.ConsoleOrbisSessionExtension;
 import org.empirewar.orbis.sponge.session.PlayerSession;
 import org.empirewar.orbis.util.OrbisText;
@@ -65,6 +66,16 @@ public final class SpongeCommands {
         manager.settings().set(ManagerSetting.OVERRIDE_EXISTING_COMMANDS, true);
 
         CommonCommands commonCommands = new CommonCommands(plugin, manager);
+
+        manager.command(manager.commandBuilder("orbis")
+                .senderType(PlayerSession.class)
+                .literal("wand")
+                .handler(context -> {
+                    final PlayerSession sender = context.sender();
+                    if (sender.audience() instanceof ServerPlayer player) {
+                        player.inventory().offer(SpongeDataKeys.WAND_ITEM);
+                    }
+                }));
 
         manager.command(manager.commandBuilder("region", "rg")
                 .literal("member")

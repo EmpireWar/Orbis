@@ -9,7 +9,8 @@ plugins {
 dependencies {
     compileOnly("org.slf4j:slf4j-api:2.0.12")
     implementation("org.incendo:cloud-sponge:2.0.0-SNAPSHOT")
-    implementation("org.incendo:cloud-annotations:2.0.0-beta.4")
+    implementation("org.incendo:cloud-brigadier:2.0.0-beta.5")
+    implementation("org.incendo:cloud-annotations:2.0.0-beta.5")
     implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.5")
     implementation(project(":common"))
     implementation(project(":api:sponge-api"))
@@ -41,6 +42,6 @@ sponge {
 
 tasks {
     shadowJar {
-        relocate("org.incendo.cloud", "com.convallyria.orbis.sponge.libs.cloud")
+        relocate("org.incendo.cloud", "org.empirewar.orbis.sponge.libs.cloud")
     }
 }

@@ -45,6 +45,7 @@ import org.empirewar.orbis.paper.OrbisPaper;
 import org.empirewar.orbis.paper.session.PlayerSession;
 import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.empirewar.orbis.player.OrbisSession;
+import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.util.OrbisText;
 import org.incendo.cloud.SenderMapper;
@@ -112,12 +113,15 @@ public final class PaperCommands {
                     new WorldGuardMigrator(sender.audience());
                 }));
 
-        manager.command(manager.commandBuilder("orbis").literal("wand").handler(context -> {
-            final OrbisSession sender = context.sender();
-            if (sender.audience() instanceof Player player) {
-                player.getInventory().addItem(OrbisPaper.WAND_ITEM);
-            }
-        }));
+        manager.command(manager.commandBuilder("orbis")
+                .senderType(PlayerOrbisSession.class)
+                .literal("wand")
+                .handler(context -> {
+                    final PlayerOrbisSession sender = context.sender();
+                    if (sender.audience() instanceof Player player) {
+                        player.getInventory().addItem(OrbisPaper.WAND_ITEM);
+                    }
+                }));
 
         manager.command(manager.commandBuilder("region", "rg")
                 .literal("member")

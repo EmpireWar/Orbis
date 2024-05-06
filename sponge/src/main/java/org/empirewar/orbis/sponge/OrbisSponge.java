@@ -36,6 +36,7 @@ import org.empirewar.orbis.sponge.selection.SelectionListener;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
@@ -78,7 +79,7 @@ public class OrbisSponge implements Orbis {
     private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
     private final Map<UUID, RegionisedWorldSet> worldSets = new HashMap<>();
 
-    private final Logger logger;
+    private final Logger logger = LoggerFactory.getLogger("orbis");
     private final PluginContainer pluginContainer;
 
     public PluginContainer pluginContainer() {
@@ -89,25 +90,25 @@ public class OrbisSponge implements Orbis {
         return (OrbisSponge) OrbisAPI.get();
     }
 
-    @Inject
-    private @ConfigDir(sharedRoot = false) Path dataFolder;
+    private final @ConfigDir(sharedRoot = false) Path dataFolder;
 
     public Path getDataFolder() {
         return dataFolder;
     }
 
     @Inject
-    public OrbisSponge(PluginContainer pluginContainer, Logger logger) {
+    public OrbisSponge(
+            PluginContainer pluginContainer, @ConfigDir(sharedRoot = false) Path dataFolder) {
         this.pluginContainer = pluginContainer;
-        this.logger = logger;
+        this.dataFolder = dataFolder;
         OrbisAPI.set(this);
+        new SpongeCommands(this);
     }
 
     @Listener
     public void onServerStarting(final StartingEngineEvent<Server> event) {
-        this.registerListeners();
-        new SpongeCommands(this);
         this.loadConfig();
+        this.registerListeners();
         try {
             this.loadRegions();
         } catch (IOException e) {
@@ -117,6 +118,7 @@ public class OrbisSponge implements Orbis {
 
     @Listener
     public void onServerStarted(final StartedEngineEvent<Server> event) {
+        SpongeDataKeys.initialized();
         Sponge.server().worldManager().worlds().forEach(this::loadWorld);
     }
 
