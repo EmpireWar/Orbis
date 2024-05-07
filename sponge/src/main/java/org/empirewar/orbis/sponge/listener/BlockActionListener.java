@@ -57,7 +57,7 @@ public final class BlockActionListener {
         this.orbis = orbis;
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onChange(ChangeBlockEvent.All event) {
         final ServerPlayer serverPlayer =
                 event.cause().first(ServerPlayer.class).orElse(null);
@@ -125,7 +125,7 @@ public final class BlockActionListener {
         });
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onFireSpread(ChangeBlockEvent.Pre event) {
         if (!event.context().containsKey(EventContextKeys.FIRE_SPREAD)) return;
         for (ServerLocation location : event.locations()) {
@@ -136,7 +136,7 @@ public final class BlockActionListener {
         }
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onAttemptAccess(InteractContainerEvent.Open event) {
         // TODO
         //        event.context().get(EventContextKeys.BLOCK_EVENT_PROCESS)

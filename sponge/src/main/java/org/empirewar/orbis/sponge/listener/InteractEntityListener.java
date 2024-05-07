@@ -33,6 +33,7 @@ import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.entity.vehicle.Vehicle;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.cause.entity.damage.DamageType;
 import org.spongepowered.api.event.cause.entity.damage.DamageTypes;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
@@ -53,7 +54,7 @@ public final class InteractEntityListener {
         this.orbis = orbis;
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onAttackDirect(InteractEntityEvent.Primary event) {
         final Entity attacked = event.entity();
         final RegionisedWorld world =
@@ -108,7 +109,7 @@ public final class InteractEntityListener {
         }
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onFallDamage(DamageEntityEvent event) {
         final Entity entity = event.entity();
         if (event.source() instanceof DamageSource damageSource) {
@@ -120,7 +121,7 @@ public final class InteractEntityListener {
         }
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onMobDirectDamage(DamageEntityEvent event, @First Living damager) {
         final Entity entity = event.entity();
         if (!(entity instanceof ServerPlayer)) return;
@@ -132,21 +133,21 @@ public final class InteractEntityListener {
         }
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onDrop(ChangeInventoryEvent.Drop event, @Root ServerPlayer player) {
         if (shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEM)) {
             event.setCancelled(true);
         }
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onPickup(ChangeInventoryEvent.Pickup event, @Root ServerPlayer player) {
         if (shouldPreventEntityAction(player, DefaultFlags.CAN_PICKUP_ITEM)) {
             event.setCancelled(true);
         }
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onRotate(InteractEntityEvent.Secondary event) {
         if (!(event.entity() instanceof ItemFrame itemFrame)) return;
         final boolean rotate = !itemFrame.item().get().isEmpty();
