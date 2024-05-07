@@ -156,6 +156,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
         default <FR> RegionQuery.Result<Optional<FR>, Flag<FR>> query(Flag<FR> flag) {
             final Set<Region> regions = result();
             for (Region region : regions) {
+
                 final RegionQuery.Result<Optional<FR>, Flag<FR>> query = region.query(flag);
                 if (query.result().isPresent()) {
                     return query;

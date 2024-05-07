@@ -19,6 +19,8 @@
  */
 package org.empirewar.orbis.paper;
 
+import net.kyori.adventure.key.Key;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -87,7 +89,7 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
 
     private final SelectionManager selectionManager = new SelectionManager();
     private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
-    private final Map<UUID, RegionisedWorldSet> worldSets = new HashMap<>();
+    private final Map<Key, RegionisedWorldSet> worldSets = new HashMap<>();
 
     @Override
     public void onLoad() {
@@ -197,9 +199,18 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
 
             set.add(globalRegion);
             regions.forEach(set::add);
-            worldSets.put(world.getUID(), set);
+            worldSets.put(world.key(), set);
+            logger().info(
+                            "Loaded world set {} ({}) with {} regions",
+                            world.getUID(),
+                            world.key().asMinimalString(),
+                            regions.size());
         } catch (SerializationException e) {
-            logger().error("Error loading world set {}", world.getUID(), e);
+            logger().error(
+                            "Error loading world set {} ({})",
+                            world.getUID(),
+                            world.key().asMinimalString(),
+                            e);
         }
     }
 
@@ -219,13 +230,13 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
     }
 
     @Override
-    public RegionisedWorld getRegionisedWorld(UUID worldId) {
+    public RegionisedWorld getRegionisedWorld(Key worldId) {
         return worldSets.get(worldId);
     }
 
     @Override
-    public UUID getPlayerWorld(UUID player) {
-        return Bukkit.getPlayer(player).getWorld().getUID();
+    public Key getPlayerWorld(UUID player) {
+        return Bukkit.getPlayer(player).getWorld().key();
     }
 
     @Override

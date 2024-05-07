@@ -51,7 +51,7 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
 
         final Entity attacked = event.getAttacked();
         final RegionisedWorld world =
-                orbis.getRegionisedWorld(attacked.getWorld().getUID());
+                orbis.getRegionisedWorld(attacked.getWorld().key());
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> query =
                 world.query(RegionQuery.Position.builder()
                         .position(attacked.getX(), attacked.getY(), attacked.getZ()));
@@ -152,7 +152,7 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
     }
 
     private boolean shouldPreventEntityAction(Entity entity, RegionFlag<Boolean> flag) {
-        return !orbis.getRegionisedWorld(entity.getWorld().getUID())
+        return !orbis.getRegionisedWorld(entity.getWorld().key())
                 .query(RegionQuery.Position.builder()
                         .position(entity.getX(), entity.getY(), entity.getZ()))
                 .query(RegionQuery.Flag.builder(flag).player(entity.getUniqueId()))

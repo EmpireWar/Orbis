@@ -19,6 +19,8 @@
  */
 package org.empirewar.orbis;
 
+import net.kyori.adventure.key.Key;
+
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.serialization.StaticGsonProvider;
@@ -58,9 +60,9 @@ public interface Orbis {
      */
     RegionisedWorld getGlobalWorld();
 
-    RegionisedWorld getRegionisedWorld(UUID worldId);
+    RegionisedWorld getRegionisedWorld(Key worldId);
 
-    UUID getPlayerWorld(UUID player);
+    Key getPlayerWorld(UUID player);
 
     boolean hasPermission(UUID player, String permission);
 

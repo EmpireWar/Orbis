@@ -52,7 +52,7 @@ public final class MovementListener {
         if (!(event.entity() instanceof ServerPlayer player)) return;
         final Vector3d to = event.destinationPosition();
         final Vector3d from = event.originalPosition();
-        final RegionisedWorld world = orbis.getRegionisedWorld(player.world().uniqueId());
+        final RegionisedWorld world = orbis.getRegionisedWorld(player.world().key());
 
         if (event.context().get(EventContextKeys.MOVEMENT_TYPE).orElse(null)
                 == MovementTypes.ENTITY_TELEPORT.get()) {
@@ -112,7 +112,7 @@ public final class MovementListener {
         if (!(event.targetHolder() instanceof ServerPlayer entity)) return;
         if (event.endResult().successfulData().stream()
                 .noneMatch(immutable -> immutable.key() == Keys.FOOD_LEVEL)) return;
-        final RegionisedWorld world = orbis.getRegionisedWorld(entity.world().uniqueId());
+        final RegionisedWorld world = orbis.getRegionisedWorld(entity.world().key());
         final boolean drain = world.query(RegionQuery.Position.builder()
                         .position(
                                 entity.position().x(),

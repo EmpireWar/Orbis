@@ -19,11 +19,14 @@
  */
 package org.empirewar.orbis.paper.command;
 
+import static net.kyori.adventure.text.Component.text;
+
 import static org.empirewar.orbis.command.parser.RegionParser.regionParser;
 import static org.incendo.cloud.bukkit.parser.OfflinePlayerParser.offlinePlayerParser;
 
 import io.leangen.geantyref.TypeToken;
 
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
@@ -46,8 +49,10 @@ import org.empirewar.orbis.paper.session.PlayerSession;
 import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.player.PlayerOrbisSession;
+import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.util.OrbisText;
+import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
 import org.incendo.cloud.bukkit.internal.BukkitBrigadierMapper;
@@ -111,6 +116,28 @@ public final class PaperCommands {
                         return;
                     }
                     new WorldGuardMigrator(sender.audience());
+                }));
+
+        manager.command(manager.commandBuilder("orbis")
+                .senderType(PlayerSession.class)
+                .literal("where")
+                .handler(context -> {
+                    final PlayerSession sender = context.sender();
+                    if (sender.audience() instanceof Player player) {
+                        final Key playerWorld = player.getWorld().key();
+                        final RegionisedWorld world = plugin.getRegionisedWorld(playerWorld);
+                        player.sendMessage(OrbisText.PREFIX.append(text(
+                                "You are in world " + world.worldName().orElseThrow() + ".",
+                                OrbisText.SECONDARY_ORANGE)));
+                        for (Region region : world.query(RegionQuery.Position.builder()
+                                        .position(player.getX(), player.getY(), player.getZ())
+                                        .build())
+                                .result()) {
+                            player.sendMessage(OrbisText.PREFIX.append(text(
+                                    "You are in region " + region.name() + ".",
+                                    OrbisText.EREBOR_GREEN)));
+                        }
+                    }
                 }));
 
         manager.command(manager.commandBuilder("orbis")

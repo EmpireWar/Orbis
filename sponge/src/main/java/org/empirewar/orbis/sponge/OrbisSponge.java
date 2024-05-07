@@ -21,6 +21,8 @@ package org.empirewar.orbis.sponge;
 
 import com.google.inject.Inject;
 
+import net.kyori.adventure.key.Key;
+
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.region.GlobalRegion;
@@ -78,7 +80,7 @@ public class OrbisSponge implements Orbis {
 
     private final SelectionManager selectionManager = new SelectionManager();
     private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
-    private final Map<UUID, RegionisedWorldSet> worldSets = new HashMap<>();
+    private final Map<Key, RegionisedWorldSet> worldSets = new HashMap<>();
 
     private final Logger logger = LoggerFactory.getLogger("orbis");
     private final PluginContainer pluginContainer;
@@ -223,9 +225,18 @@ public class OrbisSponge implements Orbis {
 
             set.add(globalRegion);
             regions.forEach(set::add);
-            worldSets.put(world.uniqueId(), set);
+            worldSets.put(world.key(), set);
+            logger.info(
+                    "Loaded world set {} ({}) with {} regions",
+                    world.uniqueId(),
+                    world.key().asMinimalString(),
+                    regions.size());
         } catch (SerializationException e) {
-            logger().error("Error loading world set {}", world.uniqueId(), e);
+            logger().error(
+                            "Error loading world set {} ({})",
+                            world.uniqueId(),
+                            world.key().asMinimalString(),
+                            e);
         }
     }
 
@@ -245,13 +256,13 @@ public class OrbisSponge implements Orbis {
     }
 
     @Override
-    public RegionisedWorld getRegionisedWorld(UUID worldId) {
+    public RegionisedWorld getRegionisedWorld(Key worldId) {
         return worldSets.get(worldId);
     }
 
     @Override
-    public UUID getPlayerWorld(UUID player) {
-        return Sponge.server().player(player).orElseThrow().world().uniqueId();
+    public Key getPlayerWorld(UUID player) {
+        return Sponge.server().player(player).orElseThrow().world().key();
     }
 
     @Override

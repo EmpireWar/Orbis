@@ -197,8 +197,7 @@ public final class WorldGuardMigrator {
                     NamedTextColor.GREEN));
             final RegionManager regionManager =
                     instance.getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
-            final RegionisedWorld regionisedWorld =
-                    OrbisAPI.get().getRegionisedWorld(world.getUID());
+            final RegionisedWorld regionisedWorld = OrbisAPI.get().getRegionisedWorld(world.key());
             for (ProtectedRegion region : regionManager.getRegions().values()) {
                 // If added by another world
                 final Optional<Region> possibleExisting =

@@ -84,7 +84,7 @@ public final class BlockActionListener {
 
         event.transactions(Operations.GROWTH.get()).forEach(transaction -> {
             final BlockSnapshot block = transaction.finalReplacement();
-            final RegionisedWorld world = orbis.getRegionisedWorld(event.world().uniqueId());
+            final RegionisedWorld world = orbis.getRegionisedWorld(event.world().key());
             final List<Key> growable = world.query(RegionQuery.Position.builder()
                             .position(
                                     block.position().x(),
@@ -170,7 +170,7 @@ public final class BlockActionListener {
         final Vector3i blockPos = block.position();
         final Vector3d pos = new Vector3d(blockPos.x(), blockPos.y(), blockPos.z());
         final RegionisedWorld world =
-                orbis.getRegionisedWorld(block.location().orElseThrow().world().uniqueId());
+                orbis.getRegionisedWorld(block.location().orElseThrow().world().key());
         final RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);
         if (player != null) builder.player(player.uniqueId());
         final boolean canAct = world.query(RegionQuery.Position.builder().position(pos))

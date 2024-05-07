@@ -46,7 +46,7 @@ public record MovementListener(Orbis orbis) implements Listener {
         final Player player = event.getPlayer();
         final Location to = event.getTo();
         final Location from = event.getFrom();
-        final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld().getUID());
+        final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld().key());
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery =
                 world.query(RegionQuery.Position.builder().position(to.x(), to.y(), to.z()));
         final boolean canMove = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
@@ -81,7 +81,7 @@ public record MovementListener(Orbis orbis) implements Listener {
     public void onTeleport(PlayerTeleportEvent event) {
         final Player player = event.getPlayer();
         final Location to = event.getTo();
-        final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld().getUID());
+        final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld().key());
         final boolean canMove = world.query(
                         RegionQuery.Position.builder().position(to.x(), to.y(), to.z()))
                 .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
@@ -96,7 +96,7 @@ public record MovementListener(Orbis orbis) implements Listener {
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         final HumanEntity entity = event.getEntity();
-        final RegionisedWorld world = orbis.getRegionisedWorld(entity.getWorld().getUID());
+        final RegionisedWorld world = orbis.getRegionisedWorld(entity.getWorld().key());
         final boolean drain = world.query(RegionQuery.Position.builder()
                         .position(entity.getX(), entity.getY(), entity.getZ()))
                 .query(RegionQuery.Flag.builder(DefaultFlags.DRAIN_HUNGER)
