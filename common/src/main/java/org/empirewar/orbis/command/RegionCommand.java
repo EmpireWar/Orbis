@@ -57,7 +57,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Permission("orbis.manage")
+@Permission(Permissions.MANAGE)
 public record RegionCommand(Orbis orbis) {
 
     @Command("region|rg create <name> [area_type]")

@@ -30,7 +30,7 @@ import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.Permission;
 
-@Permission("orbis.manage")
+@Permission(Permissions.MANAGE)
 public record SelectionCommand(Orbis orbis) {
 
     @Command("orbis select <type>")

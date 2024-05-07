@@ -37,6 +37,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.AreaType;
+import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.paper.OrbisPaper;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
@@ -49,6 +50,8 @@ public record SelectionListener(Orbis api) implements Listener {
     @EventHandler
     public void onLeftRightClick(PlayerInteractEvent event) {
         final Player player = event.getPlayer();
+        if (!player.hasPermission(Permissions.MANAGE)) return;
+
         final ItemStack item = event.getItem();
         if (item == null || !OrbisPaper.isWand(item)) return;
 

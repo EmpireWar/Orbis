@@ -27,6 +27,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.AreaType;
+import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.util.OrbisText;
@@ -57,6 +58,8 @@ public final class SelectionListener {
 
     @Listener
     public void onRightClick(InteractItemEvent.Secondary event, @Root ServerPlayer player) {
+        if (!player.hasPermission(Permissions.MANAGE)) return;
+
         final ItemStackSnapshot item =
                 event.context().get(EventContextKeys.USED_ITEM).orElse(ItemStackSnapshot.empty());
         if (item.isEmpty() || !item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
@@ -79,6 +82,8 @@ public final class SelectionListener {
 
     @Listener
     public void onLeftClick(InteractBlockEvent.Primary.Start event, @Root ServerPlayer player) {
+        if (!player.hasPermission(Permissions.MANAGE)) return;
+
         final ItemStackSnapshot item =
                 event.context().get(EventContextKeys.USED_ITEM).orElse(ItemStackSnapshot.empty());
         if (item.isEmpty() || !item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
