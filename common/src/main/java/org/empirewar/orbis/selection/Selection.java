@@ -39,11 +39,16 @@ import java.util.Set;
 
 public final class Selection {
 
+    private static final Component RESET_LORE =
+            text().decoration(TextDecoration.ITALIC, false).build();
+
     public static final Component WAND_NAME = text("Orbis Wand", OrbisText.MAIN);
     public static final List<Component> WAND_LORE = List.of(
-            text("Left-Click", OrbisText.EREBOR_GREEN, TextDecoration.BOLD)
+            RESET_LORE
+                    .append(text("Left-Click", OrbisText.EREBOR_GREEN, TextDecoration.BOLD))
                     .append(text(" to add a point.", OrbisText.EREBOR_GREEN)),
-            text("Right-Click", OrbisText.SECONDARY_RED, TextDecoration.BOLD)
+            RESET_LORE
+                    .append(text("Right-Click", OrbisText.SECONDARY_RED, TextDecoration.BOLD))
                     .append(text(" to remove the last added point.", OrbisText.SECONDARY_RED)));
 
     private AreaType<?> selectionType;
