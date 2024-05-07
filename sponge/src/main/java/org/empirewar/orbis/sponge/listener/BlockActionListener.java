@@ -58,6 +58,8 @@ public final class BlockActionListener {
     public void onChange(ChangeBlockEvent.All event) {
         final ServerPlayer serverPlayer =
                 event.cause().first(ServerPlayer.class).orElse(null);
+        if (serverPlayer == null) return;
+
         event.transactions(Operations.BREAK.get()).forEach(transaction -> {
             if (shouldPreventBlockAction(
                     transaction.original(), serverPlayer, DefaultFlags.CAN_BREAK)) {
