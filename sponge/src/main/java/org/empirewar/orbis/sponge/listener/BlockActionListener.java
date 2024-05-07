@@ -31,11 +31,14 @@ import org.joml.Vector3d;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.transaction.Operations;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.container.InteractContainerEvent;
 import org.spongepowered.api.registry.RegistryTypes;
@@ -143,12 +146,16 @@ public final class BlockActionListener {
         // DefaultFlags.BLOCK_INVENTORY_ACCESS));
     }
 
-    @Listener
+    @Listener(order = Order.EARLY)
     public void onRedstoneUse(InteractBlockEvent.Secondary event, @Root ServerPlayer player) {
         final BlockSnapshot block = event.block();
-        if (shouldPreventBlockAction(block, player, DefaultFlags.TRIGGER_REDSTONE)) {
-            event.setUseBlockResult(Tristate.FALSE);
-            event.setCancelled(true);
+        if (block.get(Keys.POWER).isPresent()
+                || block.get(Keys.IS_POWERED).isPresent()
+                || block.get(Keys.REDSTONE_DELAY).isPresent()) {
+            if (shouldPreventBlockAction(block, player, DefaultFlags.TRIGGER_REDSTONE)) {
+                event.setUseBlockResult(Tristate.FALSE);
+                event.setCancelled(true);
+            }
         }
     }
 
