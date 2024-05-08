@@ -146,7 +146,17 @@ public class OrbisSponge implements Orbis {
 
     @Listener(order = Order.LATE)
     public void onWorldUnload(UnloadWorldEvent event) {
-        this.worldSets.remove(event.world().uniqueId());
+        final ServerWorld world = event.world();
+        final RegionisedWorldSet set = this.worldSets.remove(world.key());
+        try {
+            this.saveWorld(set);
+        } catch (IOException e) {
+            logger().error(
+                            "Error saving world set {} ({})",
+                            world.uniqueId(),
+                            world.key().asMinimalString(),
+                            e);
+        }
     }
 
     private ConfigurationLoader<CommentedConfigurationNode> loader;

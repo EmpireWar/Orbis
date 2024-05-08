@@ -125,7 +125,17 @@ public class OrbisPaper extends JavaPlugin implements Orbis, Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onUnload(WorldUnloadEvent event) {
-        this.worldSets.remove(event.getWorld().getUID());
+        final World world = event.getWorld();
+        final RegionisedWorldSet set = this.worldSets.remove(world.key());
+        try {
+            this.saveWorld(set);
+        } catch (IOException e) {
+            logger().error(
+                            "Error saving world set {} ({})",
+                            world.getUID(),
+                            world.key().asMinimalString(),
+                            e);
+        }
     }
 
     private ConfigurationLoader<CommentedConfigurationNode> loader;
