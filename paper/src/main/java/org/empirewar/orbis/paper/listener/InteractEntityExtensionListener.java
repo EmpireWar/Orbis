@@ -30,20 +30,19 @@ import org.bukkit.entity.Painting;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.empirewar.orbis.Orbis;
+import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.listener.InteractEntityListener;
 import org.empirewar.orbis.flag.DefaultFlags;
-import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 
 import java.util.List;
 
-public record InteractEntityListener(Orbis orbis) implements Listener {
+public class InteractEntityExtensionListener extends InteractEntityListener {
+
+    public InteractEntityExtensionListener(OrbisBukkit orbis) {
+        super(orbis);
+    }
 
     @EventHandler
     public void onAttackDirect(PrePlayerAttackEntityEvent event) {
@@ -99,43 +98,6 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
         }
     }
 
-    @EventHandler
-    public void onFallDamage(EntityDamageEvent event) {
-        final Entity entity = event.getEntity();
-        if (event.getCause() == EntityDamageEvent.DamageCause.FALL
-                && shouldPreventEntityAction(entity, DefaultFlags.FALL_DAMAGE)) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onMobDirectDamage(EntityDamageByEntityEvent event) {
-        final Entity entity = event.getEntity();
-        final Entity damager = event.getDamager();
-        if (!(entity instanceof Player)) return;
-
-        if (!(damager instanceof Player)) {
-            if (shouldPreventEntityAction(entity, DefaultFlags.CAN_TAKE_MOB_DAMAGE_SOURCES)) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onDrop(PlayerDropItemEvent event) {
-        final Player player = event.getPlayer();
-        if (shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEM)) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onPickup(PlayerAttemptPickupItemEvent event) {
-        if (shouldPreventEntityAction(event.getPlayer(), DefaultFlags.CAN_PICKUP_ITEM)) {
-            event.setCancelled(true);
-        }
-    }
-
     // I added this event to Paper back in 2021, now it helps me again :)
     @EventHandler
     public void onRotate(PlayerItemFrameChangeEvent event) {
@@ -149,14 +111,5 @@ public record InteractEntityListener(Orbis orbis) implements Listener {
                 event.setCancelled(true);
             }
         }
-    }
-
-    private boolean shouldPreventEntityAction(Entity entity, RegionFlag<Boolean> flag) {
-        return !orbis.getRegionisedWorld(entity.getWorld().key())
-                .query(RegionQuery.Position.builder()
-                        .position(entity.getX(), entity.getY(), entity.getZ()))
-                .query(RegionQuery.Flag.builder(flag).player(entity.getUniqueId()))
-                .result()
-                .orElse(true);
     }
 }

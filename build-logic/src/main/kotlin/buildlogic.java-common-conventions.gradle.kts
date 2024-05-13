@@ -39,8 +39,8 @@ dependencies {
         // Define dependency versions as constraints
         compileOnly("org.joml:joml:1.10.5")
         testImplementation("org.joml:joml:1.10.5")
-        compileOnly("net.kyori:adventure-api:4.16.0")
-        testImplementation("net.kyori:adventure-api:4.16.0")
+        compileOnly("net.kyori:adventure-api:4.17.0")
+        testImplementation("net.kyori:adventure-api:4.17.0")
     }
 
     compileOnly("org.spongepowered:configurate-yaml:4.1.2")

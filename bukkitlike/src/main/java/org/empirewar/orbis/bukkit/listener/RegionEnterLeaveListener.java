@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.paper.listener;
+package org.empirewar.orbis.bukkit.listener;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -39,7 +39,7 @@ public record RegionEnterLeaveListener(Orbis orbis) implements Listener {
         final Player player = event.getPlayer();
         final Location location = event.getLocation();
         final RegionisedWorld world = event.getWorld();
-        this.applyTimeChanges(player, world, location.x(), location.y(), location.getZ());
+        this.applyTimeChanges(player, world, location.getX(), location.getY(), location.getZ());
     }
 
     @EventHandler
@@ -47,7 +47,7 @@ public record RegionEnterLeaveListener(Orbis orbis) implements Listener {
         final Player player = event.getPlayer();
         final Location location = event.getLocation();
         final RegionisedWorld world = event.getWorld();
-        this.applyTimeChanges(player, world, location.x(), location.y(), location.getZ());
+        this.applyTimeChanges(player, world, location.getX(), location.getY(), location.getZ());
     }
 
     private void applyTimeChanges(

@@ -17,10 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.paper;
+package org.empirewar.orbis.spigot;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
@@ -38,6 +40,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.bukkit.OrbisBukkit;
 import org.empirewar.orbis.bukkit.command.BukkitCommands;
@@ -47,19 +50,20 @@ import org.empirewar.orbis.bukkit.listener.MovementListener;
 import org.empirewar.orbis.bukkit.listener.RegionEnterLeaveListener;
 import org.empirewar.orbis.bukkit.selection.SelectionListener;
 import org.empirewar.orbis.bukkit.session.PlayerSession;
-import org.empirewar.orbis.paper.listener.InteractEntityExtensionListener;
 import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.selection.SelectionManager;
+import org.empirewar.orbis.spigot.listener.InteractEntityExtensionListener;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.paper.PaperCommandManager;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -77,15 +81,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
+public class OrbisSpigot extends JavaPlugin implements OrbisBukkit, Listener {
 
     public static final ItemStack WAND_ITEM;
 
     static {
         WAND_ITEM = new ItemStack(Material.BLAZE_ROD);
         ItemMeta meta = WAND_ITEM.getItemMeta();
-        meta.displayName(Selection.WAND_NAME);
-        meta.lore(Selection.WAND_LORE);
+        final LegacyComponentSerializer legacy = LegacyComponentSerializer.legacySection();
+        meta.setDisplayName(legacy.serialize(Selection.WAND_NAME));
+        meta.setLore(Selection.WAND_LORE.stream().map(legacy::serialize).toList());
         meta.getPersistentDataContainer().set(WAND_KEY, PersistentDataType.BOOLEAN, true);
         WAND_ITEM.setItemMeta(meta);
     }
@@ -97,17 +102,26 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
 
     @Override
     public Audience senderAsAudience(CommandSender player) {
-        return player;
+        return adventure.sender(player);
     }
 
     @Override
     public Key adventureKey(Keyed keyed) {
-        return keyed.key();
+        return Key.key(keyed.getKey().toString());
     }
 
+    private BukkitAudiences adventure;
     private final SelectionManager selectionManager = new SelectionManager();
     private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
     private final Map<Key, RegionisedWorldSet> worldSets = new HashMap<>();
+
+    public @NonNull BukkitAudiences adventure() {
+        if (this.adventure == null) {
+            throw new IllegalStateException(
+                    "Tried to access Adventure when the plugin was disabled!");
+        }
+        return this.adventure;
+    }
 
     @Override
     public void onLoad() {
@@ -116,6 +130,7 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
 
     @Override
     public void onEnable() {
+        this.adventure = BukkitAudiences.create(this);
         this.registerListeners();
 
         PaperCommandManager<OrbisSession> manager = new PaperCommandManager<>(
@@ -126,9 +141,14 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
                             if (sender instanceof Player player) {
                                 return new PlayerSession(player);
                             }
-                            return new ConsoleOrbisSession(sender);
+                            return new ConsoleOrbisSession(adventure.sender(sender));
                         },
-                        session -> (CommandSender) session.audience()) /* 3 */);
+                        session -> {
+                            if (session instanceof PlayerSession playerSession) {
+                                return playerSession.getPlayer();
+                            }
+                            return Bukkit.getConsoleSender();
+                        }) /* 3 */);
 
         new BukkitCommands(this, manager);
         this.loadConfig();
@@ -142,6 +162,11 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
 
     @Override
     public void onDisable() {
+        if (this.adventure != null) {
+            this.adventure.close();
+            this.adventure = null;
+        }
+
         try {
             saveRegions();
         } catch (IOException e) {
@@ -157,14 +182,15 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onUnload(WorldUnloadEvent event) {
         final World world = event.getWorld();
-        final RegionisedWorldSet set = this.worldSets.remove(world.key());
+        final Key key = worldToKey(world);
+        final RegionisedWorldSet set = this.worldSets.remove(key);
         try {
             this.saveWorld(set);
         } catch (IOException e) {
             logger().error(
                             "Error saving world set {} ({})",
                             world.getUID(),
-                            world.key().asMinimalString(),
+                            key.asMinimalString(),
                             e);
         }
     }
@@ -205,13 +231,12 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
     }
 
     private void loadWorld(World world) {
+        final Key key = worldToKey(world);
         try {
-            final List<String> regionNames = config().node(
-                            "worlds", world.key().asString(), "regions")
+            final List<String> regionNames = config().node("worlds", key.asString(), "regions")
                     .getList(String.class, new ArrayList<>());
 
-            final RegionisedWorldSet set =
-                    new RegionisedWorldSet(world.getUID(), world.getKey().asString());
+            final RegionisedWorldSet set = new RegionisedWorldSet(world.getUID(), key.asString());
 
             List<Region> regions = new ArrayList<>();
             Region globalRegion = OrbisAPI.get()
@@ -240,19 +265,23 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
 
             set.add(globalRegion);
             regions.forEach(set::add);
-            worldSets.put(world.key(), set);
+            worldSets.put(key, set);
             logger().info(
                             "Loaded world set {} ({}) with {} regions",
                             world.getUID(),
-                            world.key().asMinimalString(),
+                            key.asMinimalString(),
                             regions.size());
         } catch (SerializationException e) {
             logger().error(
                             "Error loading world set {} ({})",
                             world.getUID(),
-                            world.key().asMinimalString(),
+                            key.asMinimalString(),
                             e);
         }
+    }
+
+    public Key worldToKey(World world) {
+        return Key.key(world.getKey().toString());
     }
 
     @Override
@@ -277,7 +306,7 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
 
     @Override
     public Key getPlayerWorld(UUID player) {
-        return Bukkit.getPlayer(player).getWorld().key();
+        return worldToKey(Bukkit.getPlayer(player).getWorld());
     }
 
     @Override
@@ -297,8 +326,10 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
         return rootNode;
     }
 
+    private final Logger logger = LoggerFactory.getLogger("orbis");
+
     @Override
     public Logger logger() {
-        return getSLF4JLogger();
+        return logger;
     }
 }

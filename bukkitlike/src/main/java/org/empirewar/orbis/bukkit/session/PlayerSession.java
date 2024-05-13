@@ -17,17 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.paper.listener;
+package org.empirewar.orbis.bukkit.session;
 
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.empirewar.orbis.Orbis;
+import org.bukkit.entity.Player;
+import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.player.PlayerOrbisSession;
 
-public record ConnectionListener(Orbis api) implements Listener {
+public final class PlayerSession extends PlayerOrbisSession {
 
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        api.selectionManager().remove(event.getPlayer().getUniqueId());
+    private final Player player;
+
+    public PlayerSession(Player player) {
+        super(player.getUniqueId(), ((OrbisBukkit) OrbisAPI.get()).senderAsAudience(player));
+        this.player = player;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return player.hasPermission(permission);
     }
 }

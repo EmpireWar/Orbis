@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.paper.command;
+package org.empirewar.orbis.bukkit.command;
 
 import static net.kyori.adventure.text.Component.text;
 
@@ -26,15 +26,18 @@ import static org.incendo.cloud.bukkit.parser.OfflinePlayerParser.offlinePlayerP
 
 import io.leangen.geantyref.TypeToken;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.session.PlayerSession;
 import org.empirewar.orbis.command.CommonCommands;
 import org.empirewar.orbis.command.parser.AreaTypeParser;
 import org.empirewar.orbis.command.parser.FlagValueParser;
@@ -44,36 +47,18 @@ import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.member.Member;
 import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
-import org.empirewar.orbis.paper.OrbisPaper;
-import org.empirewar.orbis.paper.session.PlayerSession;
-import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.empirewar.orbis.player.OrbisSession;
-import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
-import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
 import org.incendo.cloud.bukkit.internal.BukkitBrigadierMapper;
-import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.paper.PaperCommandManager;
 
-public final class PaperCommands {
+public class BukkitCommands {
 
-    public PaperCommands(OrbisPaper plugin) {
-        PaperCommandManager<OrbisSession> manager = new PaperCommandManager<>(
-                plugin, /* 1 */
-                ExecutionCoordinator.asyncCoordinator(), /* 2 */
-                SenderMapper.create(
-                        sender -> {
-                            if (sender instanceof Player player) {
-                                return new PlayerSession(player);
-                            }
-                            return new ConsoleOrbisSession(sender);
-                        },
-                        session -> (CommandSender) session.audience()) /* 3 */);
-
+    public BukkitCommands(OrbisBukkit plugin, PaperCommandManager<OrbisSession> manager) {
         if (manager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
             manager.registerBrigadier();
         } else if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
@@ -82,25 +67,7 @@ public final class PaperCommands {
 
         CommonCommands commonCommands = new CommonCommands(plugin, manager);
 
-        final BukkitBrigadierMapper<OrbisSession> brigadierMapper =
-                new BukkitBrigadierMapper<>(manager, manager.brigadierManager());
-        brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionFlagParser<OrbisSession>>() {}, "resource_location", true);
-
-        brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionisedWorldParser<OrbisSession>>() {}, "resource_location", true);
-
-        brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
-
-        brigadierMapper.mapSimpleNMS(
-                new TypeToken<FlagValueParser<OrbisSession>>() {}, "message", true);
-
-        brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
-
-        brigadierMapper.mapSimpleNMS(
-                new TypeToken<AreaTypeParser<OrbisSession>>() {}, "resource_location", true);
+        this.mapDumbBrigadierStuff(manager);
 
         manager.command(manager.commandBuilder("orbis")
                 .literal("migrate")
@@ -123,31 +90,31 @@ public final class PaperCommands {
                 .literal("where")
                 .handler(context -> {
                     final PlayerSession sender = context.sender();
-                    if (sender.audience() instanceof Player player) {
-                        final Key playerWorld = player.getWorld().key();
-                        final RegionisedWorld world = plugin.getRegionisedWorld(playerWorld);
-                        player.sendMessage(OrbisText.PREFIX.append(text(
-                                "You are in world " + world.worldName().orElseThrow() + ".",
-                                OrbisText.SECONDARY_ORANGE)));
-                        for (Region region : world.query(RegionQuery.Position.builder()
-                                        .position(player.getX(), player.getY(), player.getZ())
-                                        .build())
-                                .result()) {
-                            player.sendMessage(OrbisText.PREFIX.append(text(
-                                    "You are in region " + region.name() + ".",
-                                    OrbisText.EREBOR_GREEN)));
-                        }
+                    final Audience audience = sender.audience();
+                    final Player player = sender.getPlayer();
+                    final Key playerWorld = plugin.adventureKey(player.getWorld());
+                    final RegionisedWorld world = plugin.getRegionisedWorld(playerWorld);
+                    audience.sendMessage(OrbisText.PREFIX.append(text(
+                            "You are in world " + world.worldName().orElseThrow() + ".",
+                            OrbisText.SECONDARY_ORANGE)));
+                    final Location loc = player.getLocation();
+                    for (Region region : world.query(RegionQuery.Position.builder()
+                                    .position(loc.getX(), loc.getY(), loc.getZ())
+                                    .build())
+                            .result()) {
+                        audience.sendMessage(OrbisText.PREFIX.append(text(
+                                "You are in region " + region.name() + ".",
+                                OrbisText.EREBOR_GREEN)));
                     }
                 }));
 
         manager.command(manager.commandBuilder("orbis")
-                .senderType(PlayerOrbisSession.class)
+                .senderType(PlayerSession.class)
                 .literal("wand")
                 .handler(context -> {
-                    final PlayerOrbisSession sender = context.sender();
-                    if (sender.audience() instanceof Player player) {
-                        player.getInventory().addItem(OrbisPaper.WAND_ITEM);
-                    }
+                    final PlayerSession sender = context.sender();
+                    final Player player = sender.getPlayer();
+                    player.getInventory().addItem(plugin.wandItem());
                 }));
 
         manager.command(manager.commandBuilder("region", "rg")
@@ -194,5 +161,31 @@ public final class PaperCommands {
                                     "Couldn't find a member with that name.",
                                     OrbisText.SECONDARY_RED)));
                 }));
+    }
+
+    // How sad that Cloud changed from being clientside, tons of issues stem from this.
+    private void mapDumbBrigadierStuff(PaperCommandManager<OrbisSession> manager) {
+        // Not on Spigot.
+        if (!manager.hasBrigadierManager()) return;
+
+        final BukkitBrigadierMapper<OrbisSession> brigadierMapper =
+                new BukkitBrigadierMapper<>(manager, manager.brigadierManager());
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<RegionFlagParser<OrbisSession>>() {}, "resource_location", true);
+
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<RegionisedWorldParser<OrbisSession>>() {}, "resource_location", true);
+
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
+
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<FlagValueParser<OrbisSession>>() {}, "message", true);
+
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
+
+        brigadierMapper.mapSimpleNMS(
+                new TypeToken<AreaTypeParser<OrbisSession>>() {}, "resource_location", true);
     }
 }

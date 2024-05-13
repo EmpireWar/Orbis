@@ -17,22 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.paper.session;
+package org.empirewar.orbis.bukkit;
 
-import org.bukkit.entity.Player;
-import org.empirewar.orbis.player.PlayerOrbisSession;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.key.Key;
 
-public final class PlayerSession extends PlayerOrbisSession {
+import org.bukkit.Keyed;
+import org.bukkit.NamespacedKey;
+import org.bukkit.command.CommandSender;
+import org.bukkit.inventory.ItemStack;
+import org.empirewar.orbis.Orbis;
 
-    private final Player player;
+public interface OrbisBukkit extends Orbis {
 
-    public PlayerSession(Player player) {
-        super(player.getUniqueId(), player);
-        this.player = player;
+    NamespacedKey WAND_KEY = new NamespacedKey("orbis", "wand");
+
+    static boolean isWand(ItemStack stack) {
+        return stack.getItemMeta().getPersistentDataContainer().has(WAND_KEY);
     }
 
-    @Override
-    public boolean hasPermission(String permission) {
-        return player.hasPermission(permission);
-    }
+    ItemStack wandItem();
+
+    Audience senderAsAudience(CommandSender player);
+
+    Key adventureKey(Keyed keyed);
 }

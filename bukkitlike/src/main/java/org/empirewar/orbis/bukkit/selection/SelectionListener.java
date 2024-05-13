@@ -17,10 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.paper.selection;
+package org.empirewar.orbis.bukkit.selection;
 
-import io.papermc.paper.math.BlockPosition;
-
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickCallback;
@@ -35,17 +34,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.AreaType;
+import org.empirewar.orbis.bukkit.OrbisBukkit;
 import org.empirewar.orbis.command.Permissions;
-import org.empirewar.orbis.paper.OrbisPaper;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.joml.Vector3i;
 
 import java.time.Duration;
 
-public record SelectionListener(Orbis api) implements Listener {
+public record SelectionListener(OrbisBukkit api) implements Listener {
 
     @EventHandler
     public void onLeftRightClick(PlayerInteractEvent event) {
@@ -53,7 +51,9 @@ public record SelectionListener(Orbis api) implements Listener {
         if (!player.hasPermission(Permissions.MANAGE)) return;
 
         final ItemStack item = event.getItem();
-        if (item == null || !OrbisPaper.isWand(item)) return;
+        if (item == null || !OrbisBukkit.isWand(item)) return;
+
+        final Audience audience = api.senderAsAudience(player);
 
         final Action action = event.getAction();
         if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
@@ -65,7 +65,7 @@ public record SelectionListener(Orbis api) implements Listener {
                     .orElse(null);
             if (last == null) return;
             selection.removePoint(last);
-            player.sendMessage(OrbisText.PREFIX.append(
+            audience.sendMessage(OrbisText.PREFIX.append(
                     Component.text("Removed the last added point.", OrbisText.SECONDARY_RED)));
             return;
         }
@@ -75,7 +75,7 @@ public record SelectionListener(Orbis api) implements Listener {
                 .orElseGet(() -> {
                     Selection newSelection = new Selection(AreaType.CUBOID);
                     api.selectionManager().add(player.getUniqueId(), newSelection);
-                    player.sendMessage(OrbisText.PREFIX.append(Component.text(
+                    audience.sendMessage(OrbisText.PREFIX.append(Component.text(
                             "Started a new cuboid selection.", OrbisText.EREBOR_GREEN)));
                     return newSelection;
                 });
@@ -83,8 +83,8 @@ public record SelectionListener(Orbis api) implements Listener {
         Vector3i point;
         final Block block = event.getClickedBlock();
         if (block == null || block.getType().isAir()) {
-            final BlockPosition blockPos = player.getLocation().toBlock();
-            point = new Vector3i(blockPos.blockX(), blockPos.blockY(), blockPos.blockZ());
+            final Location blockPos = player.getLocation();
+            point = new Vector3i(blockPos.getBlockX(), blockPos.getBlockY(), blockPos.getBlockZ());
         } else {
             point = new Vector3i(block.getX(), block.getY(), block.getZ());
         }
@@ -98,17 +98,17 @@ public record SelectionListener(Orbis api) implements Listener {
                 .hoverEvent(HoverEvent.showText(
                         Component.text("Click to teleport.", OrbisText.EREBOR_GREEN)))
                 .clickEvent(ClickEvent.callback(
-                        audience -> player.teleport(new Location(
+                        u -> player.teleport(new Location(
                                 player.getWorld(),
                                 point.x,
                                 point.y,
                                 point.z,
-                                player.getYaw(),
-                                player.getPitch())),
+                                player.getLocation().getYaw(),
+                                player.getLocation().getPitch())),
                         ClickCallback.Options.builder()
                                 .lifetime(Duration.ofMinutes(3))
                                 .build()));
-        player.sendMessage(
+        audience.sendMessage(
                 OrbisText.PREFIX.append(Component.text("Added point ", OrbisText.EREBOR_GREEN)
                         .append(teleportPart)
                         .append(Component.text(" to selection.", OrbisText.EREBOR_GREEN))));

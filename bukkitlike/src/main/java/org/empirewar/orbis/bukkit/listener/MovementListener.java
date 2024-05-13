@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.paper.listener;
+package org.empirewar.orbis.bukkit.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,7 +28,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.empirewar.orbis.Orbis;
+import org.empirewar.orbis.bukkit.OrbisBukkit;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
 import org.empirewar.orbis.paper.api.event.RegionLeaveEvent;
@@ -38,17 +38,18 @@ import org.empirewar.orbis.world.RegionisedWorld;
 
 import java.util.Set;
 
-public record MovementListener(Orbis orbis) implements Listener {
+public record MovementListener(OrbisBukkit orbis) implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        if (!event.hasChangedPosition()) return;
-        final Player player = event.getPlayer();
         final Location to = event.getTo();
         final Location from = event.getFrom();
-        final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld().key());
-        final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery =
-                world.query(RegionQuery.Position.builder().position(to.x(), to.y(), to.z()));
+        if (to == null || to.distanceSquared(from) == 0) return;
+
+        final Player player = event.getPlayer();
+        final RegionisedWorld world = orbis.getRegionisedWorld(orbis.adventureKey(to.getWorld()));
+        final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery = world.query(
+                RegionQuery.Position.builder().position(to.getX(), to.getY(), to.getZ()));
         final boolean canMove = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
                         .player(player.getUniqueId()))
                 .result()
@@ -56,12 +57,17 @@ public record MovementListener(Orbis orbis) implements Listener {
 
         if (!canMove) {
             event.setTo(new Location(
-                    from.getWorld(), from.x(), from.y(), from.z(), to.getYaw(), to.getPitch()));
+                    from.getWorld(),
+                    from.getX(),
+                    from.getY(),
+                    from.getZ(),
+                    to.getYaw(),
+                    to.getPitch()));
             return;
         }
 
-        final RegionQuery.FilterableRegionResult<RegionQuery.Position> fromQuery =
-                world.query(RegionQuery.Position.builder().position(from.x(), from.y(), from.z()));
+        final RegionQuery.FilterableRegionResult<RegionQuery.Position> fromQuery = world.query(
+                RegionQuery.Position.builder().position(from.getX(), from.getY(), from.getZ()));
         final Set<Region> toRegions = toQuery.result();
         final Set<Region> fromRegions = fromQuery.result();
         for (Region possiblyEntered : toRegions) {
@@ -81,9 +87,9 @@ public record MovementListener(Orbis orbis) implements Listener {
     public void onTeleport(PlayerTeleportEvent event) {
         final Player player = event.getPlayer();
         final Location to = event.getTo();
-        final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld().key());
+        final RegionisedWorld world = orbis.getRegionisedWorld(orbis.adventureKey(to.getWorld()));
         final boolean canMove = world.query(
-                        RegionQuery.Position.builder().position(to.x(), to.y(), to.z()))
+                        RegionQuery.Position.builder().position(to.getX(), to.getY(), to.getZ()))
                 .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
                         .player(player.getUniqueId()))
                 .result()
@@ -96,9 +102,11 @@ public record MovementListener(Orbis orbis) implements Listener {
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         final HumanEntity entity = event.getEntity();
-        final RegionisedWorld world = orbis.getRegionisedWorld(entity.getWorld().key());
+        final Location location = entity.getLocation();
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()));
         final boolean drain = world.query(RegionQuery.Position.builder()
-                        .position(entity.getX(), entity.getY(), entity.getZ()))
+                        .position(location.getX(), location.getY(), location.getZ()))
                 .query(RegionQuery.Flag.builder(DefaultFlags.DRAIN_HUNGER)
                         .player(entity.getUniqueId()))
                 .result()
