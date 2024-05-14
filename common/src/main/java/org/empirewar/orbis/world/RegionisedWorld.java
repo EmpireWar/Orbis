@@ -19,12 +19,13 @@
  */
 package org.empirewar.orbis.world;
 
+import net.kyori.adventure.key.Key;
+
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Represents a world that contains a set of {@link Region}s.
@@ -50,7 +51,7 @@ public sealed interface RegionisedWorld extends RegionQuery.Position.Queryable p
      * This method may return an empty optional if this is a "global holder" of all regions.
      * @return uuid of world this represents
      */
-    Optional<UUID> worldId();
+    Optional<Key> worldId();
 
     /**
      * Gets the set of regions within this regionised world.

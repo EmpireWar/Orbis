@@ -236,7 +236,7 @@ public class OrbisSpigot extends JavaPlugin implements OrbisBukkit, Listener {
             final List<String> regionNames = config().node("worlds", key.asString(), "regions")
                     .getList(String.class, new ArrayList<>());
 
-            final RegionisedWorldSet set = new RegionisedWorldSet(world.getUID(), key.asString());
+            final RegionisedWorldSet set = new RegionisedWorldSet(key, key.asString());
 
             List<Region> regions = new ArrayList<>();
             Region globalRegion = OrbisAPI.get()

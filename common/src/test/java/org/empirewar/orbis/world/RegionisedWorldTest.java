@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import net.kyori.adventure.key.Key;
+
 import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.query.RegionQuery;
@@ -36,7 +38,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.Set;
-import java.util.UUID;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class RegionisedWorldTest {
@@ -165,7 +166,7 @@ public class RegionisedWorldTest {
     @Test
     @Order(6)
     void testGlobalRegionQuery() {
-        RegionisedWorldSet set = new RegionisedWorldSet(UUID.randomUUID(), "world");
+        RegionisedWorldSet set = new RegionisedWorldSet(Key.key("orbis:world"), "world");
         final Region global = new GlobalRegion(set);
         assertTrue(global.isGlobal());
         set.add(global);

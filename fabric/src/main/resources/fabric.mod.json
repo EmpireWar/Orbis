@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "orbis",
+  "version": "${version}",
+  "name": "Orbis",
+  "description": "A modern, multi-platform region protection plugin for Minecraft: Java Edition.",
+  "authors": [
+    "SamB440", "LimeeFox", "StealWonders"
+  ],
+  "contact": {
+    "homepage": "https://www.empirewar.org",
+    "sources": "https://github.com/EmpireWar/Orbis"
+  },
+  "license": "GPL-3",
+  "icon": "assets/modid/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "org.empirewar.orbis.fabric.OrbisFabric"
+    ]
+  },
+  "mixins": [
+    "modid.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": "~1.20.4",
+    "java": ">=17",
+    "fabric-api": "*",
+    "cloud": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

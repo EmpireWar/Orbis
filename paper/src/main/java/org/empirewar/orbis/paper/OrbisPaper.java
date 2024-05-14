@@ -205,13 +205,12 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
     }
 
     private void loadWorld(World world) {
+        final Key key = world.key();
         try {
-            final List<String> regionNames = config().node(
-                            "worlds", world.key().asString(), "regions")
+            final List<String> regionNames = config().node("worlds", key.asString(), "regions")
                     .getList(String.class, new ArrayList<>());
 
-            final RegionisedWorldSet set =
-                    new RegionisedWorldSet(world.getUID(), world.getKey().asString());
+            final RegionisedWorldSet set = new RegionisedWorldSet(key, key.asString());
 
             List<Region> regions = new ArrayList<>();
             Region globalRegion = OrbisAPI.get()
@@ -240,17 +239,17 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
 
             set.add(globalRegion);
             regions.forEach(set::add);
-            worldSets.put(world.key(), set);
+            worldSets.put(key, set);
             logger().info(
                             "Loaded world set {} ({}) with {} regions",
                             world.getUID(),
-                            world.key().asMinimalString(),
+                            key.asMinimalString(),
                             regions.size());
         } catch (SerializationException e) {
             logger().error(
                             "Error loading world set {} ({})",
                             world.getUID(),
-                            world.key().asMinimalString(),
+                            key.asMinimalString(),
                             e);
         }
     }

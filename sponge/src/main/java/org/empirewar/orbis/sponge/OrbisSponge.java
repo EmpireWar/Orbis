@@ -39,6 +39,7 @@ import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
@@ -200,13 +201,12 @@ public class OrbisSponge implements Orbis {
     }
 
     private void loadWorld(ServerWorld world) {
+        final ResourceKey key = world.key();
         try {
-            final List<String> regionNames = config().node(
-                            "worlds", world.key().asString(), "regions")
+            final List<String> regionNames = config().node("worlds", key.asString(), "regions")
                     .getList(String.class, new ArrayList<>());
 
-            final RegionisedWorldSet set =
-                    new RegionisedWorldSet(world.uniqueId(), world.key().asString());
+            final RegionisedWorldSet set = new RegionisedWorldSet(key, key.asString());
 
             List<Region> regions = new ArrayList<>();
             Region globalRegion = OrbisAPI.get()
@@ -235,17 +235,17 @@ public class OrbisSponge implements Orbis {
 
             set.add(globalRegion);
             regions.forEach(set::add);
-            worldSets.put(world.key(), set);
+            worldSets.put(key, set);
             logger.info(
                     "Loaded world set {} ({}) with {} regions",
                     world.uniqueId(),
-                    world.key().asMinimalString(),
+                    key.asMinimalString(),
                     regions.size());
         } catch (SerializationException e) {
             logger().error(
                             "Error loading world set {} ({})",
                             world.uniqueId(),
-                            world.key().asMinimalString(),
+                            key.asMinimalString(),
                             e);
         }
     }

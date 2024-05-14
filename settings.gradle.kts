@@ -9,6 +9,13 @@
 pluginManagement {
     // Include 'plugins build' to define convention plugins.
     includeBuild("build-logic")
+
+    repositories {
+        // Use the plugin portal to apply community plugins in convention plugins.
+        gradlePluginPortal()
+        mavenCentral()
+        maven("https://maven.fabricmc.net/")
+    }
 }
 
 plugins {
@@ -17,4 +24,4 @@ plugins {
 }
 
 rootProject.name = "Orbis"
-include("common", "migrators:worldguard", "bukkitlike", "paper", "api:paper-api", "sponge", "api:sponge-api", "spigot")
+include("common", "migrators:worldguard", "bukkitlike", "paper", "spigot", "api:paper-api", "sponge", "api:sponge-api")
