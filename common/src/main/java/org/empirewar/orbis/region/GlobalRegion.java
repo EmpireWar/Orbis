@@ -20,6 +20,7 @@
 package org.empirewar.orbis.region;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.area.Area;
@@ -35,8 +36,8 @@ import java.util.Set;
  */
 public final class GlobalRegion extends Region {
 
-    public static final Codec<GlobalRegion> CODEC =
-            RecordCodecBuilder.create(instance -> instance.group(
+    public static final MapCodec<GlobalRegion> CODEC =
+            RecordCodecBuilder.mapCodec(instance -> instance.group(
                             Codec.STRING.fieldOf("name").forGetter(Region::name),
                             MutableRegionFlag.TYPE_CODEC
                                     .listOf()

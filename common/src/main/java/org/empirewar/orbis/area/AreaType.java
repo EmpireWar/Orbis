@@ -19,7 +19,7 @@
  */
 package org.empirewar.orbis.area;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import org.empirewar.orbis.registry.Registries;
 import org.empirewar.orbis.registry.Registry;
@@ -29,9 +29,9 @@ public interface AreaType<A extends Area> {
     AreaType<CuboidArea> CUBOID = register("cuboid", CuboidArea.CODEC);
     AreaType<PolygonArea> POLYGON = register("polygon", PolygonArea.CODEC);
 
-    Codec<A> codec();
+    MapCodec<A> codec();
 
-    private static <A extends Area> AreaType<A> register(String id, Codec<A> codec) {
+    private static <A extends Area> AreaType<A> register(String id, MapCodec<A> codec) {
         return Registry.register(Registries.AREA_TYPE, id, () -> codec);
     }
 }

@@ -19,7 +19,7 @@
  */
 package org.empirewar.orbis.flag;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import org.empirewar.orbis.registry.Registries;
 import org.empirewar.orbis.registry.Registry;
@@ -31,10 +31,10 @@ public interface RegionFlagType<F extends MutableRegionFlag<?>> {
     RegionFlagType<GroupedMutableRegionFlag<?>> GROUPED_MUTABLE = register("grouped_mutable", GroupedMutableRegionFlag.CODEC);
     // spotless:on
 
-    Codec<F> codec();
+    MapCodec<F> codec();
 
     private static <F extends MutableRegionFlag<?>> RegionFlagType<F> register(
-            String id, Codec<F> codec) {
+            String id, MapCodec<F> codec) {
         return Registry.register(Registries.FLAG_TYPE, id, () -> codec);
     }
 }

@@ -32,7 +32,7 @@ public final class ConnectionListener {
     }
 
     @Listener
-    public void onQuit(ServerSideConnectionEvent.Disconnect event) {
+    public void onQuit(ServerSideConnectionEvent.Leave event) {
         api.selectionManager().remove(event.player().uniqueId());
     }
 }

@@ -20,6 +20,7 @@
 package org.empirewar.orbis.member;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.OrbisAPI;
@@ -29,8 +30,8 @@ import java.util.UUID;
 
 public final class PermissionMember extends Member {
 
-    public static Codec<PermissionMember> CODEC =
-            RecordCodecBuilder.create(instance -> instance.group(Codec.STRING
+    public static MapCodec<PermissionMember> CODEC =
+            RecordCodecBuilder.mapCodec(instance -> instance.group(Codec.STRING
                             .fieldOf("permission")
                             .forGetter(PermissionMember::permission))
                     .apply(instance, PermissionMember::new));

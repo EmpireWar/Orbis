@@ -19,7 +19,7 @@
  */
 package org.empirewar.orbis.member;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
@@ -29,9 +29,11 @@ import java.util.UUID;
 
 public final class PlayerMember extends Member {
 
-    public static Codec<PlayerMember> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    ExtraCodecs.STRING_UUID.fieldOf("player_id").forGetter(PlayerMember::playerId))
-            .apply(instance, PlayerMember::new));
+    public static MapCodec<PlayerMember> CODEC =
+            RecordCodecBuilder.mapCodec(instance -> instance.group(ExtraCodecs.STRING_UUID
+                            .fieldOf("player_id")
+                            .forGetter(PlayerMember::playerId))
+                    .apply(instance, PlayerMember::new));
 
     private final UUID playerId;
 

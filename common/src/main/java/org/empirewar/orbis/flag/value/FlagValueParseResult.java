@@ -19,7 +19,6 @@
  */
 package org.empirewar.orbis.flag.value;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.DataResult;
 
-public record FlagValueParseResult(Either<?, ? extends DataResult.PartialResult<?>> result) {}
+public record FlagValueParseResult(DataResult<?> result) {}

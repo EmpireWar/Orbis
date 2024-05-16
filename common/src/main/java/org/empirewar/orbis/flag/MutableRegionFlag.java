@@ -20,6 +20,7 @@
 package org.empirewar.orbis.flag;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
@@ -42,9 +43,9 @@ public sealed class MutableRegionFlag<T> extends RegionFlag<T> permits GroupedMu
     // Map from mutable -> constant region flag in registry
     // (Honestly I'm not entirely sure what dispatch does but basic idea is we are mapping the codec
     // from registry)
-    public static final Codec<MutableRegionFlag<?>> CODEC = Registries.FLAGS
+    public static final MapCodec<MutableRegionFlag<?>> CODEC = Registries.FLAGS
             .getCodec()
-            .dispatch(mu -> Registries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asMutable()
+            .dispatchMap(mu -> Registries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asMutable()
                     .getCodec(r));
 
     public static final Codec<MutableRegionFlag<?>> TYPE_CODEC = Registries.FLAG_TYPE
@@ -71,8 +72,8 @@ public sealed class MutableRegionFlag<T> extends RegionFlag<T> permits GroupedMu
     }
 
     @Override
-    public Codec<? extends MutableRegionFlag<T>> getCodec(RegionFlag<?> registry) {
-        return RecordCodecBuilder.create(instance -> instance.group(
+    public MapCodec<? extends MutableRegionFlag<T>> getCodec(RegionFlag<?> registry) {
+        return RecordCodecBuilder.mapCodec(instance -> instance.group(
                         codec.fieldOf("value").forGetter(MutableRegionFlag::getValue))
                 .apply(instance, (value) -> {
                     // spotless:off
