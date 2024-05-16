@@ -19,7 +19,7 @@
  */
 package org.empirewar.orbis.member;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import org.empirewar.orbis.registry.Registries;
 import org.empirewar.orbis.registry.Registry;
@@ -31,9 +31,9 @@ public interface MemberType<M extends Member> {
     MemberType<PermissionMember> PERMISSION = register("permission", PermissionMember.CODEC);
     // spotless:on
 
-    Codec<M> codec();
+    MapCodec<M> codec();
 
-    private static <M extends Member> MemberType<M> register(String id, Codec<M> codec) {
+    private static <M extends Member> MemberType<M> register(String id, MapCodec<M> codec) {
         return Registry.register(Registries.MEMBER_TYPE, id, () -> codec);
     }
 }

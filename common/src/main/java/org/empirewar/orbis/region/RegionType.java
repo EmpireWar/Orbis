@@ -19,7 +19,7 @@
  */
 package org.empirewar.orbis.region;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import org.empirewar.orbis.registry.Registries;
 import org.empirewar.orbis.registry.Registry;
@@ -29,9 +29,9 @@ public interface RegionType<R extends Region> {
     RegionType<Region> NORMAL = register("normal", Region.CODEC);
     RegionType<GlobalRegion> GLOBAL = register("global", GlobalRegion.CODEC);
 
-    Codec<R> codec();
+    MapCodec<R> codec();
 
-    private static <R extends Region> RegionType<R> register(String id, Codec<R> codec) {
+    private static <R extends Region> RegionType<R> register(String id, MapCodec<R> codec) {
         return Registry.register(Registries.REGION_TYPE, id, () -> codec);
     }
 }

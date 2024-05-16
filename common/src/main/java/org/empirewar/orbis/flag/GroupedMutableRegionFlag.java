@@ -20,6 +20,7 @@
 package org.empirewar.orbis.flag;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
@@ -44,9 +45,9 @@ import java.util.function.Supplier;
  */
 public final class GroupedMutableRegionFlag<T> extends MutableRegionFlag<T> {
 
-    public static final Codec<GroupedMutableRegionFlag<?>> CODEC = Registries.FLAGS
+    public static final MapCodec<GroupedMutableRegionFlag<?>> CODEC = Registries.FLAGS
             .getCodec()
-            .dispatch(mu -> Registries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asGrouped()
+            .dispatchMap(mu -> Registries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asGrouped()
                     .getCodec(r));
 
     private final Set<FlagMemberGroup> groups;
@@ -78,8 +79,8 @@ public final class GroupedMutableRegionFlag<T> extends MutableRegionFlag<T> {
     }
 
     @Override
-    public Codec<? extends GroupedMutableRegionFlag<T>> getCodec(RegionFlag<?> registry) {
-        return RecordCodecBuilder.create(instance -> instance.group(
+    public MapCodec<? extends GroupedMutableRegionFlag<T>> getCodec(RegionFlag<?> registry) {
+        return RecordCodecBuilder.mapCodec(instance -> instance.group(
                         codec.fieldOf("value").forGetter(GroupedMutableRegionFlag::getValue),
                         new EnumCodec<>(FlagMemberGroup.class)
                                 .listOf()

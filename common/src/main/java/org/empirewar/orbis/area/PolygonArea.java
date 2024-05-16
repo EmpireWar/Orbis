@@ -19,7 +19,7 @@
  */
 package org.empirewar.orbis.area;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
@@ -31,10 +31,12 @@ import java.util.Optional;
 
 public final class PolygonArea extends EncompassingArea {
 
-    public static Codec<PolygonArea> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    ExtraCodecs.VEC_3I.listOf().fieldOf("points").forGetter(c -> c.points.stream()
-                            .toList()))
-            .apply(instance, PolygonArea::new));
+    public static MapCodec<PolygonArea> CODEC =
+            RecordCodecBuilder.mapCodec(instance -> instance.group(ExtraCodecs.VEC_3I
+                            .listOf()
+                            .fieldOf("points")
+                            .forGetter(c -> c.points.stream().toList()))
+                    .apply(instance, PolygonArea::new));
 
     public PolygonArea() {
         super();

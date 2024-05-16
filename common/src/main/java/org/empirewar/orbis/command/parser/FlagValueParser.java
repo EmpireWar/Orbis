@@ -22,7 +22,6 @@ package org.empirewar.orbis.command.parser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.DataResult;
 
 import io.leangen.geantyref.TypeToken;
@@ -71,13 +70,14 @@ public record FlagValueParser<C>(CommandManager<?> manager)
         try {
             final FlagValueParseResult parsed = gson.fromJson(input, FlagValueParseResult.class);
 
-            final Either<?, ? extends DataResult.PartialResult<?>> get = parsed.result();
-            if (get.left().isEmpty()) {
+            final DataResult<?> get = parsed.result();
+            if (get.isError()) {
                 return ArgumentParseResult.failureFuture(new FlagValueParserException(
-                        input, get.right().orElseThrow().message(), commandContext));
+                        input, get.error().orElseThrow().message(), commandContext));
             }
 
-            return ArgumentParseResult.successFuture(new FlagValue<>(get.left().get()));
+            return ArgumentParseResult.successFuture(
+                    new FlagValue<>(get.result().orElseThrow()));
         } catch (JsonSyntaxException e) {
             return ArgumentParseResult.failureFuture(
                     new FlagValueParserException(input, e.getMessage(), commandContext));

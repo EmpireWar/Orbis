@@ -39,6 +39,6 @@ public record FlagValueAdapter<T>(RegionFlag<T> flag)
             JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
         final Codec<T> codec = flag.typeCodec();
-        return new FlagValueParseResult(codec.parse(JsonOps.INSTANCE, json).get());
+        return new FlagValueParseResult(codec.parse(JsonOps.INSTANCE, json));
     }
 }

@@ -22,6 +22,7 @@ package org.empirewar.orbis.region;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
@@ -68,20 +69,26 @@ import java.util.UUID;
 public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Region>
         permits GlobalRegion {
 
-    public static final Codec<Region> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.STRING.fieldOf("name").forGetter(Region::name),
-                    Codec.STRING.listOf().fieldOf("parents").forGetter(r -> r.parents().stream()
-                            .map(Region::name)
-                            .toList()),
-                    Member.CODEC.listOf().fieldOf("members").forGetter(r -> r.members().stream()
-                            .toList()),
-                    MutableRegionFlag.TYPE_CODEC
-                            .listOf()
-                            .fieldOf("flags")
-                            .forGetter(r -> r.flags.values().stream().toList()),
-                    Area.CODEC.fieldOf("area").forGetter(Region::area),
-                    Codec.INT.fieldOf("priority").forGetter(Region::priority))
-            .apply(instance, Region::new));
+    public static final MapCodec<Region> CODEC =
+            RecordCodecBuilder.mapCodec(instance -> instance.group(
+                            Codec.STRING.fieldOf("name").forGetter(Region::name),
+                            Codec.STRING
+                                    .listOf()
+                                    .fieldOf("parents")
+                                    .forGetter(r -> r.parents().stream()
+                                            .map(Region::name)
+                                            .toList()),
+                            Member.CODEC
+                                    .listOf()
+                                    .fieldOf("members")
+                                    .forGetter(r -> r.members().stream().toList()),
+                            MutableRegionFlag.TYPE_CODEC
+                                    .listOf()
+                                    .fieldOf("flags")
+                                    .forGetter(r -> r.flags.values().stream().toList()),
+                            Area.CODEC.fieldOf("area").forGetter(Region::area),
+                            Codec.INT.fieldOf("priority").forGetter(Region::priority))
+                    .apply(instance, Region::new));
 
     private final String name;
     private final Set<Region> parents;

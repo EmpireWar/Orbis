@@ -20,6 +20,7 @@
 package org.empirewar.orbis.flag;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
@@ -93,8 +94,8 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
      * @param registry the registry value of this flag
      * @return the codec
      */
-    public Codec<? extends RegionFlag<T>> getCodec(RegionFlag<?> registry) {
-        return Codec.unit(() -> new RegionFlag<>(key, defaultValueSupplier, codec));
+    public MapCodec<? extends RegionFlag<T>> getCodec(RegionFlag<?> registry) {
+        return MapCodec.unit(() -> new RegionFlag<>(key, defaultValueSupplier, codec));
     }
 
     @Override
