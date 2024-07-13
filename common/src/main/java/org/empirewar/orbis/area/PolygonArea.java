@@ -23,7 +23,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
-import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.joml.Vector3i;
 
 import java.util.List;
@@ -47,8 +47,8 @@ public final class PolygonArea extends EncompassingArea {
     }
 
     @Override
-    public boolean contains(Vector3d point) {
-        return contains(point.x, point.y, point.z);
+    public boolean contains(Vector3dc point) {
+        return contains(point.x(), point.y(), point.z());
     }
 
     @Override

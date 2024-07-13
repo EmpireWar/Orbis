@@ -79,6 +79,12 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
     }
 
     @Override
+    public void clearPoints() {
+        points.clear();
+        calculateEncompassingArea();
+    }
+
+    @Override
     public boolean addPoint(Vector3i point) {
         final Optional<Integer> expectedPoints = getExpectedPoints();
         if (expectedPoints.isPresent()) {

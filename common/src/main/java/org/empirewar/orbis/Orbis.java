@@ -118,4 +118,17 @@ public interface Orbis {
         node.setList(String.class, regionsInWorld);
         saveConfig();
     }
+
+    default boolean removeRegion(Region region) {
+        boolean anySucceeded = false;
+        for (RegionisedWorld world : getRegionisedWorlds()) {
+            anySucceeded = world.remove(region) || anySucceeded;
+        }
+        anySucceeded = getGlobalWorld().remove(region) || anySucceeded;
+
+        File regionsFolder = dataFolder().resolve("regions").toFile();
+        File regionFile = new File(
+                regionsFolder + File.separator + region.name().replace(":", "-") + ".json");
+        return anySucceeded && regionFile.delete();
+    }
 }

@@ -22,7 +22,7 @@ package org.empirewar.orbis.area;
 import com.mojang.serialization.Codec;
 
 import org.empirewar.orbis.registry.Registries;
-import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
@@ -38,6 +38,11 @@ import java.util.Set;
 public sealed interface Area extends Iterable<Vector3ic> permits EncompassingArea {
 
     Codec<Area> CODEC = Registries.AREA_TYPE.getCodec().dispatch(Area::getType, AreaType::codec);
+
+    /**
+     * Removes all points from this area.
+     */
+    void clearPoints();
 
     /**
      * Attempts to add a point to this area.
@@ -63,7 +68,7 @@ public sealed interface Area extends Iterable<Vector3ic> permits EncompassingAre
     /**
      * @see #contains(double, double, double)
      */
-    boolean contains(Vector3d point);
+    boolean contains(Vector3dc point);
 
     /**
      * Gets whether the specified point is within this area.

@@ -38,6 +38,7 @@ import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.registry.Registries;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
@@ -52,6 +53,7 @@ import org.incendo.cloud.context.CommandInput;
 import org.incendo.cloud.minecraft.extras.suggestion.ComponentTooltipSuggestion;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 
 import java.util.Arrays;
 import java.util.List;
@@ -79,12 +81,30 @@ public record RegionCommand(Orbis orbis) {
         }
 
         Area area;
-        if (global) {
+        if (global || ignoreSelection) {
             area = null;
-        } else if (areaType == null && session instanceof PlayerOrbisSession player) {
+        } else if (session instanceof PlayerOrbisSession player) {
             final Selection selection =
                     orbis.selectionManager().get(player.getUuid()).orElse(null);
             if (selection == null) return;
+
+            AreaType<?> defaultedType = areaType == null ? AreaType.CUBOID : areaType;
+            if (selection.getSelectionType() != defaultedType) {
+                String expectedTypeName =
+                        Registries.AREA_TYPE.getKey(defaultedType).orElseThrow().asString();
+                String actualTypeName = Registries.AREA_TYPE
+                        .getKey(selection.getSelectionType())
+                        .orElseThrow()
+                        .asString();
+                session.audience()
+                        .sendMessage(OrbisText.PREFIX.append(text(
+                                "Expected an '" + expectedTypeName + "' selection, but got '"
+                                        + actualTypeName
+                                        + "' instead! Please select a proper area type.",
+                                OrbisText.SECONDARY_RED)));
+                return;
+            }
+
             try {
                 area = selection.build();
             } catch (IncompleteAreaException e) {
@@ -98,7 +118,7 @@ public record RegionCommand(Orbis orbis) {
             selection.getPoints().forEach(area::addPoint);
             session.audience()
                     .sendMessage(OrbisText.PREFIX.append(text(
-                            "Note: Used your current selection to build the region area. Use the --ignore-selection flag or specify an area type to bypass this.",
+                            "Note: Used your current selection to build the region area. Use the --ignore-selection flag to bypass this.",
                             OrbisText.SECONDARY_ORANGE)));
         } else if (areaType == null || areaType == AreaType.CUBOID) {
             area = new CuboidArea();
@@ -118,15 +138,68 @@ public record RegionCommand(Orbis orbis) {
                         OrbisText.EREBOR_GREEN)));
     }
 
+    @Command("region|rg setarea <region>")
+    public void onSetArea(PlayerOrbisSession session, @Argument("region") Region region) {
+        final Selection selection =
+                orbis.selectionManager().get(session.getUuid()).orElse(null);
+        if (selection == null) {
+            session.audience()
+                    .sendMessage(OrbisText.PREFIX.append(text(
+                            "You don't seem to have an active selection.",
+                            OrbisText.SECONDARY_RED)));
+            return;
+        }
+
+        if (selection.getSelectionType() != region.area().getType()) {
+            String expectedTypeName = Registries.AREA_TYPE
+                    .getKey(region.area().getType())
+                    .orElseThrow()
+                    .asString();
+            String actualTypeName = Registries.AREA_TYPE
+                    .getKey(selection.getSelectionType())
+                    .orElseThrow()
+                    .asString();
+            session.audience()
+                    .sendMessage(OrbisText.PREFIX.append(text("Expected an '" + expectedTypeName
+                            + "' selection, but got '" + actualTypeName
+                            + "' instead! Please select a proper area type.")));
+            return;
+        }
+
+        try {
+            final Area area = selection.build();
+            region.area().clearPoints();
+            for (Vector3ic point : area.points()) {
+                region.area().addPoint(new Vector3i(point.x(), point.y(), point.z()));
+            }
+            session.audience()
+                    .sendMessage(OrbisText.PREFIX.append(text(
+                            "Replaced the area of '" + region.name()
+                                    + "' with your current selection.",
+                            OrbisText.EREBOR_GREEN)));
+        } catch (IncompleteAreaException e) {
+            session.audience()
+                    .sendMessage(OrbisText.PREFIX.append(text(
+                            "Incomplete selection! Did you select all points?",
+                            OrbisText.SECONDARY_RED)));
+        }
+    }
+
     @Command("region|rg remove|delete <region>")
     public void onRemove(OrbisSession session, @Argument("region") Region region) {
-        for (RegionisedWorld world : orbis.getRegionisedWorlds()) {
-            world.remove(region);
+        final boolean anySucceeded = orbis.removeRegion(region);
+        if (anySucceeded) {
+            session.audience()
+                    .sendMessage(OrbisText.PREFIX.append(text(
+                            "Removed the '" + region.name() + "' region.",
+                            OrbisText.SECONDARY_RED)));
+            return;
         }
-        orbis.getGlobalWorld().remove(region);
+
         session.audience()
                 .sendMessage(OrbisText.PREFIX.append(text(
-                        "Removed the '" + region.name() + "' region.", OrbisText.SECONDARY_RED)));
+                        "FAILED to remove the '" + region.name() + "' region.",
+                        OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg flag add <region> <flag> [value]")
