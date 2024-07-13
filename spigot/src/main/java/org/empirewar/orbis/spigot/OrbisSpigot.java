@@ -61,7 +61,7 @@ import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
-import org.incendo.cloud.paper.PaperCommandManager;
+import org.incendo.cloud.paper.LegacyPaperCommandManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.CommentedConfigurationNode;
@@ -133,7 +133,7 @@ public class OrbisSpigot extends JavaPlugin implements OrbisBukkit, Listener {
         this.adventure = BukkitAudiences.create(this);
         this.registerListeners();
 
-        PaperCommandManager<OrbisSession> manager = new PaperCommandManager<>(
+        LegacyPaperCommandManager<OrbisSession> manager = new LegacyPaperCommandManager<>(
                 this, /* 1 */
                 ExecutionCoordinator.asyncCoordinator(), /* 2 */
                 SenderMapper.create(

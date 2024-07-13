@@ -9,15 +9,15 @@ plugins {
 dependencies {
     compileOnly("org.slf4j:slf4j-api:2.0.12")
     implementation("org.incendo:cloud-sponge:2.0.0-SNAPSHOT")
-    implementation("org.incendo:cloud-brigadier:2.0.0-beta.7")
-    implementation("org.incendo:cloud-annotations:2.0.0-rc.1")
-    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.7")
+    implementation("org.incendo:cloud-brigadier:2.0.0-beta.9")
+    implementation("org.incendo:cloud-annotations:2.0.0-rc.2")
+    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
     implementation(project(":common"))
     implementation(project(":api:sponge-api"))
 }
 
 sponge {
-    apiVersion("11.0.0-SNAPSHOT")
+    apiVersion("11.1.0-SNAPSHOT")
     loader {
         name(PluginLoaders.JAVA_PLAIN)
         version("1.0.0-SNAPSHOT")

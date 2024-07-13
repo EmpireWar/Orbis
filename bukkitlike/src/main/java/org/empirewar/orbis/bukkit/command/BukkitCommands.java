@@ -54,11 +54,11 @@ import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
 import org.incendo.cloud.bukkit.internal.BukkitBrigadierMapper;
-import org.incendo.cloud.paper.PaperCommandManager;
+import org.incendo.cloud.paper.LegacyPaperCommandManager;
 
 public class BukkitCommands {
 
-    public BukkitCommands(OrbisBukkit plugin, PaperCommandManager<OrbisSession> manager) {
+    public BukkitCommands(OrbisBukkit plugin, LegacyPaperCommandManager<OrbisSession> manager) {
         if (manager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
             manager.registerBrigadier();
         } else if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
@@ -164,12 +164,12 @@ public class BukkitCommands {
     }
 
     // How sad that Cloud changed from being clientside, tons of issues stem from this.
-    private void mapDumbBrigadierStuff(PaperCommandManager<OrbisSession> manager) {
+    private void mapDumbBrigadierStuff(LegacyPaperCommandManager<OrbisSession> manager) {
         // Not on Spigot.
         if (!manager.hasBrigadierManager()) return;
 
-        final BukkitBrigadierMapper<OrbisSession> brigadierMapper =
-                new BukkitBrigadierMapper<>(manager, manager.brigadierManager());
+        final BukkitBrigadierMapper<OrbisSession> brigadierMapper = new BukkitBrigadierMapper<>(
+                manager.owningPlugin().getLogger(), manager.brigadierManager());
         brigadierMapper.mapSimpleNMS(
                 new TypeToken<RegionFlagParser<OrbisSession>>() {}, "resource_location", true);
 

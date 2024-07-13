@@ -8,16 +8,16 @@ repositories {
 
 dependencies {
     compileOnly("org.slf4j:slf4j-api:2.0.12")
-    compileOnly("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT")
     // It's really impressive how adventure-platform-bukkit is using adventure 4.13, so we have to include 4.17
     // Supporting Spigot is so much fun!
     implementation("net.kyori:adventure-api:4.17.0")
     implementation("net.kyori:adventure-text-serializer-legacy:4.17.0")
     implementation("org.spongepowered:configurate-yaml:4.1.2")
-    implementation("org.incendo:cloud-paper:2.0.0-beta.7")
-    implementation("org.incendo:cloud-annotations:2.0.0-rc.1")
-    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.7")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.3-SNAPSHOT")
+    implementation("org.incendo:cloud-paper:2.0.0-beta.9")
+    implementation("org.incendo:cloud-annotations:2.0.0-rc.2")
+    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.3")
     implementation(project(":bukkitlike"))
     implementation(project(":common"))
     implementation(project(":api:paper-api"))
