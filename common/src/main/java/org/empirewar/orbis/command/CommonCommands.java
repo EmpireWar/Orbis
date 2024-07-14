@@ -19,6 +19,10 @@
  */
 package org.empirewar.orbis.command;
 
+import static net.kyori.adventure.text.Component.text;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
 
@@ -34,14 +38,54 @@ import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.annotations.AnnotationParser;
 import org.incendo.cloud.minecraft.extras.MinecraftExceptionHandler;
+import org.incendo.cloud.processors.cache.CaffeineCache;
+import org.incendo.cloud.processors.confirmation.ConfirmationConfiguration;
+import org.incendo.cloud.processors.confirmation.ConfirmationManager;
+
+import java.time.Duration;
 
 public final class CommonCommands {
 
     public CommonCommands(Orbis orbis, CommandManager<OrbisSession> manager) {
+        /*
+         * Create the confirmation manager. This allows us to require certain commands to be
+         * confirmed before they can be executed
+         */
+        ConfirmationConfiguration<OrbisSession> confirmationConfig =
+                ConfirmationConfiguration.<OrbisSession>builder()
+                        .cache(CaffeineCache.of(Caffeine.newBuilder()
+                                .expireAfterWrite(Duration.ofSeconds(30))
+                                .build()))
+                        .noPendingCommandNotifier(sender -> {
+                            sender.audience()
+                                    .sendMessage(OrbisText.PREFIX.append(text(
+                                            "You don't have any pending confirmations.",
+                                            OrbisText.SECONDARY_RED)));
+                        })
+                        .confirmationRequiredNotifier((sender, context) -> {
+                            sender.audience()
+                                    .sendMessage(OrbisText.PREFIX.append(text(
+                                            "Confirmation required. Confirm using /confirm.",
+                                            OrbisText.SECONDARY_ORANGE)));
+                        })
+                        .build();
+
+        final ConfirmationManager<OrbisSession> confirmationManager =
+                ConfirmationManager.confirmationManager(confirmationConfig);
+
+        // Register the confirmation command.
+        manager.command(manager.commandBuilder("confirm")
+                .handler(confirmationManager.createExecutionHandler()));
+
+        // Register the confirmation processor. This will enable confirmations for commands that
+        // require it
+        manager.registerCommandPostProcessor(confirmationManager.createPostprocessor());
+
         // Register our custom caption registry so we can define exception messages for parsers
         manager.captionRegistry().registerProvider(new OrbisCaptionProvider<>());
 
@@ -82,6 +126,7 @@ public final class CommonCommands {
                 .defaultCommandExecutionHandler()
                 .registerTo(manager);
 
+        annotationParser.parse(new HelpCommands(orbis, manager));
         annotationParser.parse(new RegionCommand(orbis));
         annotationParser.parse(new SelectionCommand(orbis));
     }

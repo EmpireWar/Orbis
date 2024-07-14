@@ -52,6 +52,7 @@ import org.incendo.cloud.annotations.suggestion.Suggestions;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.context.CommandInput;
 import org.incendo.cloud.minecraft.extras.suggestion.ComponentTooltipSuggestion;
+import org.incendo.cloud.processors.confirmation.annotation.Confirmation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
@@ -189,6 +190,7 @@ public record RegionCommand(Orbis orbis) {
 
     @Command("region|rg remove|delete <region>")
     @CommandDescription("Completely remove a region and remove it from any worlds.")
+    @Confirmation
     public void onRemove(OrbisSession session, @Argument("region") Region region) {
         final boolean anySucceeded = orbis.removeRegion(region);
         if (anySucceeded) {

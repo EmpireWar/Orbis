@@ -8,10 +8,13 @@ dependencies {
     annotationProcessor("org.incendo:cloud-annotations:2.0.0-rc.2")
     implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
     implementation("org.incendo:cloud-brigadier:2.0.0-beta.9")
+    implementation("org.incendo:cloud-processors-confirmation:1.0.0-beta.3")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 }
 
 tasks {
     shadowJar {
         relocate("org.incendo.cloud", "org.empirewar.orbis.${project.name}.libs.cloud")
+        relocate("com.github.benmanes.caffeine.cache", "org.empirewar.orbis.${project.name}.libs.caffeine")
     }
 }
