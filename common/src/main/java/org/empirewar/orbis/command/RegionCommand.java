@@ -45,6 +45,7 @@ import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.annotation.specifier.Greedy;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
+import org.incendo.cloud.annotations.CommandDescription;
 import org.incendo.cloud.annotations.Flag;
 import org.incendo.cloud.annotations.Permission;
 import org.incendo.cloud.annotations.suggestion.Suggestions;
@@ -139,6 +140,7 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg setarea <region>")
+    @CommandDescription("Set the area a region spans.")
     public void onSetArea(PlayerOrbisSession session, @Argument("region") Region region) {
         final Selection selection =
                 orbis.selectionManager().get(session.getUuid()).orElse(null);
@@ -186,6 +188,7 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg remove|delete <region>")
+    @CommandDescription("Completely remove a region and remove it from any worlds.")
     public void onRemove(OrbisSession session, @Argument("region") Region region) {
         final boolean anySucceeded = orbis.removeRegion(region);
         if (anySucceeded) {
@@ -203,6 +206,7 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg flag add <region> <flag> [value]")
+    @CommandDescription("Add a flag to a region, optionally with a specific value.")
     public <T> void onFlagAdd(
             OrbisSession session,
             @Flag(value = "groups", suggestions = "groups") @Nullable String[] groups,
@@ -238,6 +242,7 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg flag remove <region> <flag>")
+    @CommandDescription("Remove a flag from a region.")
     public void onFlagRemove(
             OrbisSession session,
             @Argument("region") Region region,
@@ -251,6 +256,8 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg flag set <region> <flag> <value>")
+    @CommandDescription(
+            "Set the value of a flag on a region. This will add the flag if it does not already exist.")
     public <T> void onFlagSet(
             OrbisSession session,
             @Flag(value = "groups", suggestions = "groups") @Nullable String[] groups,
@@ -275,6 +282,8 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg setpriority <region> <priority>")
+    @CommandDescription(
+            "Set the priority of a region. Flags in regions with higher priority take precedence.")
     public void onSetPriority(
             OrbisSession session,
             @Argument("region") Region region,
@@ -287,6 +296,8 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg parent add <region> <parent>")
+    @CommandDescription(
+            "Add a parent to a region. The region will inherit flags and members from the parent region. Flags or members on the child region still take precedence.")
     public void onAddParent(
             OrbisSession session,
             @Argument("region") Region region,
@@ -299,6 +310,7 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg parent remove <region> <parent>")
+    @CommandDescription("Removes a parent from a region.")
     public void onRemoveParent(
             OrbisSession session,
             @Argument("region") Region region,
@@ -311,6 +323,8 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg world add <region> <world>")
+    @CommandDescription(
+            "Adds a region to a world set. The region will affect the world it is added into.")
     public void addWorld(
             OrbisSession session,
             @Argument("region") Region region,
@@ -332,6 +346,7 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg world remove <region> <world>")
+    @CommandDescription("Removes a region from a world set.")
     public void removeWorld(
             OrbisSession session,
             @Argument("region") Region region,
@@ -353,20 +368,32 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg addpos <region> <x> <y> <z>")
+    @CommandDescription("Adds a position to a region's area.")
     public void onAddPos(
             OrbisSession session,
             @Argument("region") Region region,
             @Argument("x") int x,
             @Argument("y") int y,
             @Argument("z") int z) {
-        region.area().addPoint(new Vector3i(x, y, z));
+        if (region.area().addPoint(new Vector3i(x, y, z))) {
+            session.audience()
+                    .sendMessage(OrbisText.PREFIX.append(text(
+                            "Added point [" + x + ", " + y + ", " + z + "] to '" + region.name()
+                                    + "'",
+                            OrbisText.EREBOR_GREEN)));
+            return;
+        }
+
         session.audience()
                 .sendMessage(OrbisText.PREFIX.append(text(
-                        "Added point [" + x + ", " + y + ", " + z + "] to '" + region.name() + "'",
-                        OrbisText.EREBOR_GREEN)));
+                        "Unable to add point to '" + region.name()
+                                + "'. The area does not support any additional points.",
+                        OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg member permission add <region> <permission>")
+    @CommandDescription(
+            "Adds a permission member to a region. This will match players with the specified permission.")
     public void onAddPermission(
             OrbisSession session,
             @Argument("region") Region region,
@@ -380,6 +407,7 @@ public record RegionCommand(Orbis orbis) {
     }
 
     @Command("region|rg member permission remove <region> <permission>")
+    @CommandDescription("Removes a permission member from a region.")
     public void onRemovePermission(
             OrbisSession session,
             @Argument("region") Region region,
