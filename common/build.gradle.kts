@@ -1,12 +1,9 @@
 plugins {
     id("buildlogic.java-publish-conventions")
+    id("buildlogic.java-platform-conventions")
 }
 
 dependencies {
     compileOnly("net.kyori:adventure-text-serializer-gson:4.16.0")
-    compileOnly("org.incendo:cloud-annotations:2.0.0-rc.2")
-    annotationProcessor("org.incendo:cloud-annotations:2.0.0-rc.2")
-    compileOnly("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
-    compileOnly("org.incendo:cloud-brigadier:2.0.0-beta.9")
     compileOnly("org.slf4j:slf4j-api:2.0.12")
 }

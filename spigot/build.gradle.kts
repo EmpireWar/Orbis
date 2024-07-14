@@ -1,5 +1,5 @@
 plugins {
-    id("buildlogic.java-common-conventions")
+    id("buildlogic.java-platform-conventions")
 }
 
 repositories {
@@ -15,8 +15,6 @@ dependencies {
     implementation("net.kyori:adventure-text-serializer-legacy:4.17.0")
     implementation("org.spongepowered:configurate-yaml:4.1.2")
     implementation("org.incendo:cloud-paper:2.0.0-beta.9")
-    implementation("org.incendo:cloud-annotations:2.0.0-rc.2")
-    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
     implementation("net.kyori:adventure-platform-bukkit:4.3.3")
     implementation(project(":bukkitlike"))
     implementation(project(":common"))
@@ -26,7 +24,6 @@ dependencies {
 
 tasks {
     shadowJar {
-        relocate("org.incendo.cloud", "org.empirewar.orbis.spigot.libs.cloud")
         relocate("net.kyori", "org.empirewar.orbis.spigot.libs.adventure")
     }
 

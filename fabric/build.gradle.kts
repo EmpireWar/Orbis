@@ -1,5 +1,5 @@
 plugins {
-    id("buildlogic.java-common-conventions")
+    id("buildlogic.java-platform-conventions")
     id("fabric-loom") version("1.6-SNAPSHOT")
 }
 
@@ -22,8 +22,8 @@ dependencies {
     compileOnly("org.slf4j:slf4j-api:2.0.12")
     modImplementation("net.kyori:adventure-platform-fabric:5.12.0")?.let { include(it) }
     modImplementation("me.lucko:fabric-permissions-api:0.3.1")?.let { include(it) }
-    implementation("org.incendo:cloud-annotations:2.0.0-rc.1")
-    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.7")
+    implementation("org.incendo:cloud-annotations:2.0.0-rc.2")
+    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
     implementation(project(":common"))
     implementation(project(":api:fabric-api"))
 }
