@@ -108,12 +108,10 @@ public interface Orbis {
     default void saveWorld(RegionisedWorld world) throws IOException {
         final ConfigurationNode node =
                 config().node("worlds", world.worldName().orElseThrow(), "regions");
-        final List<String> regionsInWorld = node.getList(String.class, new ArrayList<>());
+        final List<String> regionsInWorld = new ArrayList<>();
         for (Region region : world.regions()) {
             if (region.name().equals(world.worldName().orElseThrow())) continue;
-            if (!regionsInWorld.contains(region.name())) {
-                regionsInWorld.add(region.name());
-            }
+            regionsInWorld.add(region.name());
         }
         node.setList(String.class, regionsInWorld);
         saveConfig();
