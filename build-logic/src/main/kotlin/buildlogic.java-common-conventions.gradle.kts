@@ -29,7 +29,7 @@ repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/") // Paper
-    maven("https://repo.convallyria.com/snapshots/")
+    maven("https://repo.empirewar.org/snapshots/")
 }
 
 project.version = "1.0.0-SNAPSHOT"

@@ -33,8 +33,8 @@ publishing {
         // See Gradle docs for how to provide credentials to PasswordCredentials
         // https://docs.gradle.org/current/samples/sample_publishing_credentials.html
         maven {
-            val snapshotUrl = "https://repo.convallyria.com/snapshots/"
-            val releaseUrl = "https://repo.convallyria.com/releases/"
+            val snapshotUrl = "https://repo.empirewar.org/snapshots/"
+            val releaseUrl = "https://repo.empirewar.org/releases/"
 
             // Check which URL should be used
             url = if (project.version.toString().endsWith("SNAPSHOT")) {
@@ -44,7 +44,7 @@ publishing {
             }
 
             name = "snapshots"
-            url = uri("https://repo.convallyria.com/snapshots/")
+            url = uri("https://repo.empirewar.org/snapshots/")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_PASSWORD")
