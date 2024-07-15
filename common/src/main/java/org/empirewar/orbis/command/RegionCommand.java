@@ -24,7 +24,6 @@ import static net.kyori.adventure.text.Component.text;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.Area;
@@ -37,6 +36,7 @@ import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.member.FlagMemberGroup;
 import org.empirewar.orbis.member.Member;
 import org.empirewar.orbis.member.PermissionMember;
+import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.empirewar.orbis.region.GlobalRegion;
@@ -437,22 +437,24 @@ public record RegionCommand(Orbis orbis) {
     @Command("region|rg info <region>")
     public void onInfo(OrbisSession session, @Argument("region") Region region) {
         final Audience audience = session.audience();
-        audience.sendMessage(OrbisText.PREFIX.append(
-                text(region.name() + ":", OrbisText.SECONDARY_ORANGE, TextDecoration.BOLD)));
+        audience.sendMessage(
+                OrbisText.PREFIX.append(text(region.name() + ":", OrbisText.SECONDARY_ORANGE)));
         audience.sendMessage(text("Priority: ", OrbisText.EREBOR_GREEN)
                 .append(text(region.priority(), NamedTextColor.WHITE)));
         // TODO make this stuff look nice and function nice
-        audience.sendMessage(text(
-                "Parents: "
-                        + region.parents().stream().map(Region::name).collect(Collectors.toSet()),
-                OrbisText.EREBOR_GREEN));
+        if (!region.isGlobal() && !region.parents().isEmpty()) {
+            audience.sendMessage(text("Parents: ", OrbisText.EREBOR_GREEN)
+                    .append(text(
+                            ""
+                                    + region.parents().stream()
+                                            .map(Region::name)
+                                            .collect(Collectors.toSet()),
+                            NamedTextColor.WHITE)));
+        }
         audience.sendMessage(text("Flags: ", OrbisText.EREBOR_GREEN));
         for (RegionFlag<?> flag : Registries.FLAGS) {
+            final String name = Registries.FLAGS.getKey(flag).orElseThrow().asString();
             region.getFlag(flag).ifPresent(storedFlag -> {
-                final String name = Registries.FLAG_TYPE
-                        .getKey(storedFlag.getType())
-                        .orElseThrow()
-                        .asString();
                 audience.sendMessage(text(name + " -> " + storedFlag.getValue()));
             });
         }
@@ -463,7 +465,13 @@ public record RegionCommand(Orbis orbis) {
                     .getKey(member.getType())
                     .orElseThrow()
                     .asString();
-            audience.sendMessage(text(name));
+            String value = null;
+            if (member instanceof PermissionMember permissionMember) {
+                value = permissionMember.permission();
+            } else if (member instanceof PlayerMember playerMember) {
+                value = playerMember.playerId().toString();
+            }
+            audience.sendMessage(text(name + " -> " + value));
         }
     }
 

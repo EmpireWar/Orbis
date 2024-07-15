@@ -127,7 +127,7 @@ public final class CommonCommands {
                 .defaultCommandExecutionHandler()
                 .registerTo(manager);
 
-        annotationParser.parse(new HelpCommands(orbis, manager));
+        //        annotationParser.parse(new HelpCommands(orbis, manager));
         annotationParser.parse(new RegionCommand(orbis));
         annotationParser.parse(new SelectionCommand(orbis));
     }

@@ -30,22 +30,15 @@ import org.jetbrains.annotations.Nullable;
 
 public final class HelpCommands {
 
-    private final MinecraftHelp<OrbisSession> helpOrbis, helpRg;
+    private final MinecraftHelp<OrbisSession> help;
 
     public HelpCommands(Orbis orbis, CommandManager<OrbisSession> manager) {
-        this.helpOrbis = MinecraftHelp.create("/orbis help", manager, OrbisSession::audience);
-        this.helpRg = MinecraftHelp.create("/rg help", manager, OrbisSession::audience);
+        this.help = MinecraftHelp.create("/orbis|region|rg help", manager, OrbisSession::audience);
     }
 
-    @Command("orbis help [query]")
-    public void onHelpOrbis(
+    @Command("orbis|region|rg help [query]")
+    public void onHelp(
             final OrbisSession sender, @Argument("query") @Greedy @Nullable String query) {
-        helpOrbis.queryCommands(query == null ? "" : query, sender);
-    }
-
-    @Command("rg help [query]")
-    public void onHelpRegions(
-            final OrbisSession sender, @Argument("query") @Greedy @Nullable String query) {
-        helpRg.queryCommands(query == null ? "" : query, sender);
+        help.queryCommands(query == null ? "" : query, sender);
     }
 }
