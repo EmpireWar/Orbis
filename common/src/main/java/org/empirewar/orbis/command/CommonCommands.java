@@ -80,7 +80,7 @@ public final class CommonCommands {
 
         // Register the confirmation command.
         manager.command(manager.commandBuilder("orbis")
-                        .literal("confirm")
+                .literal("confirm")
                 .handler(confirmationManager.createExecutionHandler()));
 
         // Register the confirmation processor. This will enable confirmations for commands that

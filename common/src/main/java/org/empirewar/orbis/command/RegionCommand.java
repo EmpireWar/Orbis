@@ -21,7 +21,10 @@ package org.empirewar.orbis.command;
 
 import static net.kyori.adventure.text.Component.text;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.Area;
@@ -429,6 +432,39 @@ public record RegionCommand(Orbis orbis) {
         session.audience()
                 .sendMessage(OrbisText.PREFIX.append(Component.text(
                         "Couldn't find a member with that name.", OrbisText.SECONDARY_RED)));
+    }
+
+    @Command("region|rg info <region>")
+    public void onInfo(OrbisSession session, @Argument("region") Region region) {
+        final Audience audience = session.audience();
+        audience.sendMessage(OrbisText.PREFIX.append(
+                text(region.name() + ":", OrbisText.SECONDARY_ORANGE, TextDecoration.BOLD)));
+        audience.sendMessage(text("Priority: ", OrbisText.EREBOR_GREEN)
+                .append(text(region.priority(), NamedTextColor.WHITE)));
+        // TODO make this stuff look nice and function nice
+        audience.sendMessage(text(
+                "Parents: "
+                        + region.parents().stream().map(Region::name).collect(Collectors.toSet()),
+                OrbisText.EREBOR_GREEN));
+        audience.sendMessage(text("Flags: ", OrbisText.EREBOR_GREEN));
+        for (RegionFlag<?> flag : Registries.FLAGS) {
+            region.getFlag(flag).ifPresent(storedFlag -> {
+                final String name = Registries.FLAG_TYPE
+                        .getKey(storedFlag.getType())
+                        .orElseThrow()
+                        .asString();
+                audience.sendMessage(text(name + " -> " + storedFlag.getValue()));
+            });
+        }
+
+        audience.sendMessage(text("Members: ", OrbisText.EREBOR_GREEN));
+        for (Member member : region.members()) {
+            final String name = Registries.MEMBER_TYPE
+                    .getKey(member.getType())
+                    .orElseThrow()
+                    .asString();
+            audience.sendMessage(text(name));
+        }
     }
 
     @Suggestions("groups")
