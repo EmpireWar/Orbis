@@ -14,7 +14,7 @@ dependencies {
 }
 
 sponge {
-    apiVersion("11.1.0-SNAPSHOT")
+    apiVersion("12.0.0-SNAPSHOT")
     loader {
         name(PluginLoaders.JAVA_PLAIN)
         version("1.0.0-SNAPSHOT")

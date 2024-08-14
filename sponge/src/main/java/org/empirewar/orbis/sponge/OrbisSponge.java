@@ -63,6 +63,7 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileAlreadyExistsException;
@@ -165,10 +166,17 @@ public class OrbisSponge implements Orbis {
 
     private void loadConfig() {
         try {
+            final File dataFolderFile = dataFolder().toFile();
+            if (!dataFolderFile.exists()) {
+                dataFolderFile.mkdirs();
+            }
+
             final Path configPath = dataFolder().resolve("config.yml");
             try {
                 Files.copy(
-                        pluginContainer.openResource(URI.create("/config.yml")).orElseThrow(),
+                        pluginContainer
+                                .openResource(URI.create("/assets/orbis/config.yml"))
+                                .orElseThrow(),
                         configPath);
             } catch (FileAlreadyExistsException ignored) {
             } catch (IOException e) {

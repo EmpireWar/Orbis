@@ -67,6 +67,7 @@ import org.spongepowered.configurate.loader.ConfigurationLoader;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -174,8 +175,13 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
 
     private void loadConfig() {
         try {
+            final File dataFolderFile = dataFolder().toFile();
+            if (!dataFolderFile.exists()) {
+                dataFolderFile.mkdirs();
+            }
+
             final Path configPath = dataFolder().resolve("config.yml");
-            saveResource("config.yml", false);
+            saveResource("assets/orbis/config.yml", false);
 
             loader = YamlConfigurationLoader.builder().path(configPath).build();
             rootNode = loader.load();

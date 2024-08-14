@@ -49,8 +49,8 @@ dependencies {
     testImplementation("net.kyori:adventure-api")
     compileOnly("org.joml:joml")
     testImplementation("org.joml:joml")
-    compileOnly("com.mojang:datafixerupper:7.1.15")
-    testImplementation("com.mojang:datafixerupper:7.1.15")
+    compileOnly("com.mojang:datafixerupper:8.0.16")
+    testImplementation("com.mojang:datafixerupper:8.0.16")
     compileOnly("com.google.code.gson:gson:2.10.1")
     testImplementation("com.google.code.gson:gson:2.10.1")
 }

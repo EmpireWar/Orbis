@@ -200,8 +200,8 @@ public class OrbisSpigot extends JavaPlugin implements OrbisBukkit, Listener {
 
     private void loadConfig() {
         try {
-            final Path configPath = dataFolder().resolve("config.yml");
-            saveResource("config.yml", false);
+            final Path configPath = dataFolder().resolve("assets/orbis/config.yml");
+            saveResource("assets/orbis/config.yml", false);
 
             loader = YamlConfigurationLoader.builder().path(configPath).build();
             rootNode = loader.load();
