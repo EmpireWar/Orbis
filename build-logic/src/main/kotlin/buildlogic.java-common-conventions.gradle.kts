@@ -1,7 +1,7 @@
 plugins {
     // Apply the java Plugin to add support for Java.
     java
-    id("io.github.goooler.shadow")
+    id("com.gradleup.shadow")
     id("com.diffplug.spotless")
     id("net.kyori.indra.licenser.spotless")
 }
