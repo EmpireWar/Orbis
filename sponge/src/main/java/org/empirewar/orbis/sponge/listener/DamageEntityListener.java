@@ -5,8 +5,7 @@ import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.living.Living;
-import org.spongepowered.api.entity.vehicle.Vehicle;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
@@ -22,6 +21,8 @@ public class DamageEntityListener {
     @Listener(order = Order.EARLY)
     public void onDamage(DamageEntityEvent event) {
         final Entity attacked = event.entity();
+        if (!(attacked instanceof ServerPlayer)) return;
+
         final RegionisedWorld world =
                 orbis.getRegionisedWorld(attacked.serverLocation().world().key());
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> query =
@@ -31,11 +32,9 @@ public class DamageEntityListener {
                                 attacked.position().y(),
                                 attacked.position().z()));
 
-        if (!(attacked instanceof Living)) return;
-
         if (!query.query(RegionQuery.Flag.builder(DefaultFlags.INVULNERABILITY))
                 .result()
-                .orElse(true)) {
+                .orElse(false)) {
             event.setCancelled(true);
         }
     }
