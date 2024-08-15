@@ -27,6 +27,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
 
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.flag.GroupedMutableRegionFlag;
 import org.empirewar.orbis.flag.MutableRegionFlag;
@@ -116,13 +117,24 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
             int priority) {
         this.name = name;
         this.parents = new HashSet<>();
-        parents.forEach(parentName -> CodecContext.queue().beg(Region.class, r -> {
-            if (r.name.equals(parentName)) {
-                this.addParent(r);
-                return true;
-            }
-            return false;
-        }));
+        parents.forEach(parentName -> {
+            OrbisAPI.get()
+                    .logger()
+                    .info("Region {} waiting for region parent {}", name, parentName);
+            CodecContext.queue().beg(Region.class, r -> {
+                OrbisAPI.get()
+                        .logger()
+                        .info("Region {} checking for region parent {}", name, r.name);
+                if (r.name.equals(parentName)) {
+                    OrbisAPI.get()
+                            .logger()
+                            .info("Region {} found region parent {}", name, parentName);
+                    this.addParent(r);
+                    return true;
+                }
+                return false;
+            });
+        });
         this.members = new HashSet<>(members);
         this.flags = new HashMap<>();
         flags.forEach(mu -> this.flags.put(mu.key(), mu));

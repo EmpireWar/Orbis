@@ -69,7 +69,7 @@ public final class ContextQueue {
     }
 
     public <T> void rewardPatience(Class<? extends T> type, T object) {
-        final List<T> list = (List<T>) resolved.getOrDefault(object.getClass(), new ArrayList<>());
+        final List<T> list = (List<T>) resolved.getOrDefault(type, new ArrayList<>());
         list.add(object);
         resolved.put(type, list);
 
