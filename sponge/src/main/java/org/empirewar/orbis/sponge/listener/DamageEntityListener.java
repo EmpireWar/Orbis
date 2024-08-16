@@ -51,7 +51,7 @@ public class DamageEntityListener {
                                 attacked.position().y(),
                                 attacked.position().z()));
 
-        if (!query.query(RegionQuery.Flag.builder(DefaultFlags.INVULNERABILITY))
+        if (query.query(RegionQuery.Flag.builder(DefaultFlags.INVULNERABILITY))
                 .result()
                 .orElse(false)) {
             event.setCancelled(true);
