@@ -41,10 +41,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.bukkit.OrbisBukkit;
 import org.empirewar.orbis.bukkit.command.BukkitCommands;
-import org.empirewar.orbis.bukkit.listener.BlockActionListener;
-import org.empirewar.orbis.bukkit.listener.ConnectionListener;
-import org.empirewar.orbis.bukkit.listener.MovementListener;
-import org.empirewar.orbis.bukkit.listener.RegionEnterLeaveListener;
+import org.empirewar.orbis.bukkit.listener.*;
 import org.empirewar.orbis.bukkit.selection.SelectionListener;
 import org.empirewar.orbis.bukkit.session.PlayerSession;
 import org.empirewar.orbis.paper.listener.InteractEntityExtensionListener;
@@ -208,6 +205,7 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
         pluginManager.registerEvents(new RegionEnterLeaveListener(this), this);
         pluginManager.registerEvents(new ConnectionListener(this), this);
         pluginManager.registerEvents(new SelectionListener(this), this);
+        pluginManager.registerEvents(new EntityDamageListener(this), this);
     }
 
     private void loadWorld(World world) {

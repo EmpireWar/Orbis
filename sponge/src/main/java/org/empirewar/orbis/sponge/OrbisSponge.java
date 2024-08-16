@@ -30,10 +30,7 @@ import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.sponge.command.SpongeCommands;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
-import org.empirewar.orbis.sponge.listener.BlockActionListener;
-import org.empirewar.orbis.sponge.listener.ConnectionListener;
-import org.empirewar.orbis.sponge.listener.InteractEntityListener;
-import org.empirewar.orbis.sponge.listener.MovementListener;
+import org.empirewar.orbis.sponge.listener.*;
 import org.empirewar.orbis.sponge.selection.SelectionListener;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
@@ -206,6 +203,7 @@ public class OrbisSponge implements Orbis {
         eventManager.registerListeners(pluginContainer, new MovementListener(this));
         eventManager.registerListeners(pluginContainer, new ConnectionListener(this));
         eventManager.registerListeners(pluginContainer, new SelectionListener(this));
+        eventManager.registerListeners(pluginContainer, new DamageEntityListener(this));
     }
 
     private void loadWorld(ServerWorld world) {

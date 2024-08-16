@@ -59,6 +59,7 @@ public final class DefaultFlags {
     public static final RegionFlag<Boolean> DRAIN_HUNGER = register("drain_hunger", () -> true, Codec.BOOL);
     public static final RegionFlag<Boolean> FIRE_SPREAD = register("fire_spread", () -> true, Codec.BOOL);
     public static final RegionFlag<Long> TIME = register("time", () -> 12000L, Codec.LONG);
+    public static final RegionFlag<Boolean> INVULNERABILITY = register("invulnerability", () -> false, Codec.BOOL);
 //    public static final RegionFlag<Component> DENY_MESSAGE = register("deny_message", () -> Component.text("You can't do that here.", TextColor.color(244, 61, 61)), ExtraCodecs.COMPONENT);
     // spotless:on
 
