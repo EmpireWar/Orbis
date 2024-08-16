@@ -23,9 +23,12 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
+import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.joml.Vector3i;
 
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,27 +56,36 @@ public final class PolygonArea extends EncompassingArea {
 
     @Override
     public boolean contains(double x, double y, double z) {
-        boolean inside = false;
+        Path2D path = new Path2D.Double();
 
-        // TODO how to fix algorithm so that a position on a block that a polygon line passes over
-        // is considered valid?
-
-        final int vertexCount = points.size();
         final List<Vector3i> list = points.stream().toList();
-        // Ray-casting algorithm
-        for (int i = 0, j = vertexCount - 1; i < vertexCount; j = i++) {
-            Vector3i vertex1 = list.get(i);
-            Vector3i vertex2 = list.get(j);
 
-            // spotless:off
-            if ((vertex1.z > z) != (vertex2.z > z) &&
-                    (x < (vertex2.x - vertex1.x) * (z - vertex1.z) / (vertex2.z - vertex1.z) + vertex1.x)) {
-                inside = !inside;
-            }
-            // spotless:on
+        // Move to the first point in the polygon
+        path.moveTo(list.getFirst().x, list.getFirst().z);
+
+        // Connect the points in the polygon
+        for (int i = 1; i < points.size(); i++) {
+            path.lineTo(list.get(i).x, list.get(i).z);
         }
 
-        return inside;
+        // Close the path
+        path.closePath();
+
+        // Create a Point2D object for the test point
+        Point2D testPoint = new Point2D.Double(x, z);
+
+        // Check if the test point is inside the polygon
+        return path.contains(testPoint);
+    }
+
+    // Helper method to check if a point lies exactly on a segment between two vertices with double
+    // precision
+    private static boolean onSegment(Vector3i p1, Vector3i p2, Vector3d p) {
+        return p.x <= Math.max(p1.x, p2.x)
+                && p.x >= Math.min(p1.x, p2.x)
+                && p.z <= Math.max(p1.z, p2.z)
+                && p.z >= Math.min(p1.z, p2.z)
+                && Math.abs((p2.z - p1.z) * (p.x - p1.x) - (p2.x - p1.x) * (p.z - p1.z)) < 1e-9;
     }
 
     @Override
