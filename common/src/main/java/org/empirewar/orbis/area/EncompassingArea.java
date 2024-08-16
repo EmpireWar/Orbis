@@ -25,6 +25,7 @@ import org.joml.Vector3ic;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,12 +38,12 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
 
     EncompassingArea() {
         final int expected = getExpectedPoints().orElse(0);
-        this.points = new HashSet<>(expected);
+        this.points = new LinkedHashSet<>(expected);
         calculateEncompassingArea();
     }
 
     EncompassingArea(List<Vector3i> points) {
-        this.points = new HashSet<>(points);
+        this.points = new LinkedHashSet<>(points);
         calculateEncompassingArea();
     }
 

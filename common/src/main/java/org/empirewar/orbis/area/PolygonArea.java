@@ -23,10 +23,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
-import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.joml.Vector3i;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +36,7 @@ public final class PolygonArea extends EncompassingArea {
             RecordCodecBuilder.mapCodec(instance -> instance.group(ExtraCodecs.VEC_3I
                             .listOf()
                             .fieldOf("points")
-                            .forGetter(c -> c.points.stream().toList()))
+                            .forGetter(c -> new LinkedList<>(c.points)))
                     .apply(instance, PolygonArea::new));
 
     public PolygonArea() {
@@ -62,7 +62,7 @@ public final class PolygonArea extends EncompassingArea {
             return false;
         }
 
-        final List<Vector3i> list = points.stream().toList();
+        final LinkedList<Vector3i> list = new LinkedList<>(points);
 
         boolean inside = false;
         int npoints = points.size();
@@ -108,16 +108,6 @@ public final class PolygonArea extends EncompassingArea {
         }
 
         return inside;
-    }
-
-    // Helper method to check if a point lies exactly on a segment between two vertices with double
-    // precision
-    private static boolean onSegment(Vector3i p1, Vector3i p2, Vector3d p) {
-        return p.x <= Math.max(p1.x, p2.x)
-                && p.x >= Math.min(p1.x, p2.x)
-                && p.z <= Math.max(p1.z, p2.z)
-                && p.z >= Math.min(p1.z, p2.z)
-                && Math.abs((p2.z - p1.z) * (p.x - p1.x) - (p2.x - p1.x) * (p.z - p1.z)) < 1e-9;
     }
 
     @Override

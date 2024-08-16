@@ -33,7 +33,7 @@ import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.util.OrbisText;
 import org.joml.Vector3i;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -56,7 +56,7 @@ public final class Selection {
 
     public Selection(AreaType<?> selectionType) {
         this.selectionType = selectionType;
-        this.points = new HashSet<>();
+        this.points = new LinkedHashSet<>();
     }
 
     public AreaType<?> getSelectionType() {
