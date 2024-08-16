@@ -72,7 +72,8 @@ public class PolygonAreaTest {
                 new Vector3i(0, 0, 3) // Bottom-left vertex
                 );
         pentagonPolygon.forEach(area::addPoint);
-        // TODO THIS DOESN'T EVEN WORK WITH WORLDGUARD ALGO I DON'T UNDERSTAND IS THE UNIVERSE BUGGED?
+        // TODO THIS DOESN'T EVEN WORK WITH WORLDGUARD ALGO I DON'T UNDERSTAND IS THE UNIVERSE
+        // BUGGED?
         //        assertTrue(area.contains(3, 0, 4));
         assertFalse(area.contains(7, 0, 3));
     }
