@@ -134,7 +134,7 @@ public final class InteractEntityListener {
     }
 
     @Listener(order = Order.EARLY)
-    public void onDrop(ChangeInventoryEvent.Drop event, @Root ServerPlayer player) {
+    public void onDrop(ChangeInventoryEvent.Drop event, @First ServerPlayer player) {
         if (shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEM)) {
             event.setCancelled(true);
         }
