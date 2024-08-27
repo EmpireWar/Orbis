@@ -36,6 +36,7 @@ import org.spongepowered.api.event.data.ChangeDataHolderEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.math.vector.Vector3d;
+import org.spongepowered.plugin.PluginContainer;
 
 import java.util.Set;
 
@@ -112,6 +113,7 @@ public final class MovementListener {
         if (!(event.targetHolder() instanceof ServerPlayer entity)) return;
         if (event.endResult().successfulData().stream()
                 .noneMatch(immutable -> immutable.key() == Keys.FOOD_LEVEL)) return;
+        if (event.cause().containsType(PluginContainer.class)) return;
         final RegionisedWorld world = orbis.getRegionisedWorld(entity.world().key());
         final boolean drain = world.query(RegionQuery.Position.builder()
                         .position(
