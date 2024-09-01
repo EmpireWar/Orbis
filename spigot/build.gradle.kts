@@ -8,7 +8,7 @@ repositories {
 
 dependencies {
     compileOnly("org.slf4j:slf4j-api:2.0.12")
-    compileOnly("org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.21.1-R0.1-SNAPSHOT")
     // It's really impressive how adventure-platform-bukkit is using adventure 4.13, so we have to include 4.17
     // Supporting Spigot is so much fun!
     implementation("net.kyori:adventure-api:4.17.0")

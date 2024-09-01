@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
     implementation("org.incendo:cloud-paper:2.0.0-beta.9")
     implementation(project(":bukkitlike"))
     implementation(project(":common"))
