@@ -38,6 +38,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.container.InteractContainerEvent;
 import org.spongepowered.api.registry.RegistryTypes;
@@ -57,11 +58,7 @@ public final class BlockActionListener {
     }
 
     @Listener(order = Order.EARLY)
-    public void onChange(ChangeBlockEvent.All event) {
-        final ServerPlayer serverPlayer =
-                event.cause().first(ServerPlayer.class).orElse(null);
-        if (serverPlayer == null) return;
-
+    public void onChange(ChangeBlockEvent.All event, @First ServerPlayer serverPlayer) {
         event.transactions(Operations.BREAK.get()).forEach(transaction -> {
             if (shouldPreventBlockAction(
                     transaction.original(), serverPlayer, DefaultFlags.CAN_BREAK)) {

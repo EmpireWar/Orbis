@@ -37,6 +37,7 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.cause.entity.damage.DamageType;
 import org.spongepowered.api.event.cause.entity.damage.DamageTypes;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.entity.AttackEntityEvent;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
@@ -90,11 +91,8 @@ public final class InteractEntityListener {
 
         if (!(attacked instanceof Living)) return;
 
-        // Check PvP flag for players
+        // Check PvP flag for players via AttackEntityEvent instead
         if (attacked instanceof ServerPlayer) {
-            if (shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
-                event.setCancelled(true);
-            }
             return;
         }
 
@@ -105,6 +103,14 @@ public final class InteractEntityListener {
         if (damageable == null) return;
 
         if (!damageable.contains(attacked.type().key(RegistryTypes.ENTITY_TYPE))) {
+            event.setCancelled(true);
+        }
+    }
+
+    @Listener(order = Order.EARLY)
+    public void onAttack(AttackEntityEvent event, @First ServerPlayer attacker) {
+        final Entity attacked = event.entity();
+        if (shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
             event.setCancelled(true);
         }
     }
