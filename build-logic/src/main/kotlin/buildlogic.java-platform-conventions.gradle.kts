@@ -14,7 +14,11 @@ dependencies {
 
 tasks {
     shadowJar {
-        relocate("org.incendo.cloud", "org.empirewar.orbis.${project.name}.libs.cloud")
-        relocate("com.github.benmanes.caffeine.cache", "org.empirewar.orbis.${project.name}.libs.caffeine")
+        val root = "org.empirewar.orbis.${project.name}.libs"
+        relocate("org.incendo.cloud", "$root.cloud")
+        relocate("io.leangen", "$root.leangen")
+        relocate("org.checkerframework", "$root.checker")
+        relocate("com.github.benmanes.caffeine.cache", "$root.caffeine")
+        relocate("com.google", "$root.google")
     }
 }
