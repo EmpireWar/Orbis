@@ -78,6 +78,7 @@ tasks {
     }
 
     shadowJar {
+        mergeServiceFiles()
         archiveBaseName.set("orbis-${project.name}")
         archiveClassifier.set("")
     }
