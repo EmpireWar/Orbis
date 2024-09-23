@@ -19,8 +19,11 @@
  */
 package org.empirewar.orbis.fabric.command;
 
+import static net.kyori.adventure.text.Component.text;
+
 import net.kyori.adventure.key.Key;
 import net.minecraft.server.level.ServerPlayer;
+
 import org.empirewar.orbis.command.CommonCommands;
 import org.empirewar.orbis.fabric.OrbisFabric;
 import org.empirewar.orbis.fabric.session.ConsoleOrbisSessionExtension;
@@ -35,8 +38,6 @@ import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.fabric.FabricServerCommandManager;
 import org.incendo.cloud.setting.ManagerSetting;
-
-import static net.kyori.adventure.text.Component.text;
 
 public final class FabricCommands {
 
@@ -88,57 +89,57 @@ public final class FabricCommands {
                     }
                 }));
 
-//        manager.command(manager.commandBuilder("orbis")
-//                .senderType(PlayerSession.class)
-//                .literal("wand")
-//                .handler(context -> {
-//                    final ServerPlayer player = context.sender().getCause().getPlayer();
-//                    mod.server().executeBlocking(player.getInventory().add());
-//                }));
-//
-//        manager.command(manager.commandBuilder("region", "rg")
-//                .literal("member")
-//                .literal("player")
-//                .literal("add")
-//                .required("region", regionParser())
-//                .required("player", userParser())
-//                .handler(context -> {
-//                    final Region region = context.get("region");
-//                    final User player = context.get("player");
-//                    region.addMember(new PlayerMember(player.uniqueId()));
-//                    final OrbisSession sender = context.sender();
-//                    sender.audience()
-//                            .sendMessage(OrbisText.PREFIX.append(Component.text(
-//                                    "Added " + player.name() + " as a member to region "
-//                                            + region.name() + ".",
-//                                    OrbisText.EREBOR_GREEN)));
-//                }));
-//
-//        manager.command(manager.commandBuilder("region", "rg")
-//                .literal("member")
-//                .literal("player")
-//                .literal("remove")
-//                .required("region", regionParser())
-//                .required("player", userParser())
-//                .handler(context -> {
-//                    final Region region = context.get("region");
-//                    final User player = context.get("player");
-//                    final OrbisSession sender = context.sender();
-//                    for (Member member : region.members()) {
-//                        if (member instanceof PlayerMember playerMember
-//                                && playerMember.playerId().equals(player.uniqueId())) {
-//                            region.removeMember(member);
-//                            sender.audience()
-//                                    .sendMessage(OrbisText.PREFIX.append(Component.text(
-//                                            "Removed member '" + player.name() + "'.",
-//                                            OrbisText.EREBOR_GREEN)));
-//                            return;
-//                        }
-//                    }
-//                    sender.audience()
-//                            .sendMessage(OrbisText.PREFIX.append(Component.text(
-//                                    "Couldn't find a member with that name.",
-//                                    OrbisText.SECONDARY_RED)));
-//                }));
+        //        manager.command(manager.commandBuilder("orbis")
+        //                .senderType(PlayerSession.class)
+        //                .literal("wand")
+        //                .handler(context -> {
+        //                    final ServerPlayer player = context.sender().getCause().getPlayer();
+        //                    mod.server().executeBlocking(player.getInventory().add());
+        //                }));
+        //
+        //        manager.command(manager.commandBuilder("region", "rg")
+        //                .literal("member")
+        //                .literal("player")
+        //                .literal("add")
+        //                .required("region", regionParser())
+        //                .required("player", userParser())
+        //                .handler(context -> {
+        //                    final Region region = context.get("region");
+        //                    final User player = context.get("player");
+        //                    region.addMember(new PlayerMember(player.uniqueId()));
+        //                    final OrbisSession sender = context.sender();
+        //                    sender.audience()
+        //                            .sendMessage(OrbisText.PREFIX.append(Component.text(
+        //                                    "Added " + player.name() + " as a member to region "
+        //                                            + region.name() + ".",
+        //                                    OrbisText.EREBOR_GREEN)));
+        //                }));
+        //
+        //        manager.command(manager.commandBuilder("region", "rg")
+        //                .literal("member")
+        //                .literal("player")
+        //                .literal("remove")
+        //                .required("region", regionParser())
+        //                .required("player", userParser())
+        //                .handler(context -> {
+        //                    final Region region = context.get("region");
+        //                    final User player = context.get("player");
+        //                    final OrbisSession sender = context.sender();
+        //                    for (Member member : region.members()) {
+        //                        if (member instanceof PlayerMember playerMember
+        //                                && playerMember.playerId().equals(player.uniqueId())) {
+        //                            region.removeMember(member);
+        //                            sender.audience()
+        //                                    .sendMessage(OrbisText.PREFIX.append(Component.text(
+        //                                            "Removed member '" + player.name() + "'.",
+        //                                            OrbisText.EREBOR_GREEN)));
+        //                            return;
+        //                        }
+        //                    }
+        //                    sender.audience()
+        //                            .sendMessage(OrbisText.PREFIX.append(Component.text(
+        //                                    "Couldn't find a member with that name.",
+        //                                    OrbisText.SECONDARY_RED)));
+        //                }));
     }
 }

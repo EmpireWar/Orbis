@@ -20,8 +20,10 @@
 package org.empirewar.orbis.fabric.session;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
+
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
+
 import org.empirewar.orbis.player.PlayerOrbisSession;
 
 public final class PlayerSession extends PlayerOrbisSession {

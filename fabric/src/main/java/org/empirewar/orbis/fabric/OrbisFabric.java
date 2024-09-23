@@ -1,20 +1,40 @@
+/*
+ * This file is part of Orbis, licensed under the GNU GPL v3 License.
+ *
+ * Copyright (C) 2024 EmpireWar
+ * Copyright (C) contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 package org.empirewar.orbis.fabric;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
+
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.platform.fabric.FabricServerAudiences;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
+
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.region.GlobalRegion;
@@ -51,10 +71,10 @@ public class OrbisFabric implements ModInitializer, Orbis {
     // That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger("orbis");
 
-    private volatile FabricServerAudiences adventure;
+    private volatile MinecraftServerAudiences adventure;
 
-    public FabricServerAudiences adventure() {
-        FabricServerAudiences ret = this.adventure;
+    public MinecraftServerAudiences adventure() {
+        MinecraftServerAudiences ret = this.adventure;
         if (ret == null) {
             throw new IllegalStateException("Tried to access Adventure without a running server!");
         }
@@ -91,7 +111,7 @@ public class OrbisFabric implements ModInitializer, Orbis {
         // This is important on the integrated server, where multiple server instances
         // can exist for one mod initialization.
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            this.adventure = FabricServerAudiences.of(server);
+            this.adventure = MinecraftServerAudiences.of(server);
             this.server = server;
 
             this.loadConfig();
@@ -103,10 +123,12 @@ public class OrbisFabric implements ModInitializer, Orbis {
             }
 
             this.wandItem = new ItemStack(Items.BLAZE_ROD);
-            wandItem.setHoverName(adventure.toNative(Selection.WAND_NAME));
-            // I don't know how you can set lore in vanilla
-//            meta.getPersistentDataContainer().set(WAND_KEY, PersistentDataType.BOOLEAN, true);
-//            WAND_ITEM.setItemMeta(meta);
+            wandItem.set(DataComponents.ITEM_NAME, adventure.asNative(Selection.WAND_NAME));
+            wandItem.set(
+                    DataComponents.LORE,
+                    new ItemLore(Selection.WAND_LORE.stream()
+                            .map(adventure::asNative)
+                            .toList()));
         });
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
@@ -138,7 +160,11 @@ public class OrbisFabric implements ModInitializer, Orbis {
         try {
             final Path configPath = dataFolder().resolve("config.yml");
             try {
-                final Path jarPath = FabricLoader.getInstance().getModContainer("orbis").orElseThrow().findPath("config.yml").orElseThrow();
+                final Path jarPath = FabricLoader.getInstance()
+                        .getModContainer("orbis")
+                        .orElseThrow()
+                        .findPath("config.yml")
+                        .orElseThrow();
                 Files.copy(jarPath, configPath);
             } catch (FileAlreadyExistsException ignored) {
             } catch (IOException e) {
@@ -163,14 +189,15 @@ public class OrbisFabric implements ModInitializer, Orbis {
 
     private void registerListeners() {
         ServerWorldEvents.UNLOAD.register((s, world) -> {
-            final RegionisedWorldSet set = this.worldSets.remove(world.dimension().key());
+            final RegionisedWorldSet set =
+                    this.worldSets.remove(world.dimension().key());
             try {
                 this.saveWorld(set);
             } catch (IOException e) {
                 logger().error(
-                        "Error saving world set {}",
-                        world.dimension().key().asMinimalString(),
-                        e);
+                                "Error saving world set {}",
+                                world.dimension().key().asMinimalString(),
+                                e);
             }
         });
 
@@ -180,8 +207,7 @@ public class OrbisFabric implements ModInitializer, Orbis {
     private void loadWorld(ServerLevel world) {
         final Key key = world.dimension().key();
         try {
-            final List<String> regionNames = config().node(
-                            "worlds", key.asString(), "regions")
+            final List<String> regionNames = config().node("worlds", key.asString(), "regions")
                     .getList(String.class, new ArrayList<>());
 
             final RegionisedWorldSet set = new RegionisedWorldSet(key, key.asString());
@@ -203,8 +229,8 @@ public class OrbisFabric implements ModInitializer, Orbis {
                         OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
                 if (region == null) {
                     logger().warn(
-                            "Region by name '{}' could not be found, ignoring...",
-                            regionName);
+                                    "Region by name '{}' could not be found, ignoring...",
+                                    regionName);
                     continue;
                 }
 
@@ -215,14 +241,9 @@ public class OrbisFabric implements ModInitializer, Orbis {
             regions.forEach(set::add);
             worldSets.put(key, set);
             LOGGER.info(
-                    "Loaded world set {} with {} regions",
-                    key.asMinimalString(),
-                    regions.size());
+                    "Loaded world set {} with {} regions", key.asMinimalString(), regions.size());
         } catch (SerializationException e) {
-            logger().error(
-                    "Error loading world set {}",
-                    key.asMinimalString(),
-                    e);
+            logger().error("Error loading world set {}", key.asMinimalString(), e);
         }
     }
 
@@ -248,7 +269,11 @@ public class OrbisFabric implements ModInitializer, Orbis {
 
     @Override
     public Key getPlayerWorld(UUID player) {
-        return server.getPlayerList().getPlayer(player).serverLevel().dimension().key();
+        return server.getPlayerList()
+                .getPlayer(player)
+                .serverLevel()
+                .dimension()
+                .key();
     }
 
     @Override
