@@ -8,7 +8,9 @@ plugins {
 
 dependencies {
     compileOnly("org.slf4j:slf4j-api:2.0.12")
-    implementation("org.incendo:cloud-sponge:2.0.0-SNAPSHOT")
+    implementation("org.incendo:cloud-sponge:2.0.0-SNAPSHOT") {
+        exclude("io.leangen.geantyref")
+    }
     implementation(project(":common"))
     implementation(project(":api:sponge-api"))
 }
