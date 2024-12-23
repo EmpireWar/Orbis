@@ -39,6 +39,7 @@ import org.bukkit.plugin.Plugin;
 import org.empirewar.orbis.bukkit.OrbisBukkit;
 import org.empirewar.orbis.bukkit.session.PlayerSession;
 import org.empirewar.orbis.command.CommonCommands;
+import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.command.parser.AreaTypeParser;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
@@ -70,6 +71,7 @@ public class BukkitCommands {
         this.mapDumbBrigadierStuff(manager);
 
         manager.command(manager.commandBuilder("orbis")
+                .permission(Permissions.MANAGE)
                 .literal("migrate")
                 .literal("worldguard")
                 .handler(context -> {
@@ -87,6 +89,7 @@ public class BukkitCommands {
 
         manager.command(manager.commandBuilder("orbis")
                 .senderType(PlayerSession.class)
+                .permission(Permissions.MANAGE)
                 .literal("where")
                 .handler(context -> {
                     final PlayerSession sender = context.sender();
@@ -110,6 +113,7 @@ public class BukkitCommands {
 
         manager.command(manager.commandBuilder("orbis")
                 .senderType(PlayerSession.class)
+                .permission(Permissions.MANAGE)
                 .literal("wand")
                 .handler(context -> {
                     final PlayerSession sender = context.sender();
@@ -118,6 +122,7 @@ public class BukkitCommands {
                 }));
 
         manager.command(manager.commandBuilder("region", "rg")
+                .permission(Permissions.MANAGE)
                 .literal("member")
                 .literal("player")
                 .literal("add")
@@ -136,6 +141,7 @@ public class BukkitCommands {
                 }));
 
         manager.command(manager.commandBuilder("region", "rg")
+                .permission(Permissions.MANAGE)
                 .literal("member")
                 .literal("player")
                 .literal("remove")

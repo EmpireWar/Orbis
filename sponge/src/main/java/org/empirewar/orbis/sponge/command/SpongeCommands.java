@@ -28,6 +28,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
 import org.empirewar.orbis.command.CommonCommands;
+import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.member.Member;
 import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.player.OrbisSession;
@@ -73,6 +74,7 @@ public final class SpongeCommands {
         CommonCommands commonCommands = new CommonCommands(plugin, manager);
 
         manager.command(manager.commandBuilder("orbis")
+                .permission(Permissions.MANAGE)
                 .senderType(PlayerSession.class)
                 .literal("where")
                 .handler(context -> {
@@ -99,6 +101,7 @@ public final class SpongeCommands {
 
         manager.command(manager.commandBuilder("orbis")
                 .senderType(PlayerSession.class)
+                .permission(Permissions.MANAGE)
                 .literal("wand")
                 .handler(context -> {
                     final PlayerSession sender = context.sender();
@@ -111,6 +114,7 @@ public final class SpongeCommands {
                 }));
 
         manager.command(manager.commandBuilder("region", "rg")
+                .permission(Permissions.MANAGE)
                 .literal("member")
                 .literal("player")
                 .literal("add")
@@ -129,6 +133,7 @@ public final class SpongeCommands {
                 }));
 
         manager.command(manager.commandBuilder("region", "rg")
+                .permission(Permissions.MANAGE)
                 .literal("member")
                 .literal("player")
                 .literal("remove")
