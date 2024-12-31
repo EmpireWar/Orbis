@@ -81,7 +81,8 @@ public class InteractEntityExtensionListener extends InteractEntityListener {
 
         // Check PvP flag for players
         if (attacked instanceof Player) {
-            if (shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
+            if (!orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)
+                    && shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
                 event.setCancelled(true);
             }
             return;
@@ -94,6 +95,16 @@ public class InteractEntityExtensionListener extends InteractEntityListener {
         if (damageable == null) return;
 
         if (!damageable.contains(attacked.getType().key())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onAttack(PrePlayerAttackEntityEvent event) {
+        if (!orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)) return;
+
+        final Entity attacked = event.getAttacked();
+        if (shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
             event.setCancelled(true);
         }
     }
