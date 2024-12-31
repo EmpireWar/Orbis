@@ -74,6 +74,7 @@ java {
 
 tasks {
     build {
+        dependsOn(spotlessApply)
         dependsOn(shadowJar)
     }
 
