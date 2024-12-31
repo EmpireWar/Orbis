@@ -91,7 +91,13 @@ public record RegionCommand(Orbis orbis) {
         } else if (session instanceof PlayerOrbisSession player) {
             final Selection selection =
                     orbis.selectionManager().get(player.getUuid()).orElse(null);
-            if (selection == null) return;
+            if (selection == null) {
+                session.audience()
+                        .sendMessage(OrbisText.PREFIX.append(text(
+                                "Please make a valid selection to create a region. (Or use --ignore-selection)",
+                                OrbisText.SECONDARY_RED)));
+                return;
+            }
 
             AreaType<?> defaultedType = areaType == null ? AreaType.CUBOID : areaType;
             if (selection.getSelectionType() != defaultedType) {
