@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
 @Permission(Permissions.MANAGE)
 public record RegionCommand(Orbis orbis) {
 
-    @Command("region|rg create <name> [area_type]")
+    @Command("region|rg create|define <name> [area_type]")
     public void onCreate(
             OrbisSession session,
             @Flag("global") boolean global,
