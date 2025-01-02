@@ -51,6 +51,7 @@ import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
@@ -119,6 +120,7 @@ public class BukkitCommands {
                     final PlayerSession sender = context.sender();
                     final Player player = sender.getPlayer();
                     player.getInventory().addItem(plugin.wandItem());
+                    Selection.WAND_LORE.forEach(text -> sender.audience().sendMessage(text));
                 }));
 
         manager.command(manager.commandBuilder("region", "rg")

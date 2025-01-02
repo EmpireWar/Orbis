@@ -34,6 +34,7 @@ import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.sponge.OrbisSponge;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.sponge.session.ConsoleOrbisSessionExtension;
@@ -109,7 +110,10 @@ public final class SpongeCommands {
                         Sponge.server()
                                 .scheduler()
                                 .executor(plugin.pluginContainer())
-                                .execute(() -> player.inventory().offer(SpongeDataKeys.WAND_ITEM));
+                                .execute(() -> {
+                                    player.inventory().offer(SpongeDataKeys.WAND_ITEM);
+                                    Selection.WAND_LORE.forEach(player::sendMessage);
+                                });
                     }
                 }));
 
