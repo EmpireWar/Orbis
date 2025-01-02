@@ -33,7 +33,7 @@ import org.incendo.cloud.annotations.Permission;
 @Permission(Permissions.MANAGE)
 public record SelectionCommand(Orbis orbis) {
 
-    @Command("orbis select <type>")
+    @Command("orbis select|selection|sel <type>")
     public void onSelectType(PlayerOrbisSession session, @Argument("type") AreaType<?> type) {
         orbis.selectionManager()
                 .get(session.getUuid())
@@ -46,7 +46,7 @@ public record SelectionCommand(Orbis orbis) {
                         text("Set your selection to a " + name + ".", OrbisText.EREBOR_GREEN)));
     }
 
-    @Command("orbis selection clear")
+    @Command("orbis select|selection|sel clear")
     public void onClear(PlayerOrbisSession session) {
         orbis.selectionManager()
                 .get(session.getUuid())
