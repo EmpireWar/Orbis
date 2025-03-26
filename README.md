@@ -1,6 +1,6 @@
 <div align="center">
 
-# Orbis
+# 🌍 Orbis
 <p>Modern region protection plugin for Minecraft: Java Edition.</p>
 <hr>
 

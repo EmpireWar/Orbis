@@ -94,7 +94,7 @@ public final class InteractEntityListener {
         // Check PvP flag for players via AttackEntityEvent instead
         if (attacked instanceof ServerPlayer) {
             if (!orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)
-                && shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
+                    && shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
                 event.setCancelled(true);
             }
             return;

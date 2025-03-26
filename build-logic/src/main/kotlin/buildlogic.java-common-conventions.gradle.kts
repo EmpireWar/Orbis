@@ -10,7 +10,7 @@ spotless {
     java {
         toggleOffOn("@formatter:off", "@formatter:on")
         palantirJavaFormat().style("AOSP")
-        indentWithSpaces(4)
+        leadingTabsToSpaces(4)
         trimTrailingWhitespace()
         formatAnnotations()
         removeUnusedImports()
@@ -20,7 +20,7 @@ spotless {
 
     kotlinGradle {
         endWithNewline()
-        indentWithSpaces(4)
+        leadingTabsToSpaces(4)
         trimTrailingWhitespace()
     }
 }

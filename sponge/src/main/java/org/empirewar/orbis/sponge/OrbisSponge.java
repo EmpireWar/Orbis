@@ -39,11 +39,13 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
@@ -103,6 +105,10 @@ public class OrbisSponge implements Orbis {
         this.pluginContainer = pluginContainer;
         this.dataFolder = dataFolder;
         OrbisAPI.set(this);
+    }
+
+    @Listener
+    public void onRegisterCommands(RegisterCommandEvent<Command.Parameterized> event) {
         new SpongeCommands(this);
     }
 
