@@ -23,6 +23,7 @@ import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.region.Region;
 import org.joml.Vector3d;
+import org.joml.Vector3dc;
 
 import java.util.Optional;
 import java.util.Set;
@@ -94,7 +95,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
     /**
      * Represents a query to find regions that are within a position.
      *
-     * @see Area#contains(Vector3d)
+     * @see Area#contains(Vector3dc) 
      */
     non-sealed interface Position extends RegionQuery<Set<Region>> {
 
