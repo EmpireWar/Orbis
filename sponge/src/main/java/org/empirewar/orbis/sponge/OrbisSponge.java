@@ -64,6 +64,7 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -201,12 +202,18 @@ public class OrbisSponge implements Orbis {
 
     private void registerListeners() {
         final EventManager eventManager = Sponge.eventManager();
-        eventManager.registerListeners(pluginContainer, new BlockActionListener(this));
-        eventManager.registerListeners(pluginContainer, new InteractEntityListener(this));
-        eventManager.registerListeners(pluginContainer, new MovementListener(this));
-        eventManager.registerListeners(pluginContainer, new ConnectionListener(this));
-        eventManager.registerListeners(pluginContainer, new SelectionListener(this));
-        eventManager.registerListeners(pluginContainer, new DamageEntityListener(this));
+        eventManager.registerListeners(
+                pluginContainer, new BlockActionListener(this), MethodHandles.lookup());
+        eventManager.registerListeners(
+                pluginContainer, new InteractEntityListener(this), MethodHandles.lookup());
+        eventManager.registerListeners(
+                pluginContainer, new MovementListener(this), MethodHandles.lookup());
+        eventManager.registerListeners(
+                pluginContainer, new ConnectionListener(this), MethodHandles.lookup());
+        eventManager.registerListeners(
+                pluginContainer, new SelectionListener(this), MethodHandles.lookup());
+        eventManager.registerListeners(
+                pluginContainer, new DamageEntityListener(this), MethodHandles.lookup());
     }
 
     private void loadWorld(ServerWorld world) {

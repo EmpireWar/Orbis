@@ -143,7 +143,7 @@ public final class BlockActionListener {
     }
 
     @Listener(order = Order.EARLY)
-    public void onRedstoneUse(InteractBlockEvent.Secondary event, @Root ServerPlayer player) {
+    public void onRedstoneUse(InteractBlockEvent.Secondary.Pre event, @Root ServerPlayer player) {
         final BlockSnapshot block = event.block();
         if (block.get(Keys.POWER).isPresent()
                 || block.get(Keys.IS_POWERED).isPresent()

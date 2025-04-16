@@ -95,7 +95,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
     /**
      * Represents a query to find regions that are within a position.
      *
-     * @see Area#contains(Vector3dc) 
+     * @see Area#contains(Vector3dc)
      */
     non-sealed interface Position extends RegionQuery<Set<Region>> {
 

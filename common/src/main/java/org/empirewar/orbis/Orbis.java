@@ -106,6 +106,7 @@ public interface Orbis {
     }
 
     default void saveWorld(RegionisedWorld world) throws IOException {
+        world.worldId().ifPresent(id -> logger().info("Saving world {}", id));
         final ConfigurationNode node =
                 config().node("worlds", world.worldName().orElseThrow(), "regions");
         final List<String> regionsInWorld = new ArrayList<>();
