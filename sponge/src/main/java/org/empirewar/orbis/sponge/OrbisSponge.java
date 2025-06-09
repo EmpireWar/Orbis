@@ -110,7 +110,7 @@ public class OrbisSponge implements Orbis {
 
     @Listener
     public void onRegisterCommands(RegisterCommandEvent<Command.Parameterized> event) {
-        new SpongeCommands(this);
+        new SpongeCommands(this, event.registryHolder());
     }
 
     @Listener

@@ -16,7 +16,7 @@ dependencies {
     implementation("org.incendo:cloud-brigadier:2.0.0-beta.10") {
         exclude("io.leangen.geantyref")
     }
-    implementation("org.incendo:cloud-processors-confirmation:1.0.0-beta.3") {
+    implementation("org.incendo:cloud-processors-confirmation:1.0.0-rc.1") {
         exclude("io.leangen.geantyref")
     }
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")

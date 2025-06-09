@@ -21,8 +21,8 @@ dependencies {
     // Loom project
     modCompileOnly("net.kyori:adventure-platform-mod-shared-fabric-repack:6.0.0") // for Minecraft 1.21-1.21.1
     modImplementation("me.lucko:fabric-permissions-api:0.3.1")?.let { include(it) }
-    implementation("org.incendo:cloud-annotations:2.0.0-rc.2")
-    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.9")
+    implementation("org.incendo:cloud-annotations:2.0.0")
+    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")
     implementation(project(":common"))
     implementation(project(":api:fabric-api"))
 }

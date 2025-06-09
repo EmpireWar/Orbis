@@ -48,13 +48,15 @@ import org.incendo.cloud.sponge.SpongeCommandManager;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.registry.RegistryHolder;
 
 public final class SpongeCommands {
 
-    public SpongeCommands(OrbisSponge plugin) {
+    public SpongeCommands(OrbisSponge plugin, RegistryHolder registryHolder) {
         SpongeCommandManager<OrbisSession> manager = new SpongeCommandManager<>(
                 plugin.pluginContainer(),
                 ExecutionCoordinator.asyncCoordinator(),
+                registryHolder,
                 SenderMapper.create(
                         cause -> {
                             if (cause.audience() instanceof ServerPlayer player) {
