@@ -23,8 +23,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
+import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +40,8 @@ public final class PolygonArea extends EncompassingArea {
                             .fieldOf("points")
                             .forGetter(c -> new LinkedList<>(c.points)))
                     .apply(instance, PolygonArea::new));
+
+    private static final double EPSILON = 1e-7;
 
     public PolygonArea() {
         super();
@@ -54,60 +58,36 @@ public final class PolygonArea extends EncompassingArea {
 
     @Override
     public boolean contains(double x, double y, double z) {
-        // I TRIED EVERY ALGORITHM IN EXISTENCE AND NONE WOULD PASS THE POLYGON AREA TEST
-        // I GAVE UP AND COPIED WORLDGUARD
-
         // Quick and dirty check.
         if (x < min.x() || x > max.x() || z < min.z() || z > max.z()) {
             return false;
         }
 
-        final LinkedList<Vector3i> list = new LinkedList<>(points);
+        // https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
+        double angleSum = 0;
 
-        boolean inside = false;
-        int npoints = points.size();
-        int xNew, zNew;
-        int xOld, zOld;
-        int x1, z1;
-        int x2, z2;
-        long crossproduct;
-        int i;
+        final Vector3dc blockPosition = new Vector3d(x, y, z);
+        final LinkedList<Vector3ic> pointsList = new LinkedList<>(points);
+        for (int i = 0; i < pointsList.size(); i++) {
+            Vector3dc pointToPos = new Vector3d(pointsList.get(i)).sub(blockPosition);
+            Vector3dc nextPointToPos =
+                    new Vector3d(pointsList.get((i + 1) % pointsList.size())).sub(blockPosition);
+            double m1 = pointToPos.length();
+            double m2 = nextPointToPos.length();
+            if (m1 * m2 <= EPSILON) {
+                // We are on a node, consider this inside
+                angleSum = 2 * Math.PI;
+                break;
+            }
 
-        xOld = list.get(npoints - 1).x();
-        zOld = list.get(npoints - 1).z();
-
-        for (i = 0; i < npoints; i++) {
-            xNew = list.get(i).x();
-            zNew = list.get(i).z();
-            // Check for corner
-            if (xNew == x && zNew == z) {
-                return true;
-            }
-            if (xNew > xOld) {
-                x1 = xOld;
-                x2 = xNew;
-                z1 = zOld;
-                z2 = zNew;
-            } else {
-                x1 = xNew;
-                x2 = xOld;
-                z1 = zNew;
-                z2 = zOld;
-            }
-            if (x1 <= x && x <= x2) {
-                crossproduct = ((long) z - (long) z1) * (long) (x2 - x1)
-                        - ((long) z2 - (long) z1) * (long) (x - x1);
-                if (crossproduct == 0) {
-                    if ((z1 <= z) == (z <= z2)) return true; // on edge
-                } else if (crossproduct < 0 && (x1 != x)) {
-                    inside = !inside;
-                }
-            }
-            xOld = xNew;
-            zOld = zNew;
+            double cosTheta = (pointToPos.x() * nextPointToPos.x()
+                            + pointToPos.y() * nextPointToPos.y()
+                            + pointToPos.z() * nextPointToPos.z())
+                    / (m1 * m2);
+            angleSum += Math.acos(cosTheta);
         }
 
-        return inside;
+        return angleSum == 2 * Math.PI;
     }
 
     @Override

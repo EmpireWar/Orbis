@@ -43,10 +43,10 @@ public class PolygonAreaTest {
         assertTrue(area.addPoint(new Vector3i(3, 0, 0)));
         assertTrue(area.addPoint(new Vector3i(3, 0, 4)));
 
+        // Double position
         assertTrue(area.contains(2, 0, 1.6));
-        // TODO how to fix algorithm so that a position on a block that a polygon line passes over
-        // is considered valid?
-        //        assertTrue(area.contains(3, 0, 4));
+        // Point on the line
+        assertTrue(area.contains(3, 0, 4));
         assertFalse(area.contains(4, 0, 4));
         assertFalse(area.contains(6, 0, 4));
 
@@ -70,11 +70,9 @@ public class PolygonAreaTest {
                 new Vector3i(5, 0, 6), // Top-right vertex
                 new Vector3i(1, 0, 6), // Top-left vertex
                 new Vector3i(0, 0, 3) // Bottom-left vertex
-                );
+        );
         pentagonPolygon.forEach(area::addPoint);
-        // TODO THIS DOESN'T EVEN WORK WITH WORLDGUARD ALGO I DON'T UNDERSTAND IS THE UNIVERSE
-        // BUGGED?
-        //        assertTrue(area.contains(3, 0, 4));
+        assertTrue(area.contains(3, 0, 4));
         assertFalse(area.contains(7, 0, 3));
     }
 }
