@@ -24,6 +24,7 @@ import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
 
 import com.google.common.collect.Iterables;
+
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -364,6 +365,29 @@ public record RegionCommand(Orbis orbis) {
                         OrbisText.SECONDARY_RED)));
     }
 
+    @Command("region|rg world add <region> <world>")
+    @CommandDescription(
+            "Adds a region to a world set. The region will affect the world it is added into.")
+    public void addWorld(
+            OrbisSession session,
+            @Argument("region") Region region,
+            @Argument("world") RegionisedWorld world) {
+        if (region.isGlobal()) {
+            session.audience()
+                    .sendMessage(OrbisText.PREFIX.append(text(
+                            "Can't assign world to a global region.", OrbisText.SECONDARY_RED)));
+            return;
+        }
+
+        if (world.add(region)) {
+            session.audience()
+                    .sendMessage(OrbisText.PREFIX.append(text(
+                            "Added region '" + region.name() + "' to world '"
+                                    + world.worldName().orElseThrow() + "'.",
+                            OrbisText.EREBOR_GREEN)));
+        }
+    }
+
     @Command("region|rg world remove <region> <world>")
     @CommandDescription("Removes a region from a world set.")
     public void removeWorld(
@@ -509,48 +533,56 @@ public record RegionCommand(Orbis orbis) {
         // Area information section
         audience.sendMessage(empty());
         audience.sendMessage(text("Area Information", OrbisText.EREBOR_GREEN));
-        
+
         if (region.isGlobal()) {
             audience.sendMessage(text("  Global region - no area defined", NamedTextColor.GRAY));
         } else {
             final Area area = region.area();
             // Area type
-            final String areaName = Registries.AREA_TYPE.getKey(area.getType()).orElseThrow().asString();
+            final String areaName =
+                    Registries.AREA_TYPE.getKey(area.getType()).orElseThrow().asString();
             audience.sendMessage(text("  Type: ", NamedTextColor.GRAY)
                     .append(text(areaName, NamedTextColor.WHITE))
                     .hoverEvent(HoverEvent.showText(text("Area type", OrbisText.EREBOR_GREEN))));
-            
+
             // Bounding box
             Vector3ic min = area.getMin();
             Vector3ic max = area.getMax();
             audience.sendMessage(text("  Bounds: ", NamedTextColor.GRAY)
-                    .append(text(String.format("(%d, %d, %d) to (%d, %d, %d)", 
-                            min.x(), min.y(), min.z(), 
-                            max.x(), max.y(), max.z()), 
+                    .append(text(
+                            String.format(
+                                    "(%d, %d, %d) to (%d, %d, %d)",
+                                    min.x(), min.y(), min.z(), max.x(), max.y(), max.z()),
                             NamedTextColor.WHITE))
-                    .hoverEvent(HoverEvent.showText(text("The minimum and maximum points of the area", OrbisText.EREBOR_GREEN))));
-            
+                    .hoverEvent(HoverEvent.showText(text(
+                            "The minimum and maximum points of the area",
+                            OrbisText.EREBOR_GREEN))));
+
             // Volume
             long volume = Iterables.size(area);
             audience.sendMessage(text("  Volume: ", NamedTextColor.GRAY)
                     .append(text(String.format("%,d", volume), NamedTextColor.WHITE))
                     .append(text(" blocks", NamedTextColor.GRAY)));
-                            
+
             // Number of points
             int pointCount = area.points().size();
             audience.sendMessage(text("  Points: ", NamedTextColor.GRAY)
                     .append(text(String.format("%,d", pointCount), NamedTextColor.WHITE)));
-                    
+
             // Add clickable command to set area
             if (session instanceof PlayerOrbisSession) {
                 audience.sendMessage(empty());
                 audience.sendMessage(text("  [▶] ", NamedTextColor.GRAY)
                         .append(text("Set area", NamedTextColor.YELLOW)
-                                .hoverEvent(HoverEvent.showText(text("Click to set a new area for this region", OrbisText.EREBOR_GREEN)))
+                                .hoverEvent(HoverEvent.showText(text(
+                                        "Click to set a new area for this region",
+                                        OrbisText.EREBOR_GREEN)))
                                 .clickEvent(ClickEvent.suggestCommand("/rg setarea " + regionName)))
                         .append(text(" (select an area first with ", NamedTextColor.GRAY))
                         .append(text("/sel", NamedTextColor.YELLOW)
-                                .hoverEvent(HoverEvent.showText(text("Click to learn about selection commands", OrbisText.EREBOR_GREEN)))
+                                .hoverEvent(HoverEvent.showText(text(
+                                        "Click to learn about selection commands",
+                                        OrbisText.EREBOR_GREEN)))
                                 .clickEvent(ClickEvent.suggestCommand("/sel help")))
                         .append(text(")", NamedTextColor.GRAY)));
             }
