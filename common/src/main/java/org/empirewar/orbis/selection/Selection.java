@@ -29,12 +29,14 @@ import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.area.EncompassingArea;
 import org.empirewar.orbis.area.PolygonArea;
+import org.empirewar.orbis.area.PolyhedralArea;
 import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.util.OrbisText;
 import org.joml.Vector3i;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public final class Selection {
@@ -87,13 +89,20 @@ public final class Selection {
         EncompassingArea area;
         if (selectionType == AreaType.CUBOID) {
             area = new CuboidArea();
+        } else if (selectionType == AreaType.POLYHEDRAL) {
+            area = new PolyhedralArea();
         } else {
             area = new PolygonArea();
         }
 
-        if (area.getExpectedPoints().isPresent()
-                && area.getExpectedPoints().get() != points.size()) {
-            throw new IncompleteAreaException();
+        final Optional<Integer> max = area.getMaximumPoints();
+        final int min = area.getMinimumPoints();
+        if (max.isPresent() && points.size() > max.get()) {
+            throw new IncompleteAreaException(
+                    "Expected at most " + max.get() + " points, but got " + points.size());
+        } else if (points.size() < min) {
+            throw new IncompleteAreaException(
+                    "Expected at least " + min + " points, but got " + points.size());
         }
 
         points.forEach(area::addPoint);

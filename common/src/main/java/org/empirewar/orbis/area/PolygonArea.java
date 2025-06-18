@@ -32,7 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-public final class PolygonArea extends EncompassingArea {
+public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea {
 
     public static MapCodec<PolygonArea> CODEC =
             RecordCodecBuilder.mapCodec(instance -> instance.group(ExtraCodecs.VEC_3I
@@ -41,13 +41,11 @@ public final class PolygonArea extends EncompassingArea {
                             .forGetter(c -> new LinkedList<>(c.points)))
                     .apply(instance, PolygonArea::new));
 
-    private static final double EPSILON = 1e-7;
-
     public PolygonArea() {
         super();
     }
 
-    private PolygonArea(List<Vector3i> points) {
+    protected PolygonArea(List<Vector3i> points) {
         super(points);
     }
 
@@ -64,30 +62,39 @@ public final class PolygonArea extends EncompassingArea {
         }
 
         // https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
-        double angleSum = 0;
+        double angle = 0;
 
         final Vector3dc blockPosition = new Vector3d(x, y, z);
         final LinkedList<Vector3ic> pointsList = new LinkedList<>(points);
         for (int i = 0; i < pointsList.size(); i++) {
-            Vector3dc pointToPos = new Vector3d(pointsList.get(i)).sub(blockPosition);
-            Vector3dc nextPointToPos =
-                    new Vector3d(pointsList.get((i + 1) % pointsList.size())).sub(blockPosition);
-            double m1 = pointToPos.length();
-            double m2 = nextPointToPos.length();
-            if (m1 * m2 <= EPSILON) {
-                // We are on a node, consider this inside
-                angleSum = 2 * Math.PI;
-                break;
-            }
-
-            double cosTheta = (pointToPos.x() * nextPointToPos.x()
-                            + pointToPos.y() * nextPointToPos.y()
-                            + pointToPos.z() * nextPointToPos.z())
-                    / (m1 * m2);
-            angleSum += Math.acos(cosTheta);
+            final Vector3ic point = pointsList.get(i);
+            final Vector3ic nextPoint = pointsList.get((i + 1) % pointsList.size());
+            double xOffset = point.x() - blockPosition.x();
+            double zOffset = point.z() - blockPosition.z();
+            double nextXOffset = nextPoint.x() - blockPosition.x();
+            double nextZOffset = nextPoint.z() - blockPosition.z();
+            angle += angle(xOffset, zOffset, nextXOffset, nextZOffset);
         }
 
-        return angleSum == 2 * Math.PI;
+        // If the angle is zero, it is on the edge
+        return Math.abs(angle) >= Math.PI || angle == 0;
+    }
+
+    /**
+     * Return the angle between two vectors on a plane.
+     * The angle is from vector 1 to vector 2, positive anticlockwise.
+     * The result is between -pi and pi.
+     */
+    private double angle(double x1, double y1, double x2, double y2) {
+        double dTheta, theta1, theta2;
+
+        theta1 = Math.atan2(y1, x1);
+        theta2 = Math.atan2(y2, x2);
+        dTheta = theta2 - theta1;
+        while (dTheta > Math.PI) dTheta -= Math.PI * 2;
+        while (dTheta < -Math.PI) dTheta += Math.PI * 2;
+
+        return dTheta;
     }
 
     @Override
@@ -96,7 +103,12 @@ public final class PolygonArea extends EncompassingArea {
     }
 
     @Override
-    public Optional<Integer> getExpectedPoints() {
+    public Optional<Integer> getMaximumPoints() {
         return Optional.empty();
+    }
+
+    @Override
+    public int getMinimumPoints() {
+        return 3;
     }
 }

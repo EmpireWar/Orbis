@@ -70,7 +70,7 @@ public class PolygonAreaTest {
                 new Vector3i(5, 0, 6), // Top-right vertex
                 new Vector3i(1, 0, 6), // Top-left vertex
                 new Vector3i(0, 0, 3) // Bottom-left vertex
-        );
+                );
         pentagonPolygon.forEach(area::addPoint);
         assertTrue(area.contains(3, 0, 4));
         assertFalse(area.contains(7, 0, 3));

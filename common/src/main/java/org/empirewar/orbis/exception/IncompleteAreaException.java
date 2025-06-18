@@ -23,4 +23,9 @@ package org.empirewar.orbis.exception;
  * Thrown when an operation is made on an {@link org.empirewar.orbis.area.Area}
  * that requires it to be complete but is not.
  */
-public class IncompleteAreaException extends Exception {}
+public class IncompleteAreaException extends Exception {
+
+    public IncompleteAreaException(String message) {
+        super(message);
+    }
+}

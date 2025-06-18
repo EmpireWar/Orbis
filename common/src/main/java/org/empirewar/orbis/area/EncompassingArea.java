@@ -37,7 +37,7 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
     protected final Vector3i max = new Vector3i();
 
     EncompassingArea() {
-        final int expected = getExpectedPoints().orElse(0);
+        final int expected = getMaximumPoints().orElse(0);
         this.points = new LinkedHashSet<>(expected);
         calculateEncompassingArea();
     }
@@ -87,7 +87,7 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
 
     @Override
     public boolean addPoint(Vector3i point) {
-        final Optional<Integer> expectedPoints = getExpectedPoints();
+        final Optional<Integer> expectedPoints = getMaximumPoints();
         if (expectedPoints.isPresent()) {
             if (points.size() + 1 > expectedPoints.get()) {
                 return false;
@@ -126,16 +126,22 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
     }
 
     /**
-     * Gets the expected number of points for this area.
+     * Gets the maximum number of points for this area.
      * <p>
-     * This may represent a "maximum" however for some shapes such as polygons this
-     * is not applicable. In these cases, this method should instead return
+     * For some shapes such as polygons this is not applicable. In these cases, this method should instead return
      * {@link Optional#empty()}.
      *
-     * @return an {@link Optional} with the number of expected points, else
+     * @return an {@link Optional} with the number of maximum points, else
      *         {@link Optional#empty()} if any number of points is applicable.
      */
-    public abstract Optional<Integer> getExpectedPoints();
+    public abstract Optional<Integer> getMaximumPoints();
+
+    /**
+     * Gets the minimum number of points for this area.
+     *
+     * @return the minimum number of points required to build this area
+     */
+    public abstract int getMinimumPoints();
 
     @NotNull @Override
     public Iterator<Vector3ic> iterator() {

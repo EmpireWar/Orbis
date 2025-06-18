@@ -21,9 +21,12 @@ package org.empirewar.orbis.command;
 
 import static net.kyori.adventure.text.Component.text;
 
+import net.kyori.adventure.key.Key;
+
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.player.PlayerOrbisSession;
+import org.empirewar.orbis.registry.Registries;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.incendo.cloud.annotations.Argument;
@@ -40,10 +43,11 @@ public record SelectionCommand(Orbis orbis) {
                 .ifPresentOrElse(
                         selection -> selection.setSelectionType(type),
                         () -> orbis.selectionManager().add(session.getUuid(), new Selection(type)));
-        String name = type == AreaType.POLYGON ? "polygon" : "cuboid";
+        final Key typeKey = Registries.AREA_TYPE.getKey(type).orElseThrow();
         session.audience()
-                .sendMessage(OrbisText.PREFIX.append(
-                        text("Set your selection to a " + name + ".", OrbisText.EREBOR_GREEN)));
+                .sendMessage(OrbisText.PREFIX.append(text(
+                        "Set your selection to an " + typeKey.asString() + ".",
+                        OrbisText.EREBOR_GREEN)));
     }
 
     @Command("orbis select|selection|sel clear")

@@ -53,7 +53,7 @@ public final class CuboidArea extends EncompassingArea {
 
     @Override
     public boolean contains(double x, double y, double z) {
-        if (points.size() != getExpectedPoints().orElseThrow()) return false;
+        if (points.size() != getMaximumPoints().orElseThrow()) return false;
 
         return x >= min.x()
                 && x <= max.x()
@@ -69,7 +69,12 @@ public final class CuboidArea extends EncompassingArea {
     }
 
     @Override
-    public Optional<Integer> getExpectedPoints() {
+    public Optional<Integer> getMaximumPoints() {
         return Optional.of(2);
+    }
+
+    @Override
+    public int getMinimumPoints() {
+        return 2;
     }
 }

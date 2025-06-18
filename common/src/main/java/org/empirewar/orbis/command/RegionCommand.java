@@ -30,6 +30,7 @@ import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.area.PolygonArea;
+import org.empirewar.orbis.area.PolyhedralArea;
 import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
@@ -120,9 +121,9 @@ public record RegionCommand(Orbis orbis) {
                 area = selection.build();
             } catch (IncompleteAreaException e) {
                 session.audience()
-                        .sendMessage(OrbisText.PREFIX.append(text(
-                                "Incomplete selection! Did you select all points?",
-                                OrbisText.SECONDARY_RED)));
+                        .sendMessage(OrbisText.PREFIX.append(
+                                text(e.getMessage(), OrbisText.SECONDARY_RED)
+                                        .append(text(". Did you select all points?"))));
                 return;
             }
 
@@ -133,6 +134,8 @@ public record RegionCommand(Orbis orbis) {
                             OrbisText.SECONDARY_ORANGE)));
         } else if (areaType == null || areaType == AreaType.CUBOID) {
             area = new CuboidArea();
+        } else if (areaType == AreaType.POLYHEDRAL) {
+            area = new PolyhedralArea();
         } else {
             area = new PolygonArea();
         }
@@ -191,9 +194,9 @@ public record RegionCommand(Orbis orbis) {
                             OrbisText.EREBOR_GREEN)));
         } catch (IncompleteAreaException e) {
             session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Incomplete selection! Did you select all points?",
-                            OrbisText.SECONDARY_RED)));
+                    .sendMessage(
+                            OrbisText.PREFIX.append(text(e.getMessage(), OrbisText.SECONDARY_RED)
+                                    .append(text(". Did you select all points?"))));
         }
     }
 
