@@ -31,6 +31,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+import net.kyori.adventure.text.format.TextDecoration;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.Area;
@@ -39,6 +40,8 @@ import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.area.PolygonArea;
 import org.empirewar.orbis.area.PolyhedralArea;
 import org.empirewar.orbis.exception.IncompleteAreaException;
+import org.empirewar.orbis.flag.GroupedMutableRegionFlag;
+import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.member.FlagMemberGroup;
@@ -258,6 +261,128 @@ public record RegionCommand(Orbis orbis) {
                         "Added flag '" + flag.key().asString() + "' to region " + region.name()
                                 + "!",
                         OrbisText.EREBOR_GREEN)));
+    }
+
+    /**
+     * Displays the flags for a region with an optional limit.
+     *
+     * @param session The session to send messages to
+     * @param region  The region to display flags for
+     * @param limit   Maximum number of flags to display (use -1 for no limit)
+     */
+    private void displayFlags(OrbisSession session, Region region, int limit) {
+        final Audience audience = session.audience();
+        final String regionName = region.name();
+
+        // Flags section with clickable elements
+        Component flagsLine = text("Flags: ", OrbisText.EREBOR_GREEN)
+                .append(text("[", NamedTextColor.GRAY)
+                        .append(text("List", NamedTextColor.YELLOW)
+                                .hoverEvent(HoverEvent.showText(
+                                        text("Click to list all flags", OrbisText.EREBOR_GREEN)))
+                                .clickEvent(ClickEvent.runCommand("/rg flag list " + regionName)))
+                        .append(text("] ", NamedTextColor.GRAY))
+                        .append(text("[", NamedTextColor.GRAY)
+                                .append(text("+", NamedTextColor.GREEN)
+                                        .hoverEvent(HoverEvent.showText(text(
+                                                "Click to add a flag", OrbisText.EREBOR_GREEN)))
+                                        .clickEvent(ClickEvent.suggestCommand(
+                                                "/rg flag add " + regionName + " ")))
+                                .append(text("] ", NamedTextColor.GRAY))));
+
+        audience.sendMessage(flagsLine);
+
+        // Get all flags
+        Map<MutableRegionFlag<?>, Set<String>> flags = new HashMap<>();
+        for (RegionFlag<?> flag : Registries.FLAGS) {
+            region.getFlag(flag).ifPresent(mu -> {
+                if (mu instanceof GroupedMutableRegionFlag<?> grouped) {
+                    flags.put(mu, grouped.groups().stream().map(FlagMemberGroup::name).collect(Collectors.toSet()));
+                } else {
+                    flags.put(mu, Collections.emptySet());
+                }
+            });
+        }
+
+        if (flags.isEmpty()) {
+            if (limit != 0) { // Only show "No flags set" if we're not just checking
+                audience.sendMessage(text("  No flags set.", NamedTextColor.GRAY));
+            }
+            return;
+        }
+
+        // Convert to list for easier handling
+        List<Map.Entry<MutableRegionFlag<?>, Set<String>>> flagEntries = new ArrayList<>(flags.entrySet());
+        boolean hasMore = limit > 0 && flagEntries.size() > limit;
+        int displayCount = hasMore ? limit - 1 : flagEntries.size();
+
+        // Display each flag with its value and groups
+        for (int i = 0; i < displayCount; i++) {
+            Map.Entry<MutableRegionFlag<?>, Set<String>> entry = flagEntries.get(i);
+            MutableRegionFlag<?> flag = entry.getKey();
+            Set<String> groups = entry.getValue();
+            
+            Component flagLine = text("  ", NamedTextColor.GRAY)
+                    .append(text(flag.key().asString(), NamedTextColor.WHITE))
+                    .append(text(": ", NamedTextColor.GRAY))
+                    .append(text(flag.getValue().toString(), NamedTextColor.YELLOW));
+            
+            // Add groups if present
+            if (!groups.isEmpty()) {
+                flagLine = flagLine.append(text(" (", NamedTextColor.GRAY))
+                        .append(text(String.join(", ", groups), NamedTextColor.AQUA))
+                        .append(text(")", NamedTextColor.GRAY));
+            }
+
+            // Add modify button
+            flagLine = flagLine.append(space())
+                    .append(text("[", NamedTextColor.GRAY))
+                    .append(text("✎", NamedTextColor.YELLOW)
+                            .hoverEvent(HoverEvent.showText(text(
+                                    "Click to modify this flag",
+                                    OrbisText.SECONDARY_ORANGE)))
+                            .clickEvent(ClickEvent.suggestCommand(
+                                    "/rg flag set " + regionName + " " + flag.key().asString() + " ")))
+                    .append(text("]", NamedTextColor.GRAY));
+
+            // Add remove button
+            flagLine = flagLine.append(space())
+                    .append(text("[", NamedTextColor.GRAY))
+                    .append(text("-", NamedTextColor.RED)
+                            .hoverEvent(HoverEvent.showText(text(
+                                    "Click to remove this flag",
+                                    OrbisText.SECONDARY_RED)))
+                            .clickEvent(ClickEvent.suggestCommand(
+                                    "/rg flag remove " + regionName + " " + flag.key().asString())))
+                    .append(text("]", NamedTextColor.GRAY));
+            
+            audience.sendMessage(flagLine);
+        }
+
+        // Show "and X more..." if there are more flags to show
+        if (hasMore) {
+            int remaining = flagEntries.size() - displayCount;
+            audience.sendMessage(text("  and " + remaining + " more...", NamedTextColor.GRAY, TextDecoration.ITALIC)
+                    .hoverEvent(HoverEvent.showText(text("Click to view all flags", OrbisText.EREBOR_GREEN)))
+                    .clickEvent(ClickEvent.runCommand("/rg flag list " + regionName)));
+        }
+    }
+
+    @Command("region|rg flag list <region>")
+    @CommandDescription("List all flags set on a region.")
+    public void onFlagList(OrbisSession session, @Argument("region") Region region) {
+        final Audience audience = session.audience();
+        final String regionName = region.name();
+
+        // Header with region name
+        audience.sendMessage(OrbisText.PREFIX.append(text("[", NamedTextColor.GRAY)
+                .append(text(regionName, OrbisText.SECONDARY_ORANGE))
+                .append(text("]", NamedTextColor.GRAY))));
+
+        audience.sendMessage(empty());
+
+        // Display all flags with no limit
+        displayFlags(session, region, -1);
     }
 
     @Command("region|rg flag remove <region> <flag>")
@@ -585,42 +710,26 @@ public record RegionCommand(Orbis orbis) {
                                         OrbisText.EREBOR_GREEN)))
                                 .clickEvent(ClickEvent.suggestCommand("/sel help")))
                         .append(text(")", NamedTextColor.GRAY)));
+                
+                // Add teleport to center option
+                int centerX = (min.x() + max.x()) / 2;
+                int centerZ = (min.z() + max.z()) / 2;
+                int centerY = (min.y() + max.y()) / 2;
+                
+                audience.sendMessage(text("  [▶] ", NamedTextColor.GRAY)
+                        .append(text("Teleport to center", NamedTextColor.YELLOW)
+                                .hoverEvent(HoverEvent.showText(text(
+                                        "Click to teleport to the center of this region",
+                                        OrbisText.EREBOR_GREEN)))
+                                .clickEvent(ClickEvent.runCommand("/tp @s " + centerX + " " + centerY + " " + centerZ)))
+                        .append(text(" (", NamedTextColor.GRAY)
+                        .append(text(centerX + ", " + centerY + ", " + centerZ, NamedTextColor.WHITE))
+                        .append(text(")", NamedTextColor.GRAY))));
             }
         }
 
-        // Flags section with clickable elements
-        Component flagsLine = text("Flags: ", OrbisText.EREBOR_GREEN)
-                .append(text("[", NamedTextColor.GRAY)
-                        .append(text("List", NamedTextColor.YELLOW)
-                                .hoverEvent(HoverEvent.showText(
-                                        text("Click to list all flags", OrbisText.EREBOR_GREEN)))
-                                .clickEvent(ClickEvent.runCommand("/rg flag list " + regionName)))
-                        .append(text("] ", NamedTextColor.GRAY))
-                        .append(text("[", NamedTextColor.GRAY)
-                                .append(text("+", NamedTextColor.GREEN)
-                                        .hoverEvent(HoverEvent.showText(text(
-                                                "Click to add a flag", OrbisText.EREBOR_GREEN)))
-                                        .clickEvent(ClickEvent.suggestCommand(
-                                                "/rg flag add " + regionName + " ")))
-                                .append(text("] ", NamedTextColor.GRAY))));
-
-        audience.sendMessage(flagsLine);
-
-        // List existing flags with remove buttons
-        for (RegionFlag<?> flag : Registries.FLAGS) {
-            final String flagName = Registries.FLAGS.getKey(flag).orElseThrow().asString();
-            region.getFlag(flag).ifPresent(storedFlag -> {
-                Component flagLine = text("  " + flagName + ": ", NamedTextColor.GRAY)
-                        .append(text(storedFlag.getValue().toString(), NamedTextColor.WHITE))
-                        .append(text(" ", NamedTextColor.GRAY))
-                        .append(text("[-]", NamedTextColor.RED)
-                                .hoverEvent(HoverEvent.showText(
-                                        text("Click to remove this flag", OrbisText.SECONDARY_RED)))
-                                .clickEvent(ClickEvent.runCommand(
-                                        "/rg flag remove " + regionName + " " + flagName)));
-                audience.sendMessage(flagLine);
-            });
-        }
+        // Flags section
+        displayFlags(session, region, 5);
 
         // Members section with clickable elements
         Component membersLine = text("Members: ", OrbisText.EREBOR_GREEN)
