@@ -19,24 +19,42 @@
  */
 package org.empirewar.orbis.world;
 
+import com.github.davidmoten.rtreemulti.Entry;
+import com.github.davidmoten.rtreemulti.RTree;
+import com.github.davidmoten.rtreemulti.geometry.Geometry;
+import com.github.davidmoten.rtreemulti.geometry.Rectangle;
+
 import net.kyori.adventure.key.Key;
 
+import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
+import org.joml.Vector3ic;
 
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holds the regions of a world. Uses a 3D RTree to query regions.
+ *
+ * @see RegionisedWorld
+ */
 public final class RegionisedWorldSet implements RegionisedWorld {
 
     private final String worldName;
     private final Key worldId;
     private final Set<Region> regions;
+    private final Map<Region, Geometry> regionGeometries;
+
+    private RTree<Region, Geometry> regionRTree;
 
     public RegionisedWorldSet() {
         this(null, null);
@@ -45,7 +63,9 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     public RegionisedWorldSet(@Nullable Key worldId, @Nullable String worldName) {
         this.worldName = worldName;
         this.worldId = worldId;
-        this.regions = new HashSet<>();
+        this.regions = ConcurrentHashMap.newKeySet();
+        this.regionRTree = RTree.dimensions(3).create();
+        this.regionGeometries = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -61,11 +81,43 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     @Override
     public RegionQuery.FilterableRegionResult<RegionQuery.Position> query(
             RegionQuery.Position position) {
-        final Set<Region> result = regions.stream()
-                .filter(r -> r.isGlobal() || r.area().contains(position.position()))
-                .sorted(Comparator.reverseOrder())
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        return position.resultBuilder().query(position).result(result).build();
+        Vector3d pos = position.position();
+
+        // Query the RTree for regions that might contain this point
+        Rectangle pointRect = Rectangle.create(
+                (float) pos.x(),
+                (float) pos.y(),
+                (float) pos.z(), // min coords
+                (float) pos.x(),
+                (float) pos.y(),
+                (float) pos.z() // max coords (same as min for point)
+                );
+
+        // Get all regions that might contain this point
+        LinkedHashSet<Region> result = new LinkedHashSet<>();
+        for (Entry<Region, Geometry> entry : regionRTree.search(pointRect)) {
+            Region region = entry.value();
+            // Double-check the region actually contains the point
+            if (region.area().contains(pos)) {
+                result.add(region);
+            }
+        }
+
+        // Add global regions
+        for (Region region : regions) {
+            if (region.isGlobal()) {
+                result.add(region);
+            }
+        }
+
+        // Sort by priority (reverse natural order)
+        List<Region> sorted = new ArrayList<>(result);
+        sorted.sort(Comparator.reverseOrder());
+
+        return position.resultBuilder()
+                .query(position)
+                .result(new LinkedHashSet<>(sorted))
+                .build();
     }
 
     @Override
@@ -82,11 +134,45 @@ public final class RegionisedWorldSet implements RegionisedWorld {
 
     @Override
     public boolean add(Region region) {
-        return regions.add(region);
+        if (regions.add(region)) {
+            if (!region.isGlobal()) {
+                // Add to RTree
+                Rectangle rect = createBoundingBox(region.area());
+                regionRTree = regionRTree.add(region, rect);
+                regionGeometries.put(region, rect);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private Rectangle createBoundingBox(Area area) {
+        // We will represent all areas as a rectangle of the area it can be in
+        // We then use Area#contains to confirm that the point is in the area
+        Vector3ic min = area.getMin();
+        Vector3ic max = area.getMax();
+        return Rectangle.create(
+                (float) min.x(),
+                (float) min.y(),
+                (float) min.z(),
+                (float) max.x() + 1,
+                (float) max.y() + 1,
+                (float) max.z() + 1 // +1 to be inclusive of the max coordinate
+                );
     }
 
     @Override
     public boolean remove(Region region) {
-        return regions.remove(region);
+        if (regions.remove(region)) {
+            if (!region.isGlobal()) {
+                // Remove from RTree
+                Geometry geometry = regionGeometries.remove(region);
+                if (geometry != null) {
+                    regionRTree = regionRTree.delete(region, geometry);
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }
