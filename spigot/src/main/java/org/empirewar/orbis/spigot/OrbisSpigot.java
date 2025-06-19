@@ -149,8 +149,8 @@ public class OrbisSpigot extends JavaPlugin implements OrbisBukkit, Listener {
                             }
                             return Bukkit.getConsoleSender();
                         }) /* 3 */);
+        new BukkitCommands<>(manager);
 
-        new BukkitCommands(this, manager);
         this.loadConfig();
         try {
             this.loadRegions();

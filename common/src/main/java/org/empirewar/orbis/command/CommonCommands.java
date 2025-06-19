@@ -26,7 +26,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
 
-import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
 import org.empirewar.orbis.command.parser.AreaTypeParser;
@@ -51,7 +50,7 @@ import java.time.Duration;
 
 public final class CommonCommands {
 
-    public CommonCommands(Orbis orbis, CommandManager<OrbisSession> manager) {
+    public CommonCommands(CommandManager<OrbisSession> manager) {
         /*
          * Create the confirmation manager. This allows us to require certain commands to be
          * confirmed before they can be executed
@@ -128,7 +127,7 @@ public final class CommonCommands {
                 .registerTo(manager);
 
         //        annotationParser.parse(new HelpCommands(orbis, manager));
-        annotationParser.parse(new RegionCommand(orbis));
-        annotationParser.parse(new SelectionCommand(orbis));
+        annotationParser.parse(new RegionCommand());
+        annotationParser.parse(new SelectionCommand());
     }
 }

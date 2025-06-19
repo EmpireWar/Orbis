@@ -71,10 +71,9 @@ public final class SpongeCommands {
                             return ((ConsoleOrbisSessionExtension) session).cause();
                         }));
 
-        manager.settings().set(ManagerSetting.ALLOW_UNSAFE_REGISTRATION, true);
         manager.settings().set(ManagerSetting.OVERRIDE_EXISTING_COMMANDS, true);
 
-        CommonCommands commonCommands = new CommonCommands(plugin, manager);
+        new CommonCommands(manager);
 
         manager.command(manager.commandBuilder("orbis")
                 .permission(Permissions.MANAGE)

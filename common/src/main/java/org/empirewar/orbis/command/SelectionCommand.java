@@ -24,6 +24,7 @@ import static net.kyori.adventure.text.Component.text;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.Orbis;
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.empirewar.orbis.registry.Registries;
@@ -34,10 +35,11 @@ import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.Permission;
 
 @Permission(Permissions.MANAGE)
-public record SelectionCommand(Orbis orbis) {
+public final class SelectionCommand {
 
     @Command("orbis select|selection|sel <type>")
     public void onSelectType(PlayerOrbisSession session, @Argument("type") AreaType<?> type) {
+        final Orbis orbis = OrbisAPI.get();
         orbis.selectionManager()
                 .get(session.getUuid())
                 .ifPresentOrElse(
@@ -52,6 +54,7 @@ public record SelectionCommand(Orbis orbis) {
 
     @Command("orbis select|selection|sel clear")
     public void onClear(PlayerOrbisSession session) {
+        final Orbis orbis = OrbisAPI.get();
         orbis.selectionManager()
                 .get(session.getUuid())
                 .ifPresentOrElse(

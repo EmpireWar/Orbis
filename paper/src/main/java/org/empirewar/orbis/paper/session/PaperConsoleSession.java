@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024 EmpireWar
+ * Copyright (C) 2025 EmpireWar
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,28 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.bukkit.session;
+package org.empirewar.orbis.paper.session;
 
-import org.bukkit.entity.Player;
-import org.empirewar.orbis.OrbisAPI;
-import org.empirewar.orbis.bukkit.OrbisBukkit;
-import org.empirewar.orbis.player.PlayerOrbisSession;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 
-public class PlayerSession extends PlayerOrbisSession {
+import org.bukkit.command.CommandSender;
+import org.empirewar.orbis.player.ConsoleOrbisSession;
 
-    private final Player player;
+public class PaperConsoleSession extends ConsoleOrbisSession {
 
-    public PlayerSession(Player player) {
-        super(player.getUniqueId(), ((OrbisBukkit) OrbisAPI.get()).senderAsAudience(player));
-        this.player = player;
+    private final CommandSourceStack source;
+
+    public PaperConsoleSession(CommandSender sender, CommandSourceStack source) {
+        super(sender);
+        this.source = source;
     }
 
-    public Player getPlayer() {
-        return player;
-    }
-
-    @Override
-    public boolean hasPermission(String permission) {
-        return player.hasPermission(permission);
+    public CommandSourceStack source() {
+        return source;
     }
 }

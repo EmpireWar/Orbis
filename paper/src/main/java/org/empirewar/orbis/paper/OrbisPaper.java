@@ -40,22 +40,15 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.bukkit.OrbisBukkit;
-import org.empirewar.orbis.bukkit.command.BukkitCommands;
 import org.empirewar.orbis.bukkit.listener.*;
 import org.empirewar.orbis.bukkit.selection.SelectionListener;
-import org.empirewar.orbis.bukkit.session.PlayerSession;
 import org.empirewar.orbis.paper.listener.InteractEntityExtensionListener;
-import org.empirewar.orbis.player.ConsoleOrbisSession;
-import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
-import org.incendo.cloud.SenderMapper;
-import org.incendo.cloud.execution.ExecutionCoordinator;
-import org.incendo.cloud.paper.LegacyPaperCommandManager;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
@@ -115,20 +108,6 @@ public class OrbisPaper extends JavaPlugin implements OrbisBukkit, Listener {
     @Override
     public void onEnable() {
         this.registerListeners();
-
-        LegacyPaperCommandManager<OrbisSession> manager = new LegacyPaperCommandManager<>(
-                this, /* 1 */
-                ExecutionCoordinator.asyncCoordinator(), /* 2 */
-                SenderMapper.create(
-                        sender -> {
-                            if (sender instanceof Player player) {
-                                return new PlayerSession(player);
-                            }
-                            return new ConsoleOrbisSession(sender);
-                        },
-                        session -> (CommandSender) session.audience()) /* 3 */);
-
-        new BukkitCommands(this, manager);
         this.loadConfig();
         try {
             this.loadRegions();

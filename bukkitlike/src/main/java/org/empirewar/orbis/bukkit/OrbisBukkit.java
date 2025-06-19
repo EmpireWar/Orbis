@@ -30,10 +30,11 @@ import org.empirewar.orbis.Orbis;
 
 public interface OrbisBukkit extends Orbis {
 
-    NamespacedKey WAND_KEY = new NamespacedKey("orbis", "wand");
+    NamespacedKey WAND_KEY = NamespacedKey.fromString("orbis:wand");
 
     static boolean isWand(ItemStack stack) {
-        return stack.getItemMeta().getPersistentDataContainer().has(WAND_KEY);
+        return stack.getItemMeta() != null
+                && stack.getItemMeta().getPersistentDataContainer().has(WAND_KEY);
     }
 
     ItemStack wandItem();

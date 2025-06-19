@@ -26,19 +26,13 @@ import java.util.UUID;
 public abstract class PlayerOrbisSession extends OrbisSession {
 
     private final UUID uuid;
-    private final Audience audience;
 
     public PlayerOrbisSession(UUID uuid, Audience audience) {
         super(audience);
         this.uuid = uuid;
-        this.audience = audience;
     }
 
     public UUID getUuid() {
         return uuid;
-    }
-
-    public Audience audience() {
-        return audience;
     }
 }

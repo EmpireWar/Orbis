@@ -4,4 +4,5 @@ main: org.empirewar.orbis.paper.OrbisPaper
 description: "A modern, multi-platform region protection plugin for Minecraft: Java Edition."
 authors: ["SamB440", "LimeeFox", "StealWonders"]
 website: https://www.empirewar.org
-api-version: '1.20'
+api-version: '1.21.4'
+bootstrapper: org.empirewar.orbis.paper.bootstrap.OrbisPluginBootstrap

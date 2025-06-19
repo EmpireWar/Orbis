@@ -36,6 +36,7 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.bukkit.OrbisBukkit;
 import org.empirewar.orbis.bukkit.session.PlayerSession;
 import org.empirewar.orbis.command.CommonCommands;
@@ -54,22 +55,43 @@ import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
+import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.brigadier.BrigadierManagerHolder;
+import org.incendo.cloud.bukkit.BukkitCommandManager;
 import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
+import org.incendo.cloud.bukkit.PluginHolder;
 import org.incendo.cloud.bukkit.internal.BukkitBrigadierMapper;
 import org.incendo.cloud.paper.LegacyPaperCommandManager;
+import org.incendo.cloud.paper.PaperCommandManager;
 
-public class BukkitCommands {
+import java.util.logging.Logger;
 
-    public BukkitCommands(OrbisBukkit plugin, LegacyPaperCommandManager<OrbisSession> manager) {
+public class BukkitCommands<
+        M extends
+                CommandManager<OrbisSession> & BrigadierManagerHolder<OrbisSession, ?>
+                        & PluginHolder> {
+
+    private final M manager;
+
+    public BukkitCommands(M manager) {
+        this.manager = manager;
+
         if (manager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
-            manager.registerBrigadier();
+            if (manager instanceof BukkitCommandManager<?> bukkit) {
+                bukkit.registerBrigadier();
+            }
         } else if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
-            manager.registerAsynchronousCompletions();
+            if (manager instanceof LegacyPaperCommandManager<?> legacy) {
+                legacy.registerAsynchronousCompletions();
+            }
         }
 
-        CommonCommands commonCommands = new CommonCommands(plugin, manager);
+        this.mapDumbBrigadierStuff();
+        this.registerCommands();
+    }
 
-        this.mapDumbBrigadierStuff(manager);
+    private void registerCommands() {
+        new CommonCommands(manager);
 
         manager.command(manager.commandBuilder("orbis")
                 .permission(Permissions.MANAGE)
@@ -96,6 +118,7 @@ public class BukkitCommands {
                     final PlayerSession sender = context.sender();
                     final Audience audience = sender.audience();
                     final Player player = sender.getPlayer();
+                    final OrbisBukkit plugin = (OrbisBukkit) OrbisAPI.get();
                     final Key playerWorld = plugin.adventureKey(player.getWorld());
                     final RegionisedWorld world = plugin.getRegionisedWorld(playerWorld);
                     audience.sendMessage(OrbisText.PREFIX.append(text(
@@ -119,6 +142,7 @@ public class BukkitCommands {
                 .handler(context -> {
                     final PlayerSession sender = context.sender();
                     final Player player = sender.getPlayer();
+                    final OrbisBukkit plugin = (OrbisBukkit) OrbisAPI.get();
                     player.getInventory().addItem(plugin.wandItem());
                     Selection.WAND_LORE.forEach(text -> sender.audience().sendMessage(text));
                 }));
@@ -172,12 +196,19 @@ public class BukkitCommands {
     }
 
     // How sad that Cloud changed from being clientside, tons of issues stem from this.
-    private void mapDumbBrigadierStuff(LegacyPaperCommandManager<OrbisSession> manager) {
+    private void mapDumbBrigadierStuff() {
         // Not on Spigot.
         if (!manager.hasBrigadierManager()) return;
 
-        final BukkitBrigadierMapper<OrbisSession> brigadierMapper = new BukkitBrigadierMapper<>(
-                manager.owningPlugin().getLogger(), manager.brigadierManager());
+        final Logger logger;
+        if (manager instanceof PaperCommandManager<?>) {
+            logger = Logger.getLogger("Orbis");
+        } else {
+            logger = manager.owningPlugin().getLogger();
+        }
+
+        final BukkitBrigadierMapper<OrbisSession> brigadierMapper =
+                new BukkitBrigadierMapper<>(logger, manager.brigadierManager());
         brigadierMapper.mapSimpleNMS(
                 new TypeToken<RegionFlagParser<OrbisSession>>() {}, "resource_location", true);
 

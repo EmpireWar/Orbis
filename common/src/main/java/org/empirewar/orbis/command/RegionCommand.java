@@ -30,10 +30,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-
 import net.kyori.adventure.text.format.TextDecoration;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.empirewar.orbis.Orbis;
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.area.CuboidArea;
@@ -74,7 +75,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Permission(Permissions.MANAGE)
-public record RegionCommand(Orbis orbis) {
+public final class RegionCommand {
 
     @Command("region|rg create|define <name> [area_type]")
     public void onCreate(
@@ -83,6 +84,7 @@ public record RegionCommand(Orbis orbis) {
             @Flag("ignore-selection") boolean ignoreSelection,
             @Argument("name") String regionName,
             @Argument("area_type") @Nullable AreaType<?> areaType) {
+        final Orbis orbis = OrbisAPI.get();
         if (orbis.getGlobalWorld().getByName(regionName).isPresent()) {
             session.audience()
                     .sendMessage(OrbisText.PREFIX.append(
@@ -164,7 +166,7 @@ public record RegionCommand(Orbis orbis) {
     @CommandDescription("Set the area a region spans.")
     public void onSetArea(PlayerOrbisSession session, @Argument("region") Region region) {
         final Selection selection =
-                orbis.selectionManager().get(session.getUuid()).orElse(null);
+                OrbisAPI.get().selectionManager().get(session.getUuid()).orElse(null);
         if (selection == null) {
             session.audience()
                     .sendMessage(OrbisText.PREFIX.append(text(
@@ -212,7 +214,7 @@ public record RegionCommand(Orbis orbis) {
     @CommandDescription("Completely remove a region and remove it from any worlds.")
     @Confirmation
     public void onRemove(OrbisSession session, @Argument("region") Region region) {
-        final boolean anySucceeded = orbis.removeRegion(region);
+        final boolean anySucceeded = OrbisAPI.get().removeRegion(region);
         if (anySucceeded) {
             session.audience()
                     .sendMessage(OrbisText.PREFIX.append(text(
@@ -297,7 +299,11 @@ public record RegionCommand(Orbis orbis) {
         for (RegionFlag<?> flag : Registries.FLAGS) {
             region.getFlag(flag).ifPresent(mu -> {
                 if (mu instanceof GroupedMutableRegionFlag<?> grouped) {
-                    flags.put(mu, grouped.groups().stream().map(FlagMemberGroup::name).collect(Collectors.toSet()));
+                    flags.put(
+                            mu,
+                            grouped.groups().stream()
+                                    .map(FlagMemberGroup::name)
+                                    .collect(Collectors.toSet()));
                 } else {
                     flags.put(mu, Collections.emptySet());
                 }
@@ -312,7 +318,8 @@ public record RegionCommand(Orbis orbis) {
         }
 
         // Convert to list for easier handling
-        List<Map.Entry<MutableRegionFlag<?>, Set<String>>> flagEntries = new ArrayList<>(flags.entrySet());
+        List<Map.Entry<MutableRegionFlag<?>, Set<String>>> flagEntries =
+                new ArrayList<>(flags.entrySet());
         boolean hasMore = limit > 0 && flagEntries.size() > limit;
         int displayCount = hasMore ? limit - 1 : flagEntries.size();
 
@@ -321,12 +328,12 @@ public record RegionCommand(Orbis orbis) {
             Map.Entry<MutableRegionFlag<?>, Set<String>> entry = flagEntries.get(i);
             MutableRegionFlag<?> flag = entry.getKey();
             Set<String> groups = entry.getValue();
-            
+
             Component flagLine = text("  ", NamedTextColor.GRAY)
                     .append(text(flag.key().asString(), NamedTextColor.WHITE))
                     .append(text(": ", NamedTextColor.GRAY))
                     .append(text(flag.getValue().toString(), NamedTextColor.YELLOW));
-            
+
             // Add groups if present
             if (!groups.isEmpty()) {
                 flagLine = flagLine.append(text(" (", NamedTextColor.GRAY))
@@ -338,32 +345,34 @@ public record RegionCommand(Orbis orbis) {
             flagLine = flagLine.append(space())
                     .append(text("[", NamedTextColor.GRAY))
                     .append(text("✎", NamedTextColor.YELLOW)
-                            .hoverEvent(HoverEvent.showText(text(
-                                    "Click to modify this flag",
-                                    OrbisText.SECONDARY_ORANGE)))
-                            .clickEvent(ClickEvent.suggestCommand(
-                                    "/rg flag set " + regionName + " " + flag.key().asString() + " ")))
+                            .hoverEvent(HoverEvent.showText(
+                                    text("Click to modify this flag", OrbisText.SECONDARY_ORANGE)))
+                            .clickEvent(ClickEvent.suggestCommand("/rg flag set " + regionName + " "
+                                    + flag.key().asString() + " ")))
                     .append(text("]", NamedTextColor.GRAY));
 
             // Add remove button
             flagLine = flagLine.append(space())
                     .append(text("[", NamedTextColor.GRAY))
                     .append(text("-", NamedTextColor.RED)
-                            .hoverEvent(HoverEvent.showText(text(
-                                    "Click to remove this flag",
-                                    OrbisText.SECONDARY_RED)))
-                            .clickEvent(ClickEvent.suggestCommand(
-                                    "/rg flag remove " + regionName + " " + flag.key().asString())))
+                            .hoverEvent(HoverEvent.showText(
+                                    text("Click to remove this flag", OrbisText.SECONDARY_RED)))
+                            .clickEvent(ClickEvent.suggestCommand("/rg flag remove " + regionName
+                                    + " " + flag.key().asString())))
                     .append(text("]", NamedTextColor.GRAY));
-            
+
             audience.sendMessage(flagLine);
         }
 
         // Show "and X more..." if there are more flags to show
         if (hasMore) {
             int remaining = flagEntries.size() - displayCount;
-            audience.sendMessage(text("  and " + remaining + " more...", NamedTextColor.GRAY, TextDecoration.ITALIC)
-                    .hoverEvent(HoverEvent.showText(text("Click to view all flags", OrbisText.EREBOR_GREEN)))
+            audience.sendMessage(text(
+                            "  and " + remaining + " more...",
+                            NamedTextColor.GRAY,
+                            TextDecoration.ITALIC)
+                    .hoverEvent(HoverEvent.showText(
+                            text("Click to view all flags", OrbisText.EREBOR_GREEN)))
                     .clickEvent(ClickEvent.runCommand("/rg flag list " + regionName)));
         }
     }
@@ -710,21 +719,24 @@ public record RegionCommand(Orbis orbis) {
                                         OrbisText.EREBOR_GREEN)))
                                 .clickEvent(ClickEvent.suggestCommand("/sel help")))
                         .append(text(")", NamedTextColor.GRAY)));
-                
+
                 // Add teleport to center option
                 int centerX = (min.x() + max.x()) / 2;
                 int centerZ = (min.z() + max.z()) / 2;
                 int centerY = (min.y() + max.y()) / 2;
-                
+
                 audience.sendMessage(text("  [▶] ", NamedTextColor.GRAY)
                         .append(text("Teleport to center", NamedTextColor.YELLOW)
                                 .hoverEvent(HoverEvent.showText(text(
                                         "Click to teleport to the center of this region",
                                         OrbisText.EREBOR_GREEN)))
-                                .clickEvent(ClickEvent.runCommand("/tp @s " + centerX + " " + centerY + " " + centerZ)))
+                                .clickEvent(ClickEvent.runCommand(
+                                        "/tp @s " + centerX + " " + centerY + " " + centerZ)))
                         .append(text(" (", NamedTextColor.GRAY)
-                        .append(text(centerX + ", " + centerY + ", " + centerZ, NamedTextColor.WHITE))
-                        .append(text(")", NamedTextColor.GRAY))));
+                                .append(text(
+                                        centerX + ", " + centerY + ", " + centerZ,
+                                        NamedTextColor.WHITE))
+                                .append(text(")", NamedTextColor.GRAY))));
             }
         }
 
