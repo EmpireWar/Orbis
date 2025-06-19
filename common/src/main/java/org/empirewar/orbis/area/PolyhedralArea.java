@@ -49,12 +49,25 @@ public final class PolyhedralArea extends PolygonArea {
 
     private static final double EPSILON = 1e-7;
 
+    private int[][][] edges, faces;
+
     public PolyhedralArea() {
         super();
     }
 
     private PolyhedralArea(List<Vector3i> points) {
         super(points);
+    }
+
+    @Override
+    protected void calculateEncompassingArea() {
+        super.calculateEncompassingArea();
+        try {
+            this.edges = getPolyhedronEdges();
+            this.faces = getPolyhedronFaces();
+        } catch (IllegalArgumentException ignored) {
+            // Means there were not enough points
+        }
     }
 
     @Override
@@ -77,8 +90,8 @@ public final class PolyhedralArea extends PolygonArea {
 
         // Check if point is exactly on a vertex
         for (Vector3ic vertex : points) {
-            double dist = point.distance(vertex.x(), vertex.y(), vertex.z());
-            if (dist < EPSILON) {
+            double dist = point.distanceSquared(vertex.x(), vertex.y(), vertex.z());
+            if (dist < EPSILON * EPSILON) {
                 //                System.out.println(String.format(
                 //                        "Point is on vertex (%d, %d, %d), distance=%.6f",
                 //                        vertex.x(), vertex.y(), vertex.z(), dist));
@@ -87,7 +100,6 @@ public final class PolyhedralArea extends PolygonArea {
         }
 
         // Check if point is on any edge
-        int[][][] edges = getPolyhedronEdges();
         //        System.out.println("Checking " + edges.length + " edges");
         for (int[][] edge : edges) {
             Vector3dc v1 = new Vector3d(edge[0][0], edge[0][1], edge[0][2]);
@@ -109,7 +121,6 @@ public final class PolyhedralArea extends PolygonArea {
         int intersections = 0;
 
         // Get all faces of the polyhedron
-        int[][][] faces = getPolyhedronFaces();
         //        System.out.println("Checking " + faces.length + " faces");
 
         for (int[][] face : faces) {
