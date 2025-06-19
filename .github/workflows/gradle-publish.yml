@@ -8,7 +8,7 @@
 # To get a newer version, you will need to update the SHA.
 # You can also reference a tag or branch, but the action may change without warning.
 
-name: Publish to Convallyria Repository
+name: Build and Publish
 on:
   push:
     branches: ["main"]
@@ -24,14 +24,19 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v3
-
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4 # Handles Gradle wrapper validation and basic caching
 
-      - name: Publish package
-        run: ./gradlew publish
+      - name: Build and Publish to Convallyria repository
+        run: ./gradlew build publish
         env:
           MAVEN_USERNAME: ${{ secrets.REPO_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.REPO_PASSWORD }}
+
+      - name: Capture build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Artifacts
+          path: |
+            **/build/libs/
+            */build/libs/
