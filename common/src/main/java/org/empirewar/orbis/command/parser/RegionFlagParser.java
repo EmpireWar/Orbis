@@ -42,16 +42,16 @@ import org.incendo.cloud.suggestion.Suggestion;
 import java.util.Optional;
 
 public final class RegionFlagParser<C>
-        implements ArgumentParser<C, RegionFlag<?>>, BlockingSuggestionProvider<C> {
+        implements ArgumentParser<C, RegistryRegionFlag<?>>, BlockingSuggestionProvider<C> {
 
     @Override
-    public @NonNull ArgumentParseResult<@NonNull RegionFlag<?>> parse(
+    public @NonNull ArgumentParseResult<@NonNull RegistryRegionFlag<?>> parse(
             @NonNull CommandContext<@NonNull C> commandContext,
             @NonNull CommandInput commandInput) {
         final String input = commandInput.peekString();
         final Optional<RegistryRegionFlag<?>> regionFlag = Registries.FLAGS.get(Key.key(input));
         return regionFlag
-                .<ArgumentParseResult<RegionFlag<?>>>map(f -> {
+                .<ArgumentParseResult<RegistryRegionFlag<?>>>map(f -> {
                     commandInput.readString();
                     return ArgumentParseResult.success(f);
                 })
