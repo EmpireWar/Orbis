@@ -25,8 +25,8 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.flag.DefaultFlags;
-import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.RegionFlagType;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.member.MemberType;
 import org.empirewar.orbis.region.RegionType;
 
@@ -38,7 +38,7 @@ public final class Registries {
 
     private static final Map<Key, Supplier<?>> DEFAULT_ENTRIES = Maps.newLinkedHashMap();
 
-    public static final Registry<RegionFlag<?>> FLAGS =
+    public static final Registry<RegistryRegionFlag<?>> FLAGS =
             create(Key.key("orbis", "flags"), r -> DefaultFlags.CAN_BREAK);
 
     public static final Registry<RegionFlagType<?>> FLAG_TYPE =

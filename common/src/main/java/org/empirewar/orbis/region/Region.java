@@ -31,7 +31,7 @@ import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.flag.GroupedMutableRegionFlag;
 import org.empirewar.orbis.flag.MutableRegionFlag;
-import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.member.FlagMemberGroup;
 import org.empirewar.orbis.member.Member;
 import org.empirewar.orbis.query.RegionQuery;
@@ -235,11 +235,11 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
     /**
      * Adds a flag to this region.
      * The flag is transformed into a <i>mutable</i> flag.
-     * @see RegionFlag#asMutable()
+     * @see RegistryRegionFlag#asMutable()
      * @param flag the flag to add
      * @return the transformed flag instance
      */
-    public <T> MutableRegionFlag<T> addFlag(RegionFlag<T> flag) {
+    public <T> MutableRegionFlag<T> addFlag(RegistryRegionFlag<T> flag) {
         final MutableRegionFlag<T> mutable = flag.asMutable();
         flags.put(flag.key(), mutable);
         return mutable;
@@ -252,7 +252,7 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
      * @return the transformed flag instance
      */
     public <T> GroupedMutableRegionFlag<T> addGroupedFlag(
-            RegionFlag<T> flag, Set<FlagMemberGroup> groups) {
+            RegistryRegionFlag<T> flag, Set<FlagMemberGroup> groups) {
         final GroupedMutableRegionFlag<T> grouped = flag.asGrouped();
         flags.put(flag.key(), grouped);
         groups.forEach(grouped::addGroup);
@@ -264,15 +264,15 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
      * @param flag the flag to remove
      * @return true if flag existed and was removed
      */
-    public boolean removeFlag(RegionFlag<?> flag) {
+    public boolean removeFlag(RegistryRegionFlag<?> flag) {
         return flags.remove(flag.key()) == null;
     }
 
-    public boolean hasFlag(RegionFlag<?> flag) {
+    public boolean hasFlag(RegistryRegionFlag<?> flag) {
         return flags.containsKey(flag.key());
     }
 
-    public <T> Optional<MutableRegionFlag<T>> getFlag(RegionFlag<T> flag) {
+    public <T> Optional<MutableRegionFlag<T>> getFlag(RegistryRegionFlag<T> flag) {
         return Optional.ofNullable((MutableRegionFlag<T>) flags.get(flag.key()));
     }
 
@@ -283,7 +283,7 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
      * @param value the value
      * @param <T> value type
      */
-    public <T> void setFlag(RegionFlag<T> flag, T value) {
+    public <T> void setFlag(RegistryRegionFlag<T> flag, T value) {
         MutableRegionFlag<T> mu = getFlag(flag)
                 .orElseThrow(() -> new IllegalArgumentException("Region '" + name
                         + "' does not have a flag by key '" + flag.key().asString() + "'!"));

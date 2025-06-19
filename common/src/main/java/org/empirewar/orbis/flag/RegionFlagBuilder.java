@@ -27,38 +27,46 @@ import net.kyori.adventure.key.Key;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-final class RegionFlagBuilder<T> implements RegionFlag.Builder<T> {
+final class RegionFlagBuilder<T> implements RegistryRegionFlag.Builder<T> {
 
     private Key key;
+    private String description;
     private Supplier<T> defaultValue;
     private Codec<T> codec;
 
     RegionFlagBuilder() {}
 
     @Override
-    public RegionFlag<T> build() {
+    public RegistryRegionFlag<T> build() {
         Preconditions.checkState(this.key != null, "Key cannot be empty");
         Preconditions.checkState(this.defaultValue != null, "Value cannot be empty");
         Preconditions.checkState(this.codec != null, "Value Codec be empty");
-        return new RegionFlag<>(key, defaultValue, codec);
+        return new RegistryRegionFlag<>(key, description, defaultValue, codec);
     }
 
     @Override
-    public RegionFlag.Builder<T> key(Key key) {
+    public RegistryRegionFlag.Builder<T> key(Key key) {
         Objects.requireNonNull(key, "Key cannot be null");
         this.key = key;
         return this;
     }
 
     @Override
-    public RegionFlag.Builder<T> defaultValue(Supplier<T> value) {
+    public RegistryRegionFlag.Builder<T> description(String description) {
+        Objects.requireNonNull(description, "Description cannot be null");
+        this.description = description;
+        return this;
+    }
+
+    @Override
+    public RegistryRegionFlag.Builder<T> defaultValue(Supplier<T> value) {
         Objects.requireNonNull(value, "Value cannot be null");
         this.defaultValue = value;
         return this;
     }
 
     @Override
-    public RegionFlag.Builder<T> codec(Codec<T> codec) {
+    public RegistryRegionFlag.Builder<T> codec(Codec<T> codec) {
         Objects.requireNonNull(codec, "Codec cannot be null");
         this.codec = codec;
         return this;

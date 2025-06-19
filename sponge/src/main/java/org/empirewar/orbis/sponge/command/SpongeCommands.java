@@ -55,7 +55,7 @@ public final class SpongeCommands {
     public SpongeCommands(OrbisSponge plugin, RegistryHolder registryHolder) {
         SpongeCommandManager<OrbisSession> manager = new SpongeCommandManager<>(
                 plugin.pluginContainer(),
-                ExecutionCoordinator.asyncCoordinator(),
+                ExecutionCoordinator.simpleCoordinator(),
                 registryHolder,
                 SenderMapper.create(
                         cause -> {

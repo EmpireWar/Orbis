@@ -23,7 +23,7 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.flag.DefaultFlags;
-import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.jetbrains.annotations.Nullable;
@@ -156,12 +156,12 @@ public final class BlockActionListener {
     }
 
     private boolean shouldPreventBlockAction(
-            @Nullable BlockSnapshot block, RegionFlag<Boolean> flag) {
+            @Nullable BlockSnapshot block, RegistryRegionFlag<Boolean> flag) {
         return shouldPreventBlockAction(block, null, flag);
     }
 
     // spotless:off
-    private boolean shouldPreventBlockAction(@Nullable BlockSnapshot block, @Nullable ServerPlayer player, RegionFlag<Boolean> flag) {
+    private boolean shouldPreventBlockAction(@Nullable BlockSnapshot block, @Nullable ServerPlayer player, RegistryRegionFlag<Boolean> flag) {
         // spotless:on
         if (block == null) return false;
         final Vector3i blockPos = block.position();

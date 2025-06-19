@@ -20,30 +20,36 @@
 package org.empirewar.orbis.command.parser;
 
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.units.qual.C;
 import org.empirewar.orbis.command.caption.OrbisCaptionKeys;
 import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.registry.Registries;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.context.CommandInput;
 import org.incendo.cloud.exception.parsing.ParserException;
+import org.incendo.cloud.minecraft.extras.suggestion.ComponentTooltipSuggestion;
 import org.incendo.cloud.parser.ArgumentParseResult;
 import org.incendo.cloud.parser.ArgumentParser;
 import org.incendo.cloud.suggestion.BlockingSuggestionProvider;
+import org.incendo.cloud.suggestion.Suggestion;
 
 import java.util.Optional;
 
 public final class RegionFlagParser<C>
-        implements ArgumentParser<C, RegionFlag<?>>, BlockingSuggestionProvider.Strings<C> {
+        implements ArgumentParser<C, RegionFlag<?>>, BlockingSuggestionProvider<C> {
 
     @Override
     public @NonNull ArgumentParseResult<@NonNull RegionFlag<?>> parse(
             @NonNull CommandContext<@NonNull C> commandContext,
             @NonNull CommandInput commandInput) {
         final String input = commandInput.peekString();
-        final Optional<RegionFlag<?>> regionFlag = Registries.FLAGS.get(Key.key(input));
+        final Optional<RegistryRegionFlag<?>> regionFlag = Registries.FLAGS.get(Key.key(input));
         return regionFlag
                 .<ArgumentParseResult<RegionFlag<?>>>map(f -> {
                     commandInput.readString();
@@ -54,9 +60,20 @@ public final class RegionFlagParser<C>
     }
 
     @Override
-    public @NonNull Iterable<@NonNull String> stringSuggestions(
-            @NonNull CommandContext<C> commandContext, @NonNull CommandInput input) {
-        return Registries.FLAGS.getAll().stream().map(f -> f.key().asString()).toList();
+    public @NonNull Iterable<? extends @NonNull Suggestion> suggestions(
+            @NonNull CommandContext<C> context, @NonNull CommandInput input) {
+        return Registries.FLAGS.getAll().stream()
+                .map(flag -> {
+                    final Optional<String> description = flag.description();
+                    if (description.isPresent()) {
+                        return ComponentTooltipSuggestion.suggestion(
+                                flag.key().asString(),
+                                Component.text(description.get(), NamedTextColor.WHITE));
+                    } else {
+                        return Suggestion.suggestion(flag.key().asString());
+                    }
+                })
+                .toList();
     }
 
     public static final class RegionFlagParserException extends ParserException {

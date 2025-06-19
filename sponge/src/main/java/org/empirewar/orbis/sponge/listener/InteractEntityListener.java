@@ -23,7 +23,7 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.flag.DefaultFlags;
-import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.spongepowered.api.entity.Entity;
@@ -174,7 +174,7 @@ public final class InteractEntityListener {
         }
     }
 
-    private boolean shouldPreventEntityAction(Entity entity, RegionFlag<Boolean> flag) {
+    private boolean shouldPreventEntityAction(Entity entity, RegistryRegionFlag<Boolean> flag) {
         return !orbis.getRegionisedWorld(entity.serverLocation().world().key())
                 .query(RegionQuery.Position.builder()
                         .position(

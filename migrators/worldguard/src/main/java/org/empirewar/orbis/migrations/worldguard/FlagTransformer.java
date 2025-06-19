@@ -27,7 +27,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.member.FlagMemberGroup;
 import org.empirewar.orbis.region.Region;
 
@@ -53,14 +53,16 @@ public interface FlagTransformer {
             // invincible flag is flipped
             if (flag.getName().equals("invincible")) {
                 if (state == StateFlag.State.ALLOW) {
-                    orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, false);
+                    orbisRegion.setFlag((RegistryRegionFlag<Boolean>) orbisFlag, false);
                 } else {
-                    orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, true);
+                    orbisRegion.setFlag((RegistryRegionFlag<Boolean>) orbisFlag, true);
                 }
             } else {
                 switch (state) {
-                    case DENY -> orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, false);
-                    case ALLOW -> orbisRegion.setFlag((RegionFlag<Boolean>) orbisFlag, true);
+                    case DENY -> orbisRegion.setFlag(
+                            (RegistryRegionFlag<Boolean>) orbisFlag, false);
+                    case ALLOW -> orbisRegion.setFlag(
+                            (RegistryRegionFlag<Boolean>) orbisFlag, true);
                 }
             }
 
@@ -75,5 +77,5 @@ public interface FlagTransformer {
             ProtectedRegion region,
             Flag<?> flag,
             Region orbisRegion,
-            RegionFlag<?> orbisFlag);
+            RegistryRegionFlag<?> orbisFlag);
 }

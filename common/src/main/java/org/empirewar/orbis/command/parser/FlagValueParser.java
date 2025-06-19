@@ -28,7 +28,7 @@ import io.leangen.geantyref.TypeToken;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.empirewar.orbis.command.caption.OrbisCaptionKeys;
-import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.flag.value.FlagValueParseResult;
 import org.empirewar.orbis.serialization.FlagValueAdapter;
@@ -58,7 +58,7 @@ public record FlagValueParser<C>(CommandManager<?> manager)
             @NonNull CommandContext<@NonNull C> commandContext,
             @NonNull CommandInput commandInput) {
         final String input = this.parseGreedy(commandInput).parsedValue().orElseThrow();
-        final RegionFlag<?> flag = commandContext.get("flag");
+        final RegistryRegionFlag<?> flag = commandContext.get("flag");
         // spotless:off
         // Take in the string as a JSON representation, parse it for primitives, then pass it into the codec
         // TODO: probably wise to protect against bad input, although this should only ever run with admins
@@ -87,7 +87,7 @@ public record FlagValueParser<C>(CommandManager<?> manager)
     @Override
     public @NonNull CompletableFuture<? extends @NonNull Iterable<? extends @NonNull Suggestion>>
             suggestionsFuture(@NonNull CommandContext<C> context, @NonNull CommandInput input) {
-        final RegionFlag<?> flag = context.get("flag");
+        final RegistryRegionFlag<?> flag = context.get("flag");
         // Try to find a valid parser for this. Very cursed but works epic.
         final Object defaultValue = flag.getDefaultValue();
         final ParserRegistry<C> parserRegistry = (ParserRegistry<C>) manager.parserRegistry();

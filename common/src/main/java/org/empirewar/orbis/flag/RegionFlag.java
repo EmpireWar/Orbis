@@ -29,61 +29,32 @@ import org.empirewar.orbis.registry.Registries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * Represents the flag of a {@link org.empirewar.orbis.region.Region}.
  * <p>
  * All flags are {@link Keyed} and thus have a {@link Key} to identify them.
  * <p>
- * To add a region flag, you should use the {@link #builder()} and register it to {@link Registries#FLAGS}.
+ * To add a region flag, you should use the {@link RegistryRegionFlag#builder()} and register it to {@link Registries#FLAGS}.
  * <p>
  * Note that all flags must provide a {@link Codec} of {@link T}.
  * This allows for deserialization and serialization and is also used in command parsing.
  * <p>
  * You may need to add Mojang's <a href="https://github.com/Mojang/DataFixerUpper">DataFixerUpper</a> to your dependencies.
- * <p>
- * This base class is immutable and is stored in the {@link Registries#FLAGS} registry.
- * A flag may be converted to a mutable representation by using {@link #asMutable()} or {@link #asGrouped()} as required.
- * The provided {@link Supplier} of {@link T} will be used to copy a value into the mutable representation.
  * @param <T> the type this flag has
  */
-public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
+public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag, RegistryRegionFlag {
 
     protected final Key key;
-    protected final Supplier<T> defaultValueSupplier;
-    protected final T defaultValue;
     protected final Codec<T> codec;
 
-    protected RegionFlag(Key key, Supplier<T> defaultValue, Codec<T> codec) {
+    protected RegionFlag(Key key, Codec<T> codec) {
         this.key = key;
-        this.defaultValueSupplier = defaultValue;
-        this.defaultValue = defaultValue.get();
         this.codec = codec;
     }
 
     public Codec<T> typeCodec() {
         return codec;
-    }
-
-    public T getDefaultValue() {
-        return defaultValue;
-    }
-
-    /**
-     * Gets a mutable representation of this flag.
-     * @return mutable representation
-     */
-    public MutableRegionFlag<T> asMutable() {
-        return new MutableRegionFlag<>(key, defaultValueSupplier, codec);
-    }
-
-    /**
-     * Gets a grouped mutable representation of this flag.
-     * @return grouped mutable representation
-     */
-    public GroupedMutableRegionFlag<T> asGrouped() {
-        return new GroupedMutableRegionFlag<>(key, defaultValueSupplier, codec);
     }
 
     /**
@@ -94,8 +65,8 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
      * @param registry the registry value of this flag
      * @return the codec
      */
-    public MapCodec<? extends RegionFlag<T>> getCodec(RegionFlag<?> registry) {
-        return MapCodec.unit(() -> new RegionFlag<>(key, defaultValueSupplier, codec));
+    public MapCodec<? extends RegionFlag<T>> getCodec(RegistryRegionFlag<?> registry) {
+        return MapCodec.unit(() -> new RegionFlag<>(key, codec));
     }
 
     @Override
@@ -113,20 +84,5 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag {
     @Override
     public int hashCode() {
         return Objects.hashCode(key);
-    }
-
-    public static <T> Builder<T> builder() {
-        return new RegionFlagBuilder<>();
-    }
-
-    public sealed interface Builder<T> permits RegionFlagBuilder {
-
-        Builder<T> key(Key key);
-
-        Builder<T> defaultValue(Supplier<T> value);
-
-        Builder<T> codec(Codec<T> codec);
-
-        RegionFlag<T> build();
     }
 }

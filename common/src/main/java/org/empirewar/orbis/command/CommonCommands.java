@@ -33,7 +33,7 @@ import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
-import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.region.Region;
@@ -98,8 +98,8 @@ public final class CommonCommands {
                         TypeToken.get(RegionisedWorld.class),
                         parserParameters -> new RegionisedWorldParser<>());
 
-        final TypeToken<?> typeToken = TypeToken.get(
-                TypeFactory.parameterizedClass(RegionFlag.class, TypeFactory.unboundWildcard()));
+        final TypeToken<?> typeToken = TypeToken.get(TypeFactory.parameterizedClass(
+                RegistryRegionFlag.class, TypeFactory.unboundWildcard()));
         manager.parserRegistry()
                 .registerParserSupplier(typeToken, parserParameters -> new RegionFlagParser<>());
 

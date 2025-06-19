@@ -20,6 +20,7 @@
 package org.empirewar.orbis.paper.bootstrap;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 
@@ -30,7 +31,9 @@ import org.empirewar.orbis.paper.session.PaperConsoleSession;
 import org.empirewar.orbis.paper.session.PaperPlayerSession;
 import org.empirewar.orbis.player.OrbisSession;
 import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.brigadier.suggestion.TooltipSuggestion;
 import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.minecraft.extras.suggestion.ComponentTooltipSuggestion;
 import org.incendo.cloud.paper.PaperCommandManager;
 
 public class OrbisPluginBootstrap implements PluginBootstrap {
@@ -55,8 +58,19 @@ public class OrbisPluginBootstrap implements PluginBootstrap {
                 });
 
         PaperCommandManager<OrbisSession> manager = PaperCommandManager.builder(mapper)
-                .executionCoordinator(ExecutionCoordinator.asyncCoordinator())
+                .executionCoordinator(ExecutionCoordinator.simpleCoordinator())
                 .buildBootstrapped(bootstrapContext);
+        // Thanks to @metabrix and @TonytheMacaroni
+        // https://discord.com/channels/766366162388123678/1170254709722984460/1252264381585035355
+        manager.appendSuggestionMapper(suggestion -> {
+            if (!(suggestion instanceof ComponentTooltipSuggestion componentTooltipSuggestion))
+                return suggestion;
+
+            return TooltipSuggestion.suggestion(
+                    suggestion.suggestion(),
+                    MessageComponentSerializer.message()
+                            .serializeOrNull(componentTooltipSuggestion.tooltip()));
+        });
         commands = new BukkitCommands<>(manager);
     }
 }

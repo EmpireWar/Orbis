@@ -30,7 +30,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.empirewar.orbis.bukkit.OrbisBukkit;
 import org.empirewar.orbis.flag.DefaultFlags;
-import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
 
 public abstract class InteractEntityListener implements Listener {
@@ -78,7 +78,7 @@ public abstract class InteractEntityListener implements Listener {
         }
     }
 
-    protected boolean shouldPreventEntityAction(Entity entity, RegionFlag<Boolean> flag) {
+    protected boolean shouldPreventEntityAction(Entity entity, RegistryRegionFlag<Boolean> flag) {
         final Location location = entity.getLocation();
         return !orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()))
                 .query(RegionQuery.Position.builder()

@@ -34,8 +34,9 @@ import java.util.function.Supplier;
  * <p>
  * This flag is added to a {@link org.empirewar.orbis.region.Region}.
  * <p>
- * A {@link RegionFlag} may be converted to a Mutable instance by calling {@link RegionFlag#asMutable()}.
+ * A {@link RegistryRegionFlag} may be converted to a Mutable instance by calling {@link RegistryRegionFlag#asMutable()}.
  * @param <T> the type this flag has
+ * @see RegionFlag
  */
 public sealed class MutableRegionFlag<T> extends RegionFlag<T> permits GroupedMutableRegionFlag {
 
@@ -55,7 +56,7 @@ public sealed class MutableRegionFlag<T> extends RegionFlag<T> permits GroupedMu
     private T value;
 
     MutableRegionFlag(Key key, Supplier<T> defaultValue, Codec<T> codec) {
-        super(key, defaultValue, codec);
+        super(key, codec);
         this.value = defaultValue.get();
     }
 
@@ -72,7 +73,7 @@ public sealed class MutableRegionFlag<T> extends RegionFlag<T> permits GroupedMu
     }
 
     @Override
-    public MapCodec<? extends MutableRegionFlag<T>> getCodec(RegionFlag<?> registry) {
+    public MapCodec<? extends MutableRegionFlag<T>> getCodec(RegistryRegionFlag<?> registry) {
         return RecordCodecBuilder.mapCodec(instance -> instance.group(
                         codec.fieldOf("value").forGetter(MutableRegionFlag::getValue))
                 .apply(instance, (value) -> {

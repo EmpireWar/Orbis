@@ -40,7 +40,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.empirewar.orbis.bukkit.OrbisBukkit;
 import org.empirewar.orbis.flag.DefaultFlags;
-import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.jetbrains.annotations.Nullable;
@@ -139,12 +139,13 @@ public record BlockActionListener(OrbisBukkit orbis) implements Listener {
         }
     }
 
-    private boolean shouldPreventBlockAction(@Nullable Block block, RegionFlag<Boolean> flag) {
+    private boolean shouldPreventBlockAction(
+            @Nullable Block block, RegistryRegionFlag<Boolean> flag) {
         return shouldPreventBlockAction(block, null, flag);
     }
 
     // spotless:off
-    private boolean shouldPreventBlockAction(@Nullable Block block, @Nullable Player player, RegionFlag<Boolean> flag) {
+    private boolean shouldPreventBlockAction(@Nullable Block block, @Nullable Player player, RegistryRegionFlag<Boolean> flag) {
         // spotless:on
         if (block == null) return false;
         final Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());

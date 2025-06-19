@@ -49,6 +49,7 @@ import org.empirewar.orbis.area.PolygonArea;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
@@ -64,7 +65,7 @@ import java.util.UUID;
 // Is this class bad? Yes. Do I care? No, just migrate the data!
 public final class WorldGuardMigrator {
 
-    private static final Map<String, RegionFlag<?>> FLAG_MAPPINGS;
+    private static final Map<String, RegistryRegionFlag<?>> FLAG_MAPPINGS;
 
     static {
         FLAG_MAPPINGS = new HashMap<>(Map.of(
@@ -236,7 +237,7 @@ public final class WorldGuardMigrator {
 
                 for (Flag<?> flag : region.getFlags().keySet()) {
                     final String name = flag.getName();
-                    final RegionFlag<?> orbisFlag = FLAG_MAPPINGS.get(name);
+                    final RegistryRegionFlag<?> orbisFlag = FLAG_MAPPINGS.get(name);
                     if (orbisFlag == null) {
                         audience.sendMessage(Component.text(
                                 "Unable to find flag '" + name + "'!", NamedTextColor.RED));

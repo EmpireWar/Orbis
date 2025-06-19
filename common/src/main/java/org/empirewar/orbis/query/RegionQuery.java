@@ -20,7 +20,7 @@
 package org.empirewar.orbis.query;
 
 import org.empirewar.orbis.area.Area;
-import org.empirewar.orbis.flag.RegionFlag;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.region.Region;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
@@ -55,7 +55,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
          *
          * @return the flag
          */
-        RegionFlag<FR> flag();
+        RegistryRegionFlag<FR> flag();
 
         Optional<UUID> player();
 
@@ -76,7 +76,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
 
         sealed interface Builder<FR> permits RegionQueryFlagBuilder {
 
-            Builder<FR> flag(RegionFlag<FR> flag);
+            Builder<FR> flag(RegistryRegionFlag<FR> flag);
 
             Builder<FR> player(UUID player);
 
@@ -87,7 +87,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
             return new RegionQueryFlagBuilder<>();
         }
 
-        static <FR> Builder<FR> builder(RegionFlag<FR> flag) {
+        static <FR> Builder<FR> builder(RegistryRegionFlag<FR> flag) {
             return new RegionQueryFlagBuilder<FR>().flag(flag);
         }
     }

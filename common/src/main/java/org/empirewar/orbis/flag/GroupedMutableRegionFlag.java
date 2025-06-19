@@ -40,8 +40,9 @@ import java.util.function.Supplier;
  * <p>
  * This class allows for a flag to only apply to specific groups.
  * <p>
- * A {@link RegionFlag} may be converted to a Grouped instance by calling {@link MutableRegionFlag#asGrouped()}.
+ * A {@link RegistryRegionFlag} may be converted to a Grouped instance by calling {@link RegistryRegionFlag#asGrouped()}.
  * @param <T> the type this flag has
+ * @see MutableRegionFlag
  */
 public final class GroupedMutableRegionFlag<T> extends MutableRegionFlag<T> {
 
@@ -79,7 +80,8 @@ public final class GroupedMutableRegionFlag<T> extends MutableRegionFlag<T> {
     }
 
     @Override
-    public MapCodec<? extends GroupedMutableRegionFlag<T>> getCodec(RegionFlag<?> registry) {
+    public MapCodec<? extends GroupedMutableRegionFlag<T>> getCodec(
+            RegistryRegionFlag<?> registry) {
         return RecordCodecBuilder.mapCodec(instance -> instance.group(
                         codec.fieldOf("value").forGetter(GroupedMutableRegionFlag::getValue),
                         new EnumCodec<>(FlagMemberGroup.class)
