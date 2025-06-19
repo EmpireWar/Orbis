@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2025 EmpireWar
+ * Copyright (C) 2025 Empire War
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
