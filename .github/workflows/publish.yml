@@ -27,7 +27,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4 # Handles Gradle wrapper validation and basic caching
 
-      - name: Build and Publish to Convallyria repository
+      - name: Build and Publish to Empire War repository
         run: ./gradlew build publish
         env:
           MAVEN_USERNAME: ${{ secrets.REPO_USERNAME }}
