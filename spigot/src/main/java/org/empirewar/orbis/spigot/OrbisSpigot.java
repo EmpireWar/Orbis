@@ -51,7 +51,7 @@ import java.io.IOException;
 
 public class OrbisSpigot extends JavaPlugin implements Listener {
 
-    private OrbisSpigotPlatform platform;
+    private final OrbisSpigotPlatform platform = new OrbisSpigotPlatform(this);
 
     private BukkitAudiences adventure;
 
@@ -61,11 +61,6 @@ public class OrbisSpigot extends JavaPlugin implements Listener {
                     "Tried to access Adventure when the plugin was disabled!");
         }
         return this.adventure;
-    }
-
-    @Override
-    public void onLoad() {
-        this.platform = new OrbisSpigotPlatform(this);
     }
 
     @Override

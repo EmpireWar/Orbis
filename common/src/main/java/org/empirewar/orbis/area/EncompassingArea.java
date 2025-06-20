@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -36,6 +37,8 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
     protected final Vector3i min = new Vector3i();
     protected final Vector3i max = new Vector3i();
 
+    private final List<Runnable> updateListeners = new ArrayList<>(1);
+
     EncompassingArea() {
         final int expected = getMaximumPoints().orElse(0);
         this.points = new LinkedHashSet<>(expected);
@@ -45,6 +48,14 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
     EncompassingArea(List<Vector3i> points) {
         this.points = new LinkedHashSet<>(points);
         calculateEncompassingArea();
+    }
+
+    public void addUpdateListener(Runnable listener) {
+        this.updateListeners.add(listener);
+    }
+
+    public void removeUpdateListener(Runnable listener) {
+        this.updateListeners.remove(listener);
     }
 
     /**
@@ -77,6 +88,9 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
         max.x = maxX;
         max.y = maxY;
         max.z = maxZ;
+
+        // Copy to prevent concurrent modification
+        List.copyOf(updateListeners).forEach(Runnable::run);
     }
 
     @Override

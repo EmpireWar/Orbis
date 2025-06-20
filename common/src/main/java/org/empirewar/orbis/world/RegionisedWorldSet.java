@@ -27,6 +27,7 @@ import com.github.davidmoten.rtreemulti.geometry.Rectangle;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.area.Area;
+import org.empirewar.orbis.area.EncompassingArea;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.jetbrains.annotations.Nullable;
@@ -49,10 +50,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class RegionisedWorldSet implements RegionisedWorld {
 
+    private record GeometryEntry(@Nullable Geometry geometry, Runnable listener) {}
+
     private final String worldName;
     private final Key worldId;
     private final Set<Region> regions;
-    private final Map<Region, Geometry> regionGeometries;
+    private final Map<Region, GeometryEntry> regionGeometries;
 
     private RTree<Region, Geometry> regionRTree;
 
@@ -136,21 +139,56 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     public boolean add(Region region) {
         if (regions.add(region)) {
             if (!region.isGlobal()) {
-                // Add to RTree
-                Rectangle rect = createBoundingBox(region.area());
-                regionRTree = regionRTree.add(region, rect);
-                regionGeometries.put(region, rect);
+                updateBoundingBox(region);
             }
             return true;
         }
         return false;
     }
 
-    private Rectangle createBoundingBox(Area area) {
+    private void updateBoundingBox(Region region) {
+        if (!regions.contains(region)) {
+            return; // Region not in this set
+        }
+
+        if (region.isGlobal()) {
+            throw new IllegalArgumentException("Cannot update global region");
+        }
+
+        final EncompassingArea area = (EncompassingArea) region.area();
+
+        // Remove old entry
+        GeometryEntry oldGeometry = regionGeometries.remove(region);
+        if (oldGeometry != null) {
+            area.removeUpdateListener(oldGeometry.listener());
+            if (oldGeometry.geometry() != null) {
+                regionRTree = regionRTree.delete(region, oldGeometry.geometry());
+            }
+        }
+
+        // Add new entry if the area is not empty
+        Rectangle newRect = createBoundingBox(area);
+        if (newRect != null) {
+            regionRTree = regionRTree.add(region, newRect);
+        }
+
+        // Always add an update listener
+        final Runnable updateListener = () -> updateBoundingBox(region);
+        area.addUpdateListener(updateListener);
+        regionGeometries.put(region, new GeometryEntry(newRect, updateListener));
+    }
+
+    private @Nullable Rectangle createBoundingBox(Area area) {
+        // Handle empty areas
+        if (area.points().isEmpty()) {
+            return null;
+        }
+
         // We will represent all areas as a rectangle of the area it can be in
         // We then use Area#contains to confirm that the point is in the area
         Vector3ic min = area.getMin();
         Vector3ic max = area.getMax();
+
         return Rectangle.create(
                 (float) min.x(),
                 (float) min.y(),
@@ -166,9 +204,13 @@ public final class RegionisedWorldSet implements RegionisedWorld {
         if (regions.remove(region)) {
             if (!region.isGlobal()) {
                 // Remove from RTree
-                Geometry geometry = regionGeometries.remove(region);
+                GeometryEntry geometry = regionGeometries.remove(region);
                 if (geometry != null) {
-                    regionRTree = regionRTree.delete(region, geometry);
+                    final EncompassingArea area = (EncompassingArea) region.area();
+                    area.removeUpdateListener(geometry.listener());
+                    if (geometry.geometry() != null) {
+                        regionRTree = regionRTree.delete(region, geometry.geometry());
+                    }
                 }
             }
             return true;

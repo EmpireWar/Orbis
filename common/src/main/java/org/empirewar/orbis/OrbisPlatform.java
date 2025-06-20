@@ -87,7 +87,8 @@ public abstract class OrbisPlatform implements Orbis {
 
         final Path worldsPath = dataFolder().resolve("worlds.yml");
         if (!Files.exists(worldsPath)) {
-            // Support migration from config file -> worlds file (early indev - can be removed at some point)
+            // Support migration from config file -> worlds file (early indev - can be removed at
+            // some point)
             if (Files.exists(configPath)) {
                 Files.copy(configPath, worldsPath);
             } else {

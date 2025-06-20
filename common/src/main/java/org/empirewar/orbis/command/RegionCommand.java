@@ -97,8 +97,10 @@ public final class RegionCommand {
         }
 
         Area area;
-        if (global || ignoreSelection) {
+        if (global) {
             area = null;
+        } else if (ignoreSelection) {
+            area = new CuboidArea();
         } else if (session instanceof PlayerOrbisSession player) {
             final Selection selection =
                     orbis.selectionManager().get(player.getUuid()).orElse(null);

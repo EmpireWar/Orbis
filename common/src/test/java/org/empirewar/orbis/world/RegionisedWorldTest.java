@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.area.CuboidArea;
+import org.empirewar.orbis.area.EncompassingArea;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.GlobalRegion;
@@ -37,6 +38,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Set;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -173,5 +176,119 @@ public class RegionisedWorldTest {
         assertTrue(set.query(RegionQuery.Position.builder().position(5, 5, 5))
                 .result()
                 .contains(global));
+    }
+
+    @Test
+    @Order(7)
+    void testRegionAddsListenerToArea() {
+        // Setup
+        RegionisedWorldSet set = new RegionisedWorldSet();
+        CuboidArea area = new CuboidArea();
+        Region region = new Region("test", area);
+
+        // Get the updateListeners field using reflection
+        List<Runnable> listeners = getUpdateListeners(area);
+
+        // Verify no listeners initially
+        assertTrue(listeners.isEmpty(), "Should have no listeners initially");
+
+        // Add region
+        assertTrue(set.add(region));
+
+        // Verify one listener was added
+        assertEquals(1, listeners.size(), "Should have one listener after adding region");
+    }
+
+    @Test
+    @Order(8)
+    void testAreaUpdateUpdatesRTree() {
+        // Setup
+        RegionisedWorldSet set = new RegionisedWorldSet();
+        CuboidArea area = new CuboidArea();
+        Region region = new Region("test", area);
+
+        // Add region
+        assertTrue(set.add(region));
+
+        // Query should return empty before adding points
+        assertTrue(
+                set.query(RegionQuery.Position.at(1, 1, 1)).result().isEmpty(),
+                "Should not find region before adding points");
+
+        // Add two points to form a valid cuboid area
+        area.addPoint(new Vector3i(0, 0, 0));
+        area.addPoint(new Vector3i(2, 2, 2));
+
+        // Query should now find the region within the cuboid
+        assertFalse(
+                set.query(RegionQuery.Position.at(1, 1, 1)).result().isEmpty(),
+                "Should find region inside cuboid after adding points");
+
+        // Verify only one listener exists
+        List<Runnable> listeners = getUpdateListeners(area);
+        assertEquals(1, listeners.size(), "Should still have only one listener");
+
+        // Also verify point outside the cuboid is not included
+        assertTrue(
+                set.query(RegionQuery.Position.at(3, 3, 3)).result().isEmpty(),
+                "Should not find region outside the cuboid");
+    }
+
+    @Test
+    @Order(9)
+    void testRemoveRegionRemovesListener() {
+        // Setup
+        RegionisedWorldSet set = new RegionisedWorldSet();
+        CuboidArea area = new CuboidArea();
+        Region region = new Region("test", area);
+
+        // Add and then remove region
+        assertTrue(set.add(region));
+        assertTrue(set.remove(region));
+
+        // Verify listener was removed
+        List<Runnable> listeners = getUpdateListeners(area);
+        assertTrue(listeners.isEmpty(), "Should have no listeners after removing region");
+    }
+
+    @Test
+    @Order(10)
+    void testMultipleAreaUpdates() {
+        // Setup
+        RegionisedWorldSet set = new RegionisedWorldSet();
+        CuboidArea area = new CuboidArea();
+        Region region = new Region("test", area);
+
+        // Add region and initial point
+        assertTrue(set.add(region));
+        area.addPoint(new Vector3i(0, 0, 0));
+
+        // Get initial listener count
+        List<Runnable> listeners = getUpdateListeners(area);
+        int initialListenerCount = listeners.size();
+
+        // Update area multiple times
+        for (int i = 1; i <= 5; i++) {
+            area.addPoint(new Vector3i(i, i, i));
+            // Verify listener count remains the same
+            assertEquals(
+                    initialListenerCount,
+                    listeners.size(),
+                    "Listener count should remain the same after update " + i);
+        }
+    }
+
+    /**
+     * Helper method to get the updateListeners field from EncompassingArea using reflection.
+     */
+    @SuppressWarnings("unchecked")
+    private List<Runnable> getUpdateListeners(EncompassingArea area) {
+        try {
+            Field field = EncompassingArea.class.getDeclaredField("updateListeners");
+            field.setAccessible(true);
+            return (List<Runnable>) field.get(area);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get updateListeners", e);
+        }
     }
 }

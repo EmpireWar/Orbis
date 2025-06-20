@@ -75,6 +75,9 @@ public final class CuboidArea extends EncompassingArea {
 
     @Override
     public int getMinimumPoints() {
+        // A cuboid area may actually have only one point
+        // In which case the area is a point and only spans a single block
+        // However, to validate the area is complete, we shall require two points.
         return 2;
     }
 }

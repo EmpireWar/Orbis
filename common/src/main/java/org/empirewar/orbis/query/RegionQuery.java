@@ -144,6 +144,14 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
         static Builder builder() {
             return new RegionQueryPositionBuilder();
         }
+
+        static Builder at(Vector3d position) {
+            return builder().position(position);
+        }
+
+        static Builder at(double x, double y, double z) {
+            return builder().position(x, y, z);
+        }
     }
 
     /**
