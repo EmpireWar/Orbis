@@ -26,7 +26,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.units.qual.C;
 import org.empirewar.orbis.command.caption.OrbisCaptionKeys;
-import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.registry.Registries;
 import org.incendo.cloud.caption.CaptionVariable;

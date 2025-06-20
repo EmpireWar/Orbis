@@ -28,16 +28,16 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
 
 public abstract class InteractEntityListener implements Listener {
 
-    protected final OrbisBukkit orbis;
+    protected final OrbisBukkitPlatform<?> orbis;
 
-    public InteractEntityListener(OrbisBukkit orbis) {
+    public InteractEntityListener(OrbisBukkitPlatform<?> orbis) {
         this.orbis = orbis;
     }
 

@@ -35,7 +35,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.empirewar.orbis.area.AreaType;
-import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
@@ -43,7 +43,7 @@ import org.joml.Vector3i;
 
 import java.time.Duration;
 
-public record SelectionListener(OrbisBukkit api) implements Listener {
+public record SelectionListener(OrbisBukkitPlatform<?> api) implements Listener {
 
     @EventHandler
     public void onLeftRightClick(PlayerInteractEvent event) {
@@ -51,7 +51,7 @@ public record SelectionListener(OrbisBukkit api) implements Listener {
         if (!player.hasPermission(Permissions.MANAGE)) return;
 
         final ItemStack item = event.getItem();
-        if (item == null || !OrbisBukkit.isWand(item)) return;
+        if (item == null || !api.isWand(item)) return;
 
         final Audience audience = api.senderAsAudience(player);
 

@@ -37,7 +37,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.empirewar.orbis.OrbisAPI;
-import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.bukkit.session.PlayerSession;
 import org.empirewar.orbis.command.CommonCommands;
 import org.empirewar.orbis.command.Permissions;
@@ -118,7 +118,7 @@ public class BukkitCommands<
                     final PlayerSession sender = context.sender();
                     final Audience audience = sender.audience();
                     final Player player = sender.getPlayer();
-                    final OrbisBukkit plugin = (OrbisBukkit) OrbisAPI.get();
+                    final OrbisBukkitPlatform<?> plugin = (OrbisBukkitPlatform<?>) OrbisAPI.get();
                     final Key playerWorld = plugin.adventureKey(player.getWorld());
                     final RegionisedWorld world = plugin.getRegionisedWorld(playerWorld);
                     audience.sendMessage(OrbisText.PREFIX.append(text(
@@ -142,7 +142,7 @@ public class BukkitCommands<
                 .handler(context -> {
                     final PlayerSession sender = context.sender();
                     final Player player = sender.getPlayer();
-                    final OrbisBukkit plugin = (OrbisBukkit) OrbisAPI.get();
+                    final OrbisBukkitPlatform<?> plugin = (OrbisBukkitPlatform<?>) OrbisAPI.get();
                     player.getInventory().addItem(plugin.wandItem());
                     Selection.WAND_LORE.forEach(text -> sender.audience().sendMessage(text));
                 }));

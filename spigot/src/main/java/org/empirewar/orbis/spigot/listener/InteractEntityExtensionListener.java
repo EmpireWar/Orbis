@@ -30,7 +30,7 @@ import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.bukkit.listener.InteractEntityListener;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.query.RegionQuery;
@@ -40,7 +40,7 @@ import java.util.List;
 
 public class InteractEntityExtensionListener extends InteractEntityListener {
 
-    public InteractEntityExtensionListener(OrbisBukkit orbis) {
+    public InteractEntityExtensionListener(OrbisBukkitPlatform<?> orbis) {
         super(orbis);
     }
 

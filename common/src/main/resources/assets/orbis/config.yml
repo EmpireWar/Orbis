@@ -2,8 +2,3 @@
 
 # If this is enabled, the hit sounds when attacking another player will be prevented when the PvP flag prevents damage.
 cancel-pvp-hit-sounds: true
-
-worlds:
-  example:
-    regions:
-      - "test"

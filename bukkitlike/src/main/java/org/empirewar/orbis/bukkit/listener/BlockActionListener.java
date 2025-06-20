@@ -38,7 +38,7 @@ import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
-import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
@@ -48,7 +48,7 @@ import org.joml.Vector3d;
 
 import java.util.List;
 
-public record BlockActionListener(OrbisBukkit orbis) implements Listener {
+public record BlockActionListener(OrbisBukkitPlatform<?> orbis) implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {

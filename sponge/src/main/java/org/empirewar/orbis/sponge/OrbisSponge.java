@@ -23,10 +23,8 @@ import com.google.inject.Inject;
 
 import net.kyori.adventure.key.Key;
 
-import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
-import org.empirewar.orbis.region.GlobalRegion;
-import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.OrbisPlatform;
 import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.sponge.command.SpongeCommands;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
@@ -36,7 +34,6 @@ import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
@@ -53,31 +50,21 @@ import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
 import org.spongepowered.api.world.server.ServerWorld;
-import org.spongepowered.configurate.CommentedConfigurationNode;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.loader.ConfigurationLoader;
-import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Plugin("orbis")
-public class OrbisSponge implements Orbis {
+public class OrbisSponge extends OrbisPlatform {
 
     private final SelectionManager selectionManager = new SelectionManager();
     private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
@@ -105,7 +92,7 @@ public class OrbisSponge implements Orbis {
             PluginContainer pluginContainer, @ConfigDir(sharedRoot = false) Path dataFolder) {
         this.pluginContainer = pluginContainer;
         this.dataFolder = dataFolder;
-        OrbisAPI.set(this);
+        load();
     }
 
     @Listener
@@ -115,7 +102,6 @@ public class OrbisSponge implements Orbis {
 
     @Listener
     public void onServerStarting(final StartingEngineEvent<Server> event) {
-        this.loadConfig();
         this.registerListeners();
         try {
             this.loadRegions();
@@ -127,7 +113,7 @@ public class OrbisSponge implements Orbis {
     @Listener
     public void onServerStarted(final StartedEngineEvent<Server> event) {
         SpongeDataKeys.initialized();
-        Sponge.server().worldManager().worlds().forEach(this::loadWorld);
+        Sponge.server().worldManager().worlds().forEach(w -> this.loadWorld(w.key(), w.uniqueId()));
     }
 
     @Listener
@@ -146,58 +132,14 @@ public class OrbisSponge implements Orbis {
 
     @Listener
     public void onWorldLoad(LoadWorldEvent event) {
-        this.loadWorld(event.world());
+        final ServerWorld world = event.world();
+        this.loadWorld(world.key(), world.uniqueId());
     }
 
     @Listener(order = Order.LATE)
     public void onWorldUnload(UnloadWorldEvent event) {
         final ServerWorld world = event.world();
-        final RegionisedWorldSet set = this.worldSets.remove(world.key());
-        try {
-            this.saveWorld(set);
-        } catch (IOException e) {
-            logger().error(
-                            "Error saving world set {} ({})",
-                            world.uniqueId(),
-                            world.key().asMinimalString(),
-                            e);
-        }
-    }
-
-    private ConfigurationLoader<CommentedConfigurationNode> loader;
-    private ConfigurationNode rootNode;
-
-    private void loadConfig() {
-        try {
-            final File dataFolderFile = dataFolder().toFile();
-            if (!dataFolderFile.exists()) {
-                dataFolderFile.mkdirs();
-            }
-
-            final Path configPath = dataFolder().resolve("config.yml");
-            try {
-                Files.copy(
-                        pluginContainer.openResource("/assets/orbis/config.yml").orElseThrow(),
-                        configPath);
-            } catch (FileAlreadyExistsException ignored) {
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            loader = YamlConfigurationLoader.builder().path(configPath).build();
-            rootNode = loader.load();
-        } catch (IOException e) {
-            logger().error("Error loading config", e);
-        }
-    }
-
-    @Override
-    public void saveConfig() {
-        try {
-            loader.save(config());
-        } catch (ConfigurateException e) {
-            logger().error("Error saving config", e);
-        }
+        this.saveWorld(world.key(), world.uniqueId());
     }
 
     private void registerListeners() {
@@ -214,56 +156,6 @@ public class OrbisSponge implements Orbis {
                 pluginContainer, new SelectionListener(this), MethodHandles.lookup());
         eventManager.registerListeners(
                 pluginContainer, new DamageEntityListener(this), MethodHandles.lookup());
-    }
-
-    private void loadWorld(ServerWorld world) {
-        final ResourceKey key = world.key();
-        try {
-            final List<String> regionNames = config().node("worlds", key.asString(), "regions")
-                    .getList(String.class, new ArrayList<>());
-
-            final RegionisedWorldSet set = new RegionisedWorldSet(key, key.asString());
-
-            List<Region> regions = new ArrayList<>();
-            Region globalRegion = OrbisAPI.get()
-                    .getGlobalWorld()
-                    .getByName(set.worldName().orElseThrow())
-                    .orElseGet(() -> new GlobalRegion(set));
-            globalRegion.priority(0);
-            OrbisAPI.get().getGlobalWorld().add(globalRegion);
-            for (String regionName : regionNames) {
-                if (regionName.equals(set.worldName().orElseThrow())) {
-                    logger().error("Illegal region name in world set");
-                    continue;
-                }
-
-                final Region region =
-                        OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
-                if (region == null) {
-                    logger().warn(
-                                    "Region by name '{}' could not be found, ignoring...",
-                                    regionName);
-                    continue;
-                }
-
-                regions.add(region);
-            }
-
-            set.add(globalRegion);
-            regions.forEach(set::add);
-            worldSets.put(key, set);
-            logger.info(
-                    "Loaded world set {} ({}) with {} regions",
-                    world.uniqueId(),
-                    key.asMinimalString(),
-                    regions.size());
-        } catch (SerializationException e) {
-            logger().error(
-                            "Error loading world set {} ({})",
-                            world.uniqueId(),
-                            key.asMinimalString(),
-                            e);
-        }
     }
 
     @Override
@@ -304,8 +196,8 @@ public class OrbisSponge implements Orbis {
     }
 
     @Override
-    public ConfigurationNode config() {
-        return rootNode;
+    protected InputStream getResourceAsStream(String path) {
+        return pluginContainer.openResource(path).orElseThrow();
     }
 
     @Override

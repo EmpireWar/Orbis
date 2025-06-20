@@ -21,7 +21,7 @@ package org.empirewar.orbis.bukkit.session;
 
 import org.bukkit.entity.Player;
 import org.empirewar.orbis.OrbisAPI;
-import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.player.PlayerOrbisSession;
 
 public class PlayerSession extends PlayerOrbisSession {
@@ -29,7 +29,9 @@ public class PlayerSession extends PlayerOrbisSession {
     private final Player player;
 
     public PlayerSession(Player player) {
-        super(player.getUniqueId(), ((OrbisBukkit) OrbisAPI.get()).senderAsAudience(player));
+        super(
+                player.getUniqueId(),
+                ((OrbisBukkitPlatform<?>) OrbisAPI.get()).senderAsAudience(player));
         this.player = player;
     }
 

@@ -24,13 +24,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.joml.Vector3d;
 
-public record EntityDamageListener(OrbisBukkit orbis) implements Listener {
+public record EntityDamageListener(OrbisBukkitPlatform<?> orbis) implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {

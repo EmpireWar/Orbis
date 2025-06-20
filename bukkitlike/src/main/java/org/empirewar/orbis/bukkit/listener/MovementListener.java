@@ -28,7 +28,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.empirewar.orbis.bukkit.OrbisBukkit;
+import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
 import org.empirewar.orbis.paper.api.event.RegionLeaveEvent;
@@ -38,7 +38,7 @@ import org.empirewar.orbis.world.RegionisedWorld;
 
 import java.util.Set;
 
-public record MovementListener(OrbisBukkit orbis) implements Listener {
+public record MovementListener(OrbisBukkitPlatform<?> orbis) implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
