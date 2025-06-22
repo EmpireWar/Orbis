@@ -1,34 +1,43 @@
 plugins {
-    id("buildlogic.java-platform-conventions")
-    id("fabric-loom") version("1.7-SNAPSHOT")
+    // Use common to avoid shadow plugin
+    id("buildlogic.java-common-conventions")
+    id("fabric-loom") version("1.10-SNAPSHOT")
 }
 
-repositories {
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+base {
+    archivesName = "orbis"
 }
 
 dependencies {
-    modImplementation("org.incendo:cloud-fabric:2.0.0-beta.9")?.let { include(it) }
+    modImplementation("org.incendo:cloud-fabric:2.0.0-beta.10") {
+        exclude("net.fabricmc.fabric-api")
+    }
 
-    minecraft("com.mojang:minecraft:1.21.1")
+    minecraft("com.mojang:minecraft:1.21.4")
     mappings(loom.officialMojangMappings())
-    modImplementation("net.fabricmc:fabric-loader:0.16.2")
+    modImplementation("net.fabricmc:fabric-loader:0.16.14")
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.102.1+1.21.1")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.119.3+1.21.4")
 
     compileOnly("org.slf4j:slf4j-api:2.0.12")
     // Loom project
-    modCompileOnly("net.kyori:adventure-platform-mod-shared-fabric-repack:6.0.0") // for Minecraft 1.21-1.21.1
-    modImplementation("me.lucko:fabric-permissions-api:0.3.1")?.let { include(it) }
-    implementation("org.incendo:cloud-annotations:2.0.0")
-    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")
+    modImplementation(include("net.kyori:adventure-platform-fabric:6.3.0")!!) // for Minecraft 1.21.4
+    modImplementation(include("me.lucko:fabric-permissions-api:0.3.3")!!)
+    implementation("org.spongepowered:configurate-yaml:4.1.2")
+    include(project(":common"))?.let { include(it) }
     implementation(project(":common"))
-    implementation(project(":api:fabric-api"))
+//    implementation(project(":api:fabric-api", "jar"))
 }
 
 tasks {
+    jar {
+        inputs.property("archivesName", project.base.archivesName)
+    }
+
     processResources {
+        inputs.property("version", project.version)
+
         filesMatching("fabric.mod.json") {
             expand("version" to project.version)
         }

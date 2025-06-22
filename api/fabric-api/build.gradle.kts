@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    api(project(":common"))
+    api(project(":common", "shadow"))
 }

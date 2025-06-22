@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.empirewar.orbis.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BlockEventMixin",
+    "CoralBlockMixin",
+    "FireBlockMixin",
+    "ItemEntityMixin",
+    "LeavesBlockMixin",
+    "LivingEntityMixin",
+    "ServerPlayerEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "mixins.orbis.refmap.json"
+}

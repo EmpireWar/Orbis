@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024 EmpireWar
+ * Copyright (C) 2024 Empire War
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,18 +21,19 @@ package org.empirewar.orbis.fabric.session;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 
+import net.kyori.adventure.audience.Audience;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 
 import org.empirewar.orbis.player.PlayerOrbisSession;
 
-public final class PlayerSession extends PlayerOrbisSession {
+public final class FabricPlayerOrbisSession extends PlayerOrbisSession {
 
     private final ServerPlayer player;
     private final CommandSourceStack cause;
 
-    public PlayerSession(ServerPlayer player, CommandSourceStack cause) {
-        super(player.getUUID(), player);
+    public FabricPlayerOrbisSession(ServerPlayer player, CommandSourceStack cause) {
+        super(player.getUUID(), (Audience) player);
         this.player = player;
         this.cause = cause;
     }
@@ -47,6 +48,6 @@ public final class PlayerSession extends PlayerOrbisSession {
 
     @Override
     public boolean hasPermission(String permission) {
-        return Permissions.check(player, permission);
+        return Permissions.check(player, permission, 3);
     }
 }

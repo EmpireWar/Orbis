@@ -48,7 +48,7 @@ public sealed interface Area extends Iterable<Vector3ic> permits EncompassingAre
      * Attempts to add a point to this area.
      * <p>
      * This method will return false if the area does not support the addition of
-     * another point, e.g a cuboid exceeding 4 points.
+     * another point, e.g. a cuboid exceeding 4 points.
      *
      * @param point the point to add
      * @return true if the point is able to fit into this area

@@ -1,7 +1,6 @@
 plugins {
     // Apply the java Plugin to add support for Java.
     java
-    id("com.gradleup.shadow")
     id("com.diffplug.spotless")
     id("net.kyori.indra.licenser.spotless")
 }
@@ -53,8 +52,28 @@ dependencies {
     testImplementation("com.mojang:datafixerupper:8.0.16")
     compileOnly("com.google.code.gson:gson:2.10.1")
     testImplementation("com.google.code.gson:gson:2.10.1")
+    compileOnly("com.github.davidmoten:rtree-multi:0.1")
+    testImplementation("com.github.davidmoten:rtree-multi:0.1")
+
     implementation("com.github.davidmoten:rtree-multi:0.1")
     testImplementation("com.github.davidmoten:rtree-multi:0.1")
+
+    implementation("org.incendo:cloud-annotations:2.0.0") {
+        exclude("io.leangen.geantyref")
+    }
+    annotationProcessor("org.incendo:cloud-annotations:2.0.0") {
+        exclude("io.leangen.geantyref")
+    }
+    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10") {
+        exclude("io.leangen.geantyref")
+    }
+    implementation("org.incendo:cloud-brigadier:2.0.0-beta.10") {
+        exclude("io.leangen.geantyref")
+    }
+    implementation("org.incendo:cloud-processors-confirmation:1.0.0-rc.1") {
+        exclude("io.leangen.geantyref")
+    }
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 }
 
 testing {
@@ -77,12 +96,5 @@ java {
 tasks {
     build {
         dependsOn(spotlessApply)
-        dependsOn(shadowJar)
-    }
-
-    shadowJar {
-        mergeServiceFiles()
-        archiveBaseName.set("orbis-${project.name}")
-        archiveClassifier.set("")
     }
 }

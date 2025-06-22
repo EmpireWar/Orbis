@@ -24,8 +24,11 @@ publishing {
             from(components["java"])
 
             // skip shadow jar from publishing. Workaround for https://github.com/johnrengelman/shadow/issues/651
-            val javaComponent = components["java"] as AdhocComponentWithVariants
-            javaComponent.withVariantsFromConfiguration(configurations["shadowRuntimeElements"]) { skip() }
+            val shadowRuntimeElements = configurations.findByName("shadowRuntimeElements")
+            if (shadowRuntimeElements != null) {
+                val javaComponent = components["java"] as AdhocComponentWithVariants
+                javaComponent.withVariantsFromConfiguration(shadowRuntimeElements) { skip() }
+            }
         }
     }
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024 EmpireWar
+ * Copyright (C) 2025 Empire War
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,22 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.fabric.session;
+package org.empirewar.orbis.fabric.listener;
 
-import net.minecraft.commands.CommandSourceStack;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
-import org.empirewar.orbis.player.ConsoleOrbisSession;
+import org.empirewar.orbis.Orbis;
 
-public class ConsoleOrbisSessionExtension extends ConsoleOrbisSession {
+public final class ConnectionListener {
 
-    private final CommandSourceStack cause;
-
-    public ConsoleOrbisSessionExtension(CommandSourceStack cause) {
-        super(cause.audience());
-        this.cause = cause;
-    }
-
-    public CommandSourceStack cause() {
-        return cause;
+    public ConnectionListener(Orbis api) {
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            api.selectionManager().remove(handler.getPlayer().getUUID());
+        });
     }
 }

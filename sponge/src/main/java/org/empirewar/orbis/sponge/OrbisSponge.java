@@ -25,13 +25,10 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.OrbisPlatform;
-import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.sponge.command.SpongeCommands;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.sponge.listener.*;
 import org.empirewar.orbis.sponge.selection.SelectionListener;
-import org.empirewar.orbis.world.RegionisedWorld;
-import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Server;
@@ -57,18 +54,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Plugin("orbis")
 public class OrbisSponge extends OrbisPlatform {
-
-    private final SelectionManager selectionManager = new SelectionManager();
-    private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
-    private final Map<Key, RegionisedWorldSet> worldSets = new HashMap<>();
 
     private final Logger logger = LoggerFactory.getLogger("orbis");
     private final PluginContainer pluginContainer;
@@ -156,26 +145,6 @@ public class OrbisSponge extends OrbisPlatform {
                 pluginContainer, new SelectionListener(this), MethodHandles.lookup());
         eventManager.registerListeners(
                 pluginContainer, new DamageEntityListener(this), MethodHandles.lookup());
-    }
-
-    @Override
-    public SelectionManager selectionManager() {
-        return selectionManager;
-    }
-
-    @Override
-    public Set<RegionisedWorld> getRegionisedWorlds() {
-        return worldSets.values().stream().collect(Collectors.toUnmodifiableSet());
-    }
-
-    @Override
-    public RegionisedWorld getGlobalWorld() {
-        return globalSet;
-    }
-
-    @Override
-    public RegionisedWorld getRegionisedWorld(Key worldId) {
-        return worldSets.get(worldId);
     }
 
     @Override
