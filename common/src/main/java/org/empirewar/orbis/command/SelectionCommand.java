@@ -27,7 +27,7 @@ import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.player.PlayerOrbisSession;
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.incendo.cloud.annotations.Argument;
@@ -45,7 +45,7 @@ public final class SelectionCommand {
                 .ifPresentOrElse(
                         selection -> selection.setSelectionType(type),
                         () -> orbis.selectionManager().add(session.getUuid(), new Selection(type)));
-        final Key typeKey = Registries.AREA_TYPE.getKey(type).orElseThrow();
+        final Key typeKey = OrbisRegistries.AREA_TYPE.getKey(type).orElseThrow();
         session.audience()
                 .sendMessage(OrbisText.PREFIX.append(text(
                         "Set your selection to an " + typeKey.asString() + ".",

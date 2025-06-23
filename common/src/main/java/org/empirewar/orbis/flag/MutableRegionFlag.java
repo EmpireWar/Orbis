@@ -25,7 +25,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
 
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 
 import java.util.function.Supplier;
 
@@ -44,12 +44,12 @@ public sealed class MutableRegionFlag<T> extends RegionFlag<T> permits GroupedMu
     // Map from mutable -> constant region flag in registry
     // (Honestly I'm not entirely sure what dispatch does but basic idea is we are mapping the codec
     // from registry)
-    public static final MapCodec<MutableRegionFlag<?>> CODEC = Registries.FLAGS
+    public static final MapCodec<MutableRegionFlag<?>> CODEC = OrbisRegistries.FLAGS
             .getCodec()
-            .dispatchMap(mu -> Registries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asMutable()
+            .dispatchMap(mu -> OrbisRegistries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asMutable()
                     .getCodec(r));
 
-    public static final Codec<MutableRegionFlag<?>> TYPE_CODEC = Registries.FLAG_TYPE
+    public static final Codec<MutableRegionFlag<?>> TYPE_CODEC = OrbisRegistries.FLAG_TYPE
             .getCodec()
             .dispatch("region_flag_type", MutableRegionFlag::getType, RegionFlagType::codec);
 

@@ -21,8 +21,8 @@ package org.empirewar.orbis.region;
 
 import com.mojang.serialization.MapCodec;
 
-import org.empirewar.orbis.registry.Registries;
-import org.empirewar.orbis.registry.Registry;
+import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.registry.OrbisRegistry;
 
 public interface RegionType<R extends Region> {
 
@@ -32,6 +32,6 @@ public interface RegionType<R extends Region> {
     MapCodec<R> codec();
 
     private static <R extends Region> RegionType<R> register(String id, MapCodec<R> codec) {
-        return Registry.register(Registries.REGION_TYPE, id, () -> codec);
+        return OrbisRegistry.register(OrbisRegistries.REGION_TYPE, id, () -> codec);
     }
 }

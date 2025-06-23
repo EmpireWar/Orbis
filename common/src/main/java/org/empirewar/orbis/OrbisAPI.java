@@ -19,7 +19,7 @@
  */
 package org.empirewar.orbis;
 
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 
 /**
  * Provides access to the {@link Orbis} instance.
@@ -36,7 +36,7 @@ public abstract class OrbisAPI implements Orbis {
         if (OrbisAPI.instance != null) {
             throw new IllegalStateException("Instance already set!");
         }
-        Registries.initialize();
+        OrbisRegistries.initialize();
         OrbisAPI.instance = instance;
     }
 }

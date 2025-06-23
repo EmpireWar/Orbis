@@ -21,8 +21,8 @@ package org.empirewar.orbis.flag;
 
 import com.mojang.serialization.MapCodec;
 
-import org.empirewar.orbis.registry.Registries;
-import org.empirewar.orbis.registry.Registry;
+import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.registry.OrbisRegistry;
 
 public interface RegionFlagType<F extends MutableRegionFlag<?>> {
 
@@ -35,6 +35,6 @@ public interface RegionFlagType<F extends MutableRegionFlag<?>> {
 
     private static <F extends MutableRegionFlag<?>> RegionFlagType<F> register(
             String id, MapCodec<F> codec) {
-        return Registry.register(Registries.FLAG_TYPE, id, () -> codec);
+        return OrbisRegistry.register(OrbisRegistries.FLAG_TYPE, id, () -> codec);
     }
 }

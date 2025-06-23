@@ -21,14 +21,14 @@ package org.empirewar.orbis.member;
 
 import com.mojang.serialization.Codec;
 
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 
 import java.util.UUID;
 
 public abstract sealed class Member permits PermissionMember, PlayerMember {
 
     public static final Codec<Member> CODEC =
-            Registries.MEMBER_TYPE.getCodec().dispatch(Member::getType, MemberType::codec);
+            OrbisRegistries.MEMBER_TYPE.getCodec().dispatch(Member::getType, MemberType::codec);
 
     public abstract boolean checkMember(UUID member);
 

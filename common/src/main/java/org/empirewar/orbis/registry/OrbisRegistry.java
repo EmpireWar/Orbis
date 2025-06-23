@@ -30,7 +30,7 @@ import org.empirewar.orbis.util.ExtraCodecs;
 import java.util.Optional;
 import java.util.Set;
 
-public sealed interface Registry<T> extends Iterable<T> permits SimpleRegistry {
+public sealed interface OrbisRegistry<T> extends Iterable<T> permits SimpleOrbisRegistry {
 
     Key getKey();
 
@@ -58,11 +58,11 @@ public sealed interface Registry<T> extends Iterable<T> permits SimpleRegistry {
 
     Set<Key> getKeys();
 
-    static <T> T register(Registry<? super T> registry, String id, T entry) {
+    static <T> T register(OrbisRegistry<? super T> registry, String id, T entry) {
         return register(registry, Key.key("orbis", id), entry);
     }
 
-    static <V, T extends V> T register(Registry<V> registry, Key key, T entry) {
+    static <V, T extends V> T register(OrbisRegistry<V> registry, Key key, T entry) {
         registry.register(key, entry);
         return entry;
     }

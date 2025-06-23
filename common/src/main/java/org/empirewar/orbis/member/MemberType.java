@@ -21,8 +21,8 @@ package org.empirewar.orbis.member;
 
 import com.mojang.serialization.MapCodec;
 
-import org.empirewar.orbis.registry.Registries;
-import org.empirewar.orbis.registry.Registry;
+import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.registry.OrbisRegistry;
 
 public interface MemberType<M extends Member> {
 
@@ -34,6 +34,6 @@ public interface MemberType<M extends Member> {
     MapCodec<M> codec();
 
     private static <M extends Member> MemberType<M> register(String id, MapCodec<M> codec) {
-        return Registry.register(Registries.MEMBER_TYPE, id, () -> codec);
+        return OrbisRegistry.register(OrbisRegistries.MEMBER_TYPE, id, () -> codec);
     }
 }

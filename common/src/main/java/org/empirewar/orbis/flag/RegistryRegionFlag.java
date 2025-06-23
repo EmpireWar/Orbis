@@ -23,7 +23,7 @@ import com.mojang.serialization.Codec;
 
 import net.kyori.adventure.key.Key;
 
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
- * This base class is immutable and is stored in the {@link Registries#FLAGS} registry.
+ * This base class is immutable and is stored in the {@link OrbisRegistries#FLAGS} registry.
  * A flag may be converted to a mutable representation by using {@link #asMutable()} or {@link #asGrouped()} as required.
  * The provided {@link Supplier} of {@link T} will be used to copy a value into the mutable representation.
  * @param <T> the type this flag has

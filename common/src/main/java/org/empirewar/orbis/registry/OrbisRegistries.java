@@ -34,27 +34,27 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 // spotless:off
-public final class Registries {
+public final class OrbisRegistries {
 
     private static final Map<Key, Supplier<?>> DEFAULT_ENTRIES = Maps.newLinkedHashMap();
 
-    public static final Registry<RegistryRegionFlag<?>> FLAGS =
+    public static final OrbisRegistry<RegistryRegionFlag<?>> FLAGS =
             create(Key.key("orbis", "flags"), r -> DefaultFlags.CAN_BREAK);
 
-    public static final Registry<RegionFlagType<?>> FLAG_TYPE =
+    public static final OrbisRegistry<RegionFlagType<?>> FLAG_TYPE =
             create(Key.key("orbis", "flag_type"), r -> RegionFlagType.MUTABLE);
 
-    public static final Registry<AreaType<?>> AREA_TYPE =
+    public static final OrbisRegistry<AreaType<?>> AREA_TYPE =
             create(Key.key("orbis", "area_type"), r -> AreaType.CUBOID);
 
-    public static final Registry<RegionType<?>> REGION_TYPE =
+    public static final OrbisRegistry<RegionType<?>> REGION_TYPE =
             create(Key.key("orbis", "region_type"), r -> RegionType.NORMAL);
 
-    public static final Registry<MemberType<?>> MEMBER_TYPE =
+    public static final OrbisRegistry<MemberType<?>> MEMBER_TYPE =
             create(Key.key("orbis", "member_type"), r -> MemberType.PLAYER);
 
-    private static <T> Registry<T> create(Key key, Initializer<T> initializer) {
-        final Registry<T> registry = new SimpleRegistry<>(key);
+    private static <T> OrbisRegistry<T> create(Key key, Initializer<T> initializer) {
+        final OrbisRegistry<T> registry = new SimpleOrbisRegistry<>(key);
         DEFAULT_ENTRIES.put(key, () -> initializer.run(registry));
         return registry;
     }
@@ -65,6 +65,6 @@ public final class Registries {
 
     @FunctionalInterface
     interface Initializer<T> {
-        T run(Registry<T> var1);
+        T run(OrbisRegistry<T> var1);
     }
 }

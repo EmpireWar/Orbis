@@ -26,7 +26,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.member.FlagMemberGroup;
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.util.EnumCodec;
 
 import java.util.HashSet;
@@ -46,9 +46,9 @@ import java.util.function.Supplier;
  */
 public final class GroupedMutableRegionFlag<T> extends MutableRegionFlag<T> {
 
-    public static final MapCodec<GroupedMutableRegionFlag<?>> CODEC = Registries.FLAGS
+    public static final MapCodec<GroupedMutableRegionFlag<?>> CODEC = OrbisRegistries.FLAGS
             .getCodec()
-            .dispatchMap(mu -> Registries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asGrouped()
+            .dispatchMap(mu -> OrbisRegistries.FLAGS.get(mu.key()).orElseThrow(), r -> r.asGrouped()
                     .getCodec(r));
 
     private final Set<FlagMemberGroup> groups;

@@ -53,7 +53,7 @@ import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
@@ -115,8 +115,8 @@ public final class RegionCommand {
             AreaType<?> defaultedType = areaType == null ? AreaType.CUBOID : areaType;
             if (selection.getSelectionType() != defaultedType) {
                 String expectedTypeName =
-                        Registries.AREA_TYPE.getKey(defaultedType).orElseThrow().asString();
-                String actualTypeName = Registries.AREA_TYPE
+                        OrbisRegistries.AREA_TYPE.getKey(defaultedType).orElseThrow().asString();
+                String actualTypeName = OrbisRegistries.AREA_TYPE
                         .getKey(selection.getSelectionType())
                         .orElseThrow()
                         .asString();
@@ -178,11 +178,11 @@ public final class RegionCommand {
         }
 
         if (selection.getSelectionType() != region.area().getType()) {
-            String expectedTypeName = Registries.AREA_TYPE
+            String expectedTypeName = OrbisRegistries.AREA_TYPE
                     .getKey(region.area().getType())
                     .orElseThrow()
                     .asString();
-            String actualTypeName = Registries.AREA_TYPE
+            String actualTypeName = OrbisRegistries.AREA_TYPE
                     .getKey(selection.getSelectionType())
                     .orElseThrow()
                     .asString();
@@ -564,7 +564,7 @@ public final class RegionCommand {
             final Area area = region.area();
             // Area type
             final String areaName =
-                    Registries.AREA_TYPE.getKey(area.getType()).orElseThrow().asString();
+                    OrbisRegistries.AREA_TYPE.getKey(area.getType()).orElseThrow().asString();
             audience.sendMessage(text("  Type: ", NamedTextColor.GRAY)
                     .append(text(areaName, NamedTextColor.WHITE))
                     .hoverEvent(HoverEvent.showText(text("Area type", OrbisText.EREBOR_GREEN))));
@@ -647,7 +647,7 @@ public final class RegionCommand {
 
         // List existing members with remove buttons
         for (Member member : region.members()) {
-            final String typeName = Registries.MEMBER_TYPE
+            final String typeName = OrbisRegistries.MEMBER_TYPE
                     .getKey(member.getType())
                     .orElseThrow()
                     .asString();
@@ -727,7 +727,7 @@ public final class RegionCommand {
 
         // Get all flags
         Map<RegistryRegionFlag<?>, Set<String>> flags = new HashMap<>();
-        for (RegistryRegionFlag<?> flag : Registries.FLAGS) {
+        for (RegistryRegionFlag<?> flag : OrbisRegistries.FLAGS) {
             region.getFlag(flag).ifPresent(mu -> {
                 if (mu instanceof GroupedMutableRegionFlag<?> grouped) {
                     flags.put(

@@ -25,7 +25,7 @@ import com.mojang.serialization.MapCodec;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -35,7 +35,7 @@ import java.util.Objects;
  * <p>
  * All flags are {@link Keyed} and thus have a {@link Key} to identify them.
  * <p>
- * To add a region flag, you should use the {@link RegistryRegionFlag#builder()} and register it to {@link Registries#FLAGS}.
+ * To add a region flag, you should use the {@link RegistryRegionFlag#builder()} and register it to {@link OrbisRegistries#FLAGS}.
  * <p>
  * Note that all flags must provide a {@link Codec} of {@link T}.
  * This allows for deserialization and serialization and is also used in command parsing.
@@ -60,7 +60,7 @@ public sealed class RegionFlag<T> implements Keyed permits MutableRegionFlag, Re
     /**
      * Gets the codec for this flag.
      * <p>
-     * The parameter provided is the instance of this flag type in the {@link Registries#FLAGS} registry.
+     * The parameter provided is the instance of this flag type in the {@link OrbisRegistries#FLAGS} registry.
      * This allows for transformation within the codec to occur.
      * @param registry the registry value of this flag
      * @return the codec

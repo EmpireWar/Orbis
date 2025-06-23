@@ -30,14 +30,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public final class SimpleRegistry<T> implements Registry<T> {
+public final class SimpleOrbisRegistry<T> implements OrbisRegistry<T> {
 
     private final Key key;
 
     private final Map<Key, T> idToEntry = new HashMap<>();
     private final Map<T, Key> valueToEntry = new IdentityHashMap<>();
 
-    SimpleRegistry(Key key) {
+    SimpleOrbisRegistry(Key key) {
         this.key = key;
     }
 

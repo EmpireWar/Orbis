@@ -24,7 +24,7 @@ import net.kyori.adventure.key.Key;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.command.caption.OrbisCaptionKeys;
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.context.CommandInput;
@@ -46,7 +46,7 @@ public final class AreaTypeParser<C>
         final String input = commandInput.peekString();
 
         final Optional<AreaType<?>> areaType =
-                Registries.AREA_TYPE.get(Key.key(commandInput.peekString()));
+                OrbisRegistries.AREA_TYPE.get(Key.key(commandInput.peekString()));
         if (areaType.isPresent()) {
             commandInput.readString();
             return ArgumentParseResult.success(areaType.get());
@@ -58,7 +58,7 @@ public final class AreaTypeParser<C>
     @Override
     public @NonNull Iterable<@NonNull String> stringSuggestions(
             @NonNull CommandContext<C> commandContext, @NonNull CommandInput input) {
-        return Registries.AREA_TYPE.getKeys().stream()
+        return OrbisRegistries.AREA_TYPE.getKeys().stream()
                 .map(Key::asString)
                 .collect(Collectors.toSet());
     }

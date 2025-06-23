@@ -21,8 +21,8 @@ package org.empirewar.orbis.area;
 
 import com.mojang.serialization.MapCodec;
 
-import org.empirewar.orbis.registry.Registries;
-import org.empirewar.orbis.registry.Registry;
+import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.registry.OrbisRegistry;
 
 public interface AreaType<A extends Area> {
 
@@ -33,6 +33,6 @@ public interface AreaType<A extends Area> {
     MapCodec<A> codec();
 
     private static <A extends Area> AreaType<A> register(String id, MapCodec<A> codec) {
-        return Registry.register(Registries.AREA_TYPE, id, () -> codec);
+        return OrbisRegistry.register(OrbisRegistries.AREA_TYPE, id, () -> codec);
     }
 }

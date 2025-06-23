@@ -24,10 +24,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.units.qual.C;
 import org.empirewar.orbis.command.caption.OrbisCaptionKeys;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.context.CommandInput;
@@ -48,7 +47,7 @@ public final class RegionFlagParser<C>
             @NonNull CommandContext<@NonNull C> commandContext,
             @NonNull CommandInput commandInput) {
         final String input = commandInput.peekString();
-        final Optional<RegistryRegionFlag<?>> regionFlag = Registries.FLAGS.get(Key.key(input));
+        final Optional<RegistryRegionFlag<?>> regionFlag = OrbisRegistries.FLAGS.get(Key.key(input));
         return regionFlag
                 .<ArgumentParseResult<RegistryRegionFlag<?>>>map(f -> {
                     commandInput.readString();
@@ -61,7 +60,7 @@ public final class RegionFlagParser<C>
     @Override
     public @NonNull Iterable<? extends @NonNull Suggestion> suggestions(
             @NonNull CommandContext<C> context, @NonNull CommandInput input) {
-        return Registries.FLAGS.getAll().stream()
+        return OrbisRegistries.FLAGS.getAll().stream()
                 .map(flag -> {
                     final Optional<String> description = flag.description();
                     if (description.isPresent()) {

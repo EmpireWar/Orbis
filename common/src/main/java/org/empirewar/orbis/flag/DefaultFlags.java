@@ -23,7 +23,7 @@ import com.mojang.serialization.Codec;
 
 import net.kyori.adventure.key.Key;
 
-import org.empirewar.orbis.registry.Registries;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.util.ExtraCodecs;
 
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public final class DefaultFlags {
         }
 
         final RegistryRegionFlag<T> built = entry.build();
-        Registries.FLAGS.register(key, built);
+        OrbisRegistries.FLAGS.register(key, built);
         return built;
     }
 }
