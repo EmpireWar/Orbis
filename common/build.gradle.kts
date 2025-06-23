@@ -1,6 +1,6 @@
 plugins {
-    id("buildlogic.java-publish-conventions")
     id("buildlogic.java-platform-conventions")
+    id("buildlogic.java-publish-conventions")
 }
 
 dependencies {

@@ -26,6 +26,7 @@ publishing {
             // skip shadow jar from publishing. Workaround for https://github.com/johnrengelman/shadow/issues/651
             val shadowRuntimeElements = configurations.findByName("shadowRuntimeElements")
             if (shadowRuntimeElements != null) {
+                println("Published project ${project.name} will ignore shadowRuntimeElements")
                 val javaComponent = components["java"] as AdhocComponentWithVariants
                 javaComponent.withVariantsFromConfiguration(shadowRuntimeElements) { skip() }
             }

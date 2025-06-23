@@ -1,13 +1,11 @@
 plugins {
     id("com.gradleup.shadow")
-    id("buildlogic.java-common-conventions")
+    java
 }
 
 tasks {
     build {
-        if (tasks.findByName("remapJar") == null) {
-            dependsOn(shadowJar)
-        }
+        dependsOn(shadowJar)
     }
 
     shadowJar {

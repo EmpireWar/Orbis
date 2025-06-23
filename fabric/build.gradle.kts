@@ -5,7 +5,7 @@ plugins {
 }
 
 base {
-    archivesName = "orbis"
+    archivesName = "orbis-${project.name}"
 }
 
 dependencies {
