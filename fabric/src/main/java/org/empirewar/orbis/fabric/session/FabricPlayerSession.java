@@ -21,19 +21,23 @@ package org.empirewar.orbis.fabric.session;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 
-import net.kyori.adventure.audience.Audience;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 
+import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.fabric.OrbisFabric;
 import org.empirewar.orbis.player.PlayerOrbisSession;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 
-public final class FabricPlayerOrbisSession extends PlayerOrbisSession {
+public final class FabricPlayerSession extends PlayerOrbisSession {
 
     private final ServerPlayer player;
     private final CommandSourceStack cause;
 
-    public FabricPlayerOrbisSession(ServerPlayer player, CommandSourceStack cause) {
-        super(player.getUUID(), (Audience) player);
+    public FabricPlayerSession(ServerPlayer player, CommandSourceStack cause) {
+        super(player.getUUID(), player);
         this.player = player;
         this.cause = cause;
     }
@@ -49,5 +53,16 @@ public final class FabricPlayerOrbisSession extends PlayerOrbisSession {
     @Override
     public boolean hasPermission(String permission) {
         return Permissions.check(player, permission, 3);
+    }
+
+    @Override
+    public void giveWandItem() {
+        player.addItem(((OrbisFabric) OrbisAPI.get()).getWandItem());
+    }
+
+    @Override
+    public Vector3dc getPosition() {
+        final Vec3 position = player.position();
+        return new Vector3d(position.x, position.y, position.z);
     }
 }

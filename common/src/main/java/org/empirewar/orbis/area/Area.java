@@ -37,7 +37,8 @@ import java.util.Set;
  */
 public sealed interface Area extends Iterable<Vector3ic> permits EncompassingArea {
 
-    Codec<Area> CODEC = OrbisRegistries.AREA_TYPE.getCodec().dispatch(Area::getType, AreaType::codec);
+    Codec<Area> CODEC =
+            OrbisRegistries.AREA_TYPE.getCodec().dispatch(Area::getType, AreaType::codec);
 
     /**
      * Removes all points from this area.

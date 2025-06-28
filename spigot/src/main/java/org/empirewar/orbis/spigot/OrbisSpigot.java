@@ -39,7 +39,7 @@ import org.empirewar.orbis.bukkit.listener.ConnectionListener;
 import org.empirewar.orbis.bukkit.listener.MovementListener;
 import org.empirewar.orbis.bukkit.listener.RegionEnterLeaveListener;
 import org.empirewar.orbis.bukkit.selection.SelectionListener;
-import org.empirewar.orbis.bukkit.session.PlayerSession;
+import org.empirewar.orbis.bukkit.session.BukkitPlayerSession;
 import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.spigot.listener.InteractEntityExtensionListener;
@@ -74,12 +74,12 @@ public class OrbisSpigot extends JavaPlugin implements Listener {
                 SenderMapper.create(
                         sender -> {
                             if (sender instanceof Player player) {
-                                return new PlayerSession(player);
+                                return new BukkitPlayerSession(player);
                             }
                             return new ConsoleOrbisSession(adventure.sender(sender));
                         },
                         session -> {
-                            if (session instanceof PlayerSession playerSession) {
+                            if (session instanceof BukkitPlayerSession playerSession) {
                                 return playerSession.getPlayer();
                             }
                             return Bukkit.getConsoleSender();

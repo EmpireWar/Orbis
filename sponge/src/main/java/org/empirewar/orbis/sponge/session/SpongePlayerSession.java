@@ -17,30 +17,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.bukkit.session;
+package org.empirewar.orbis.sponge.session;
 
-import org.bukkit.entity.Player;
-import org.empirewar.orbis.OrbisAPI;
-import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.player.PlayerOrbisSession;
+import org.empirewar.orbis.sponge.key.SpongeDataKeys;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
-public class PlayerSession extends PlayerOrbisSession {
+public final class SpongePlayerSession extends PlayerOrbisSession {
 
-    private final Player player;
+    private final ServerPlayer player;
+    private final CommandCause cause;
 
-    public PlayerSession(Player player) {
-        super(
-                player.getUniqueId(),
-                ((OrbisBukkitPlatform<?>) OrbisAPI.get()).senderAsAudience(player));
+    public SpongePlayerSession(ServerPlayer player, CommandCause cause) {
+        super(player.uniqueId(), player);
         this.player = player;
+        this.cause = cause;
     }
 
-    public Player getPlayer() {
-        return player;
+    public CommandCause getCause() {
+        return cause;
     }
 
     @Override
     public boolean hasPermission(String permission) {
         return player.hasPermission(permission);
+    }
+
+    @Override
+    public void giveWandItem() {
+        player.inventory().offer(SpongeDataKeys.WAND_ITEM);
+    }
+
+    @Override
+    public Vector3dc getPosition() {
+        final org.spongepowered.math.vector.Vector3d position = player.position();
+        return new Vector3d(position.x(), position.y(), position.z());
     }
 }

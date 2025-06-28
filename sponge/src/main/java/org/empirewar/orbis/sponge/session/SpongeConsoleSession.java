@@ -22,11 +22,11 @@ package org.empirewar.orbis.sponge.session;
 import org.empirewar.orbis.player.ConsoleOrbisSession;
 import org.spongepowered.api.command.CommandCause;
 
-public class ConsoleOrbisSessionExtension extends ConsoleOrbisSession {
+public class SpongeConsoleSession extends ConsoleOrbisSession {
 
     private final CommandCause cause;
 
-    public ConsoleOrbisSessionExtension(CommandCause cause) {
+    public SpongeConsoleSession(CommandCause cause) {
         super(cause.audience());
         this.cause = cause;
     }

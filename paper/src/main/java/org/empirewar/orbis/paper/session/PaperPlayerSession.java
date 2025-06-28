@@ -22,9 +22,9 @@ package org.empirewar.orbis.paper.session;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 
 import org.bukkit.entity.Player;
-import org.empirewar.orbis.bukkit.session.PlayerSession;
+import org.empirewar.orbis.bukkit.session.BukkitPlayerSession;
 
-public class PaperPlayerSession extends PlayerSession {
+public class PaperPlayerSession extends BukkitPlayerSession {
 
     private final CommandSourceStack source;
 

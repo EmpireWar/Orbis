@@ -25,7 +25,6 @@ import static net.kyori.adventure.text.Component.text;
 
 import com.google.common.collect.Iterables;
 
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -86,9 +85,8 @@ public final class RegionCommand {
             @Argument("area_type") @Nullable AreaType<?> areaType) {
         final Orbis orbis = OrbisAPI.get();
         if (orbis.getGlobalWorld().getByName(regionName).isPresent()) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(
-                            text("Region by that name already exists.", OrbisText.SECONDARY_RED)));
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("Region by that name already exists.", OrbisText.SECONDARY_RED)));
             return;
         }
 
@@ -105,45 +103,43 @@ public final class RegionCommand {
             final Selection selection =
                     orbis.selectionManager().get(player.getUuid()).orElse(null);
             if (selection == null) {
-                session.audience()
-                        .sendMessage(OrbisText.PREFIX.append(text(
-                                "Please make a valid selection to create a region. (Or use --ignore-selection)",
-                                OrbisText.SECONDARY_RED)));
+                session.sendMessage(OrbisText.PREFIX.append(text(
+                        "Please make a valid selection to create a region. (Or use --ignore-selection)",
+                        OrbisText.SECONDARY_RED)));
                 return;
             }
 
             AreaType<?> defaultedType = areaType == null ? AreaType.CUBOID : areaType;
             if (selection.getSelectionType() != defaultedType) {
-                String expectedTypeName =
-                        OrbisRegistries.AREA_TYPE.getKey(defaultedType).orElseThrow().asString();
+                String expectedTypeName = OrbisRegistries.AREA_TYPE
+                        .getKey(defaultedType)
+                        .orElseThrow()
+                        .asString();
                 String actualTypeName = OrbisRegistries.AREA_TYPE
                         .getKey(selection.getSelectionType())
                         .orElseThrow()
                         .asString();
-                session.audience()
-                        .sendMessage(OrbisText.PREFIX.append(text(
-                                "Expected an '" + expectedTypeName + "' selection, but got '"
-                                        + actualTypeName
-                                        + "' instead! Please select a proper area type.",
-                                OrbisText.SECONDARY_RED)));
+                session.sendMessage(OrbisText.PREFIX.append(text(
+                        "Expected an '" + expectedTypeName + "' selection, but got '"
+                                + actualTypeName
+                                + "' instead! Please select a proper area type.",
+                        OrbisText.SECONDARY_RED)));
                 return;
             }
 
             try {
                 area = selection.build();
             } catch (IncompleteAreaException e) {
-                session.audience()
-                        .sendMessage(OrbisText.PREFIX.append(
-                                text(e.getMessage(), OrbisText.SECONDARY_RED)
-                                        .append(text(". Did you select all points?"))));
+                session.sendMessage(
+                        OrbisText.PREFIX.append(text(e.getMessage(), OrbisText.SECONDARY_RED)
+                                .append(text(". Did you select all points?"))));
                 return;
             }
 
             selection.getPoints().forEach(area::addPoint);
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Note: Used your current selection to build the region area. Use the --ignore-selection flag to bypass this.",
-                            OrbisText.SECONDARY_ORANGE)));
+            session.sendMessage(OrbisText.PREFIX.append(text(
+                    "Note: Used your current selection to build the region area. Use the --ignore-selection flag to bypass this.",
+                    OrbisText.SECONDARY_ORANGE)));
         } else if (areaType == null || areaType == AreaType.CUBOID) {
             area = new CuboidArea();
         } else if (areaType == AreaType.POLYHEDRAL) {
@@ -157,11 +153,9 @@ public final class RegionCommand {
         if (session instanceof PlayerOrbisSession player) {
             orbis.getRegionisedWorld(orbis.getPlayerWorld(player.getUuid())).add(region);
         }
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(text(
-                        "Created " + (global ? "global " : "") + "region with name '" + regionName
-                                + "'!",
-                        OrbisText.EREBOR_GREEN)));
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "Created " + (global ? "global " : "") + "region with name '" + regionName + "'!",
+                OrbisText.EREBOR_GREEN)));
     }
 
     @Command("region|rg setarea <region>")
@@ -170,10 +164,8 @@ public final class RegionCommand {
         final Selection selection =
                 OrbisAPI.get().selectionManager().get(session.getUuid()).orElse(null);
         if (selection == null) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "You don't seem to have an active selection.",
-                            OrbisText.SECONDARY_RED)));
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("You don't seem to have an active selection.", OrbisText.SECONDARY_RED)));
             return;
         }
 
@@ -186,10 +178,9 @@ public final class RegionCommand {
                     .getKey(selection.getSelectionType())
                     .orElseThrow()
                     .asString();
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text("Expected an '" + expectedTypeName
-                            + "' selection, but got '" + actualTypeName
-                            + "' instead! Please select a proper area type.")));
+            session.sendMessage(OrbisText.PREFIX.append(text("Expected an '" + expectedTypeName
+                    + "' selection, but got '" + actualTypeName
+                    + "' instead! Please select a proper area type.")));
             return;
         }
 
@@ -199,16 +190,13 @@ public final class RegionCommand {
             for (Vector3ic point : area.points()) {
                 region.area().addPoint(new Vector3i(point.x(), point.y(), point.z()));
             }
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Replaced the area of '" + region.name()
-                                    + "' with your current selection.",
-                            OrbisText.EREBOR_GREEN)));
+            session.sendMessage(OrbisText.PREFIX.append(text(
+                    "Replaced the area of '" + region.name() + "' with your current selection.",
+                    OrbisText.EREBOR_GREEN)));
         } catch (IncompleteAreaException e) {
-            session.audience()
-                    .sendMessage(
-                            OrbisText.PREFIX.append(text(e.getMessage(), OrbisText.SECONDARY_RED)
-                                    .append(text(". Did you select all points?"))));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(text(e.getMessage(), OrbisText.SECONDARY_RED)
+                            .append(text(". Did you select all points?"))));
         }
     }
 
@@ -218,17 +206,13 @@ public final class RegionCommand {
     public void onRemove(OrbisSession session, @Argument("region") Region region) {
         final boolean anySucceeded = OrbisAPI.get().removeRegion(region);
         if (anySucceeded) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Removed the '" + region.name() + "' region.",
-                            OrbisText.SECONDARY_RED)));
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("Removed the '" + region.name() + "' region.", OrbisText.SECONDARY_RED)));
             return;
         }
 
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(text(
-                        "FAILED to remove the '" + region.name() + "' region.",
-                        OrbisText.SECONDARY_RED)));
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "FAILED to remove the '" + region.name() + "' region.", OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg flag add <region> <flag> [value]")
@@ -249,9 +233,8 @@ public final class RegionCommand {
                                 .map(FlagMemberGroup::valueOf)
                                 .collect(Collectors.toSet()));
             } catch (IllegalArgumentException e) {
-                session.audience()
-                        .sendMessage(OrbisText.PREFIX.append(
-                                text("Invalid group specified.", OrbisText.SECONDARY_RED)));
+                session.sendMessage(OrbisText.PREFIX.append(
+                        text("Invalid group specified.", OrbisText.SECONDARY_RED)));
                 return;
             }
         }
@@ -260,25 +243,22 @@ public final class RegionCommand {
             RegistryRegionFlag<T> cast = (RegistryRegionFlag<T>) flag;
             region.setFlag(cast, (T) value.instance());
         }
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(text(
-                        "Added flag '" + flag.key().asString() + "' to region " + region.name()
-                                + "!",
-                        OrbisText.EREBOR_GREEN)));
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "Added flag '" + flag.key().asString() + "' to region " + region.name() + "!",
+                OrbisText.EREBOR_GREEN)));
     }
 
     @Command("region|rg flag list <region>")
     @CommandDescription("List all flags set on a region.")
     public void onFlagList(OrbisSession session, @Argument("region") Region region) {
-        final Audience audience = session.audience();
         final String regionName = region.name();
 
         // Header with region name
-        audience.sendMessage(OrbisText.PREFIX.append(text("[", NamedTextColor.GRAY)
+        session.sendMessage(OrbisText.PREFIX.append(text("[", NamedTextColor.GRAY)
                 .append(text(regionName, OrbisText.SECONDARY_ORANGE))
                 .append(text("]", NamedTextColor.GRAY))));
 
-        audience.sendMessage(empty());
+        session.sendMessage(empty());
 
         // Display all flags with no limit
         displayFlags(session, region, -1);
@@ -291,11 +271,9 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("flag") RegistryRegionFlag<?> flag) {
         region.removeFlag(flag);
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(text(
-                        "Removed flag '" + flag.key().asString() + "' from region " + region.name()
-                                + "!",
-                        OrbisText.SECONDARY_RED)));
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "Removed flag '" + flag.key().asString() + "' from region " + region.name() + "!",
+                OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg flag set <region> <flag> <value>")
@@ -319,9 +297,8 @@ public final class RegionCommand {
         // Is there a better way? I'm not sure...
         RegistryRegionFlag<T> cast = (RegistryRegionFlag<T>) flag;
         region.setFlag(cast, (T) value.instance());
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(
-                        text("Set flag '" + flag.key().asString() + "'.", OrbisText.EREBOR_GREEN)));
+        session.sendMessage(OrbisText.PREFIX.append(
+                text("Set flag '" + flag.key().asString() + "'.", OrbisText.EREBOR_GREEN)));
     }
 
     @Command("region|rg setpriority <region> <priority>")
@@ -332,10 +309,9 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("priority") int priority) {
         region.priority(priority);
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(text(
-                        "Set priority of region '" + region.name() + "' to " + priority + ".",
-                        OrbisText.EREBOR_GREEN)));
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "Set priority of region '" + region.name() + "' to " + priority + ".",
+                OrbisText.EREBOR_GREEN)));
     }
 
     @Command("region|rg parent add <region> <parent>")
@@ -346,33 +322,28 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("parent") Region parent) {
         if (region.equals(parent)) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "A region cannot be a parent of itself.", OrbisText.SECONDARY_RED)));
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("A region cannot be a parent of itself.", OrbisText.SECONDARY_RED)));
             return;
         }
 
         if (region.parents().contains(parent)) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Region '" + parent.name() + "' is already a parent of '"
-                                    + region.name() + "'.",
-                            OrbisText.SECONDARY_RED)));
+            session.sendMessage(OrbisText.PREFIX.append(text(
+                    "Region '" + parent.name() + "' is already a parent of '" + region.name()
+                            + "'.",
+                    OrbisText.SECONDARY_RED)));
             return;
         }
 
         try {
             region.addParent(parent);
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Added parent region '" + parent.name() + "' to '" + region.name()
-                                    + "'.",
-                            OrbisText.EREBOR_GREEN)));
+            session.sendMessage(OrbisText.PREFIX.append(text(
+                    "Added parent region '" + parent.name() + "' to '" + region.name() + "'.",
+                    OrbisText.EREBOR_GREEN)));
         } catch (IllegalArgumentException e) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Cannot add parent as it would create a circular dependency.",
-                            OrbisText.SECONDARY_RED)));
+            session.sendMessage(OrbisText.PREFIX.append(text(
+                    "Cannot add parent as it would create a circular dependency.",
+                    OrbisText.SECONDARY_RED)));
         }
     }
 
@@ -383,10 +354,9 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("parent") Region parent) {
         region.removeParent(parent);
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(text(
-                        "Removed parent '" + parent.name() + "' from '" + region.name() + "'.",
-                        OrbisText.SECONDARY_RED)));
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "Removed parent '" + parent.name() + "' from '" + region.name() + "'.",
+                OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg world add <region> <world>")
@@ -397,18 +367,16 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("world") RegionisedWorld world) {
         if (region.isGlobal()) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Can't assign world to a global region.", OrbisText.SECONDARY_RED)));
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("Can't assign world to a global region.", OrbisText.SECONDARY_RED)));
             return;
         }
 
         if (world.add(region)) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Added region '" + region.name() + "' to world '"
-                                    + world.worldName().orElseThrow() + "'.",
-                            OrbisText.EREBOR_GREEN)));
+            session.sendMessage(OrbisText.PREFIX.append(text(
+                    "Added region '" + region.name() + "' to world '"
+                            + world.worldName().orElseThrow() + "'.",
+                    OrbisText.EREBOR_GREEN)));
         }
     }
 
@@ -419,18 +387,16 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("world") RegionisedWorld world) {
         if (region.isGlobal()) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Can't assign world to a global region.", OrbisText.SECONDARY_RED)));
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("Can't assign world to a global region.", OrbisText.SECONDARY_RED)));
             return;
         }
 
         if (world.remove(region)) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Removed region '" + region.name() + "' from world '"
-                                    + world.worldName().orElseThrow() + "'.",
-                            OrbisText.SECONDARY_RED)));
+            session.sendMessage(OrbisText.PREFIX.append(text(
+                    "Removed region '" + region.name() + "' from world '"
+                            + world.worldName().orElseThrow() + "'.",
+                    OrbisText.SECONDARY_RED)));
         }
     }
 
@@ -443,19 +409,16 @@ public final class RegionCommand {
             @Argument("y") int y,
             @Argument("z") int z) {
         if (region.area().addPoint(new Vector3i(x, y, z))) {
-            session.audience()
-                    .sendMessage(OrbisText.PREFIX.append(text(
-                            "Added point [" + x + ", " + y + ", " + z + "] to '" + region.name()
-                                    + "'",
-                            OrbisText.EREBOR_GREEN)));
+            session.sendMessage(OrbisText.PREFIX.append(text(
+                    "Added point [" + x + ", " + y + ", " + z + "] to '" + region.name() + "'",
+                    OrbisText.EREBOR_GREEN)));
             return;
         }
 
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(text(
-                        "Unable to add point to '" + region.name()
-                                + "'. The area does not support any additional points.",
-                        OrbisText.SECONDARY_RED)));
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "Unable to add point to '" + region.name()
+                        + "'. The area does not support any additional points.",
+                OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg member permission add <region> <permission>")
@@ -466,11 +429,9 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("permission") String permission) {
         region.addMember(new PermissionMember(permission));
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(Component.text(
-                        "Added permission " + permission + " as a member to region " + region.name()
-                                + ".",
-                        OrbisText.EREBOR_GREEN)));
+        session.sendMessage(OrbisText.PREFIX.append(Component.text(
+                "Added permission " + permission + " as a member to region " + region.name() + ".",
+                OrbisText.EREBOR_GREEN)));
     }
 
     @Command("region|rg member permission remove <region> <permission>")
@@ -483,7 +444,7 @@ public final class RegionCommand {
             if (member instanceof PermissionMember permissionMember
                     && permissionMember.permission().equals(permission)) {
                 region.removeMember(member);
-                session.audience()
+                session.getAudience()
                         .sendMessage(OrbisText.PREFIX.append(Component.text(
                                 "Removed permission member '" + permission + "'.",
                                 OrbisText.EREBOR_GREEN)));
@@ -491,23 +452,21 @@ public final class RegionCommand {
             }
         }
 
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(Component.text(
-                        "Couldn't find a member with that name.", OrbisText.SECONDARY_RED)));
+        session.sendMessage(OrbisText.PREFIX.append(
+                Component.text("Couldn't find a member with that name.", OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg info <region>")
     public void onInfo(OrbisSession session, @Argument("region") Region region) {
-        final Audience audience = session.audience();
         final String regionName = region.name();
 
         // Header with region name
-        audience.sendMessage(OrbisText.PREFIX.append(text("[", NamedTextColor.GRAY)
+        session.sendMessage(OrbisText.PREFIX.append(text("[", NamedTextColor.GRAY)
                 .append(text(regionName, OrbisText.SECONDARY_ORANGE))
                 .append(text("]", NamedTextColor.GRAY))));
 
         // Priority section - clickable to set priority
-        audience.sendMessage(createClickableLine(
+        session.sendMessage(createClickableLine(
                 "Priority",
                 String.valueOf(region.priority()),
                 "/rg setpriority " + regionName + " ",
@@ -527,11 +486,11 @@ public final class RegionCommand {
                                     "/rg parent add " + regionName + " ")))
                     .append(text("]", NamedTextColor.GRAY));
 
-            audience.sendMessage(parentsLine);
+            session.sendMessage(parentsLine);
 
             // List existing parents with remove buttons
             if (region.parents().isEmpty()) {
-                audience.sendMessage(text("  » None", NamedTextColor.GRAY));
+                session.sendMessage(text("  » None", NamedTextColor.GRAY));
             } else {
                 for (Region parent : region.parents()) {
                     Component parentLine = text(
@@ -546,33 +505,35 @@ public final class RegionCommand {
                                                     ClickEvent.suggestCommand("/rg parent remove "
                                                             + regionName + " " + parent.name()))))
                             .append(text("]", NamedTextColor.GRAY));
-                    audience.sendMessage(parentLine);
+                    session.sendMessage(parentLine);
                 }
             }
         } else {
-            audience.sendMessage(parentsLine.append(
+            session.sendMessage(parentsLine.append(
                     text("Global regions cannot have parents", NamedTextColor.GRAY)));
         }
 
         // Area information section
-        audience.sendMessage(empty());
-        audience.sendMessage(text("Area Information", OrbisText.EREBOR_GREEN));
+        session.sendMessage(empty());
+        session.sendMessage(text("Area Information", OrbisText.EREBOR_GREEN));
 
         if (region.isGlobal()) {
-            audience.sendMessage(text("  Global region - no area defined", NamedTextColor.GRAY));
+            session.sendMessage(text("  Global region - no area defined", NamedTextColor.GRAY));
         } else {
             final Area area = region.area();
             // Area type
-            final String areaName =
-                    OrbisRegistries.AREA_TYPE.getKey(area.getType()).orElseThrow().asString();
-            audience.sendMessage(text("  Type: ", NamedTextColor.GRAY)
+            final String areaName = OrbisRegistries.AREA_TYPE
+                    .getKey(area.getType())
+                    .orElseThrow()
+                    .asString();
+            session.sendMessage(text("  Type: ", NamedTextColor.GRAY)
                     .append(text(areaName, NamedTextColor.WHITE))
                     .hoverEvent(HoverEvent.showText(text("Area type", OrbisText.EREBOR_GREEN))));
 
             // Bounding box
             Vector3ic min = area.getMin();
             Vector3ic max = area.getMax();
-            audience.sendMessage(text("  Bounds: ", NamedTextColor.GRAY)
+            session.sendMessage(text("  Bounds: ", NamedTextColor.GRAY)
                     .append(text(
                             String.format(
                                     "(%d, %d, %d) to (%d, %d, %d)",
@@ -584,19 +545,19 @@ public final class RegionCommand {
 
             // Volume
             long volume = Iterables.size(area);
-            audience.sendMessage(text("  Volume: ", NamedTextColor.GRAY)
+            session.sendMessage(text("  Volume: ", NamedTextColor.GRAY)
                     .append(text(String.format("%,d", volume), NamedTextColor.WHITE))
                     .append(text(" blocks", NamedTextColor.GRAY)));
 
             // Number of points
             int pointCount = area.points().size();
-            audience.sendMessage(text("  Points: ", NamedTextColor.GRAY)
+            session.sendMessage(text("  Points: ", NamedTextColor.GRAY)
                     .append(text(String.format("%,d", pointCount), NamedTextColor.WHITE)));
 
             // Add clickable command to set area
             if (session instanceof PlayerOrbisSession) {
-                audience.sendMessage(empty());
-                audience.sendMessage(text("  [▶] ", NamedTextColor.GRAY)
+                session.sendMessage(empty());
+                session.sendMessage(text("  [▶] ", NamedTextColor.GRAY)
                         .append(text("Set area", NamedTextColor.YELLOW)
                                 .hoverEvent(HoverEvent.showText(text(
                                         "Click to set a new area for this region",
@@ -615,7 +576,7 @@ public final class RegionCommand {
                 int centerZ = (min.z() + max.z()) / 2;
                 int centerY = (min.y() + max.y()) / 2;
 
-                audience.sendMessage(text("  [▶] ", NamedTextColor.GRAY)
+                session.sendMessage(text("  [▶] ", NamedTextColor.GRAY)
                         .append(text("Teleport to center", NamedTextColor.YELLOW)
                                 .hoverEvent(HoverEvent.showText(text(
                                         "Click to teleport to the center of this region",
@@ -643,7 +604,7 @@ public final class RegionCommand {
                                         "/rg member add " + regionName + " ")))
                         .append(text("]", NamedTextColor.GRAY)));
 
-        audience.sendMessage(membersLine);
+        session.sendMessage(membersLine);
 
         // List existing members with remove buttons
         for (Member member : region.members()) {
@@ -666,7 +627,7 @@ public final class RegionCommand {
                                     text("Click to remove this member", OrbisText.SECONDARY_RED)))
                             .clickEvent(ClickEvent.runCommand(
                                     "/rg member remove " + regionName + " " + value)));
-            audience.sendMessage(memberLine);
+            session.sendMessage(memberLine);
         }
     }
 
@@ -704,7 +665,6 @@ public final class RegionCommand {
      * @param limit   Maximum number of flags to display (use -1 for no limit)
      */
     private void displayFlags(OrbisSession session, Region region, int limit) {
-        final Audience audience = session.audience();
         final String regionName = region.name();
 
         // Flags section with clickable elements
@@ -723,7 +683,7 @@ public final class RegionCommand {
                                                 "/rg flag add " + regionName + " ")))
                                 .append(text("] ", NamedTextColor.GRAY))));
 
-        audience.sendMessage(flagsLine);
+        session.sendMessage(flagsLine);
 
         // Get all flags
         Map<RegistryRegionFlag<?>, Set<String>> flags = new HashMap<>();
@@ -743,7 +703,7 @@ public final class RegionCommand {
 
         if (flags.isEmpty()) {
             if (limit != 0) { // Only show "No flags set" if we're not just checking
-                audience.sendMessage(text("  No flags set.", NamedTextColor.GRAY));
+                session.sendMessage(text("  No flags set.", NamedTextColor.GRAY));
             }
             return;
         }
@@ -800,13 +760,13 @@ public final class RegionCommand {
                                     + " " + flag.key().asString())))
                     .append(text("]", NamedTextColor.GRAY));
 
-            audience.sendMessage(flagLine);
+            session.sendMessage(flagLine);
         }
 
         // Show "and X more..." if there are more flags to show
         if (hasMore) {
             int remaining = flagEntries.size() - displayCount;
-            audience.sendMessage(text(
+            session.sendMessage(text(
                             "  and " + remaining + " more...",
                             NamedTextColor.GRAY,
                             TextDecoration.ITALIC)

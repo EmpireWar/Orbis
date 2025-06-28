@@ -20,8 +20,13 @@
 package org.empirewar.orbis.player;
 
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 
-public abstract class OrbisSession {
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
+
+public abstract class OrbisSession implements ForwardingAudience {
 
     private final Audience audience;
 
@@ -31,7 +36,12 @@ public abstract class OrbisSession {
 
     public abstract boolean hasPermission(String permission);
 
-    public Audience audience() {
+    public Audience getAudience() {
         return audience;
+    }
+
+    @Override
+    public @NotNull Iterable<? extends Audience> audiences() {
+        return Collections.singleton(audience);
     }
 }

@@ -26,6 +26,10 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
 
+import net.kyori.adventure.key.Key;
+
+import org.empirewar.orbis.Orbis;
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
 import org.empirewar.orbis.command.parser.AreaTypeParser;
@@ -36,7 +40,10 @@ import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.player.OrbisSession;
+import org.empirewar.orbis.player.PlayerOrbisSession;
+import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.CommandManager;
@@ -61,16 +68,14 @@ public final class CommonCommands {
                                 .expireAfterWrite(Duration.ofSeconds(30))
                                 .build()))
                         .noPendingCommandNotifier(sender -> {
-                            sender.audience()
-                                    .sendMessage(OrbisText.PREFIX.append(text(
-                                            "You don't have any pending confirmations.",
-                                            OrbisText.SECONDARY_RED)));
+                            sender.sendMessage(OrbisText.PREFIX.append(text(
+                                    "You don't have any pending confirmations.",
+                                    OrbisText.SECONDARY_RED)));
                         })
                         .confirmationRequiredNotifier((sender, context) -> {
-                            sender.audience()
-                                    .sendMessage(OrbisText.PREFIX.append(text(
-                                            "Confirmation required. Confirm using /confirm.",
-                                            OrbisText.SECONDARY_ORANGE)));
+                            sender.sendMessage(OrbisText.PREFIX.append(text(
+                                    "Confirmation required. Confirm using /confirm.",
+                                    OrbisText.SECONDARY_ORANGE)));
                         })
                         .build();
 
@@ -81,6 +86,39 @@ public final class CommonCommands {
         manager.command(manager.commandBuilder("orbis")
                 .literal("confirm")
                 .handler(confirmationManager.createExecutionHandler()));
+
+        // Wand command
+        manager.command(manager.commandBuilder("orbis")
+                .senderType(PlayerOrbisSession.class)
+                .permission(Permissions.MANAGE)
+                .literal("wand")
+                .handler(context -> {
+                    final PlayerOrbisSession sender = context.sender();
+                    sender.giveWandItem();
+                    Selection.WAND_LORE.forEach(sender::sendMessage);
+                }));
+
+        // Where command
+        manager.command(manager.commandBuilder("orbis")
+                .permission(Permissions.MANAGE)
+                .senderType(PlayerOrbisSession.class)
+                .literal("where")
+                .handler(context -> {
+                    final Orbis orbis = OrbisAPI.get();
+                    final PlayerOrbisSession sender = context.sender();
+                    final Key playerWorld = orbis.getPlayerWorld(sender.getUuid());
+                    final RegionisedWorld world = orbis.getRegionisedWorld(playerWorld);
+                    sender.sendMessage(OrbisText.PREFIX.append(text(
+                            "You are in world " + world.worldName().orElseThrow() + ".",
+                            OrbisText.SECONDARY_ORANGE)));
+                    for (Region region : world.query(RegionQuery.Position.at(sender.getPosition())
+                                    .build())
+                            .result()) {
+                        sender.sendMessage(OrbisText.PREFIX.append(text(
+                                "You are in region " + region.name() + ".",
+                                OrbisText.EREBOR_GREEN)));
+                    }
+                }));
 
         // Register the confirmation processor. This will enable confirmations for commands that
         // require it
@@ -118,7 +156,7 @@ public final class CommonCommands {
                 new AnnotationParser<>(manager, OrbisSession.class);
 
         // Override the default exception handlers
-        MinecraftExceptionHandler.create(OrbisSession::audience)
+        MinecraftExceptionHandler.create(OrbisSession::getAudience)
                 .defaultInvalidSyntaxHandler()
                 .defaultInvalidSenderHandler()
                 .defaultNoPermissionHandler()
@@ -126,7 +164,7 @@ public final class CommonCommands {
                 .defaultCommandExecutionHandler()
                 .registerTo(manager);
 
-        //        annotationParser.parse(new HelpCommands(orbis, manager));
+        annotationParser.parse(new HelpCommands(manager));
         annotationParser.parse(new RegionCommand());
         annotationParser.parse(new SelectionCommand());
     }

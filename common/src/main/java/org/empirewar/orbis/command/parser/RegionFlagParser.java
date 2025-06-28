@@ -47,7 +47,8 @@ public final class RegionFlagParser<C>
             @NonNull CommandContext<@NonNull C> commandContext,
             @NonNull CommandInput commandInput) {
         final String input = commandInput.peekString();
-        final Optional<RegistryRegionFlag<?>> regionFlag = OrbisRegistries.FLAGS.get(Key.key(input));
+        final Optional<RegistryRegionFlag<?>> regionFlag =
+                OrbisRegistries.FLAGS.get(Key.key(input));
         return regionFlag
                 .<ArgumentParseResult<RegistryRegionFlag<?>>>map(f -> {
                     commandInput.readString();

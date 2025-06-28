@@ -21,6 +21,8 @@ package org.empirewar.orbis.player;
 
 import net.kyori.adventure.audience.Audience;
 
+import org.joml.Vector3dc;
+
 import java.util.UUID;
 
 public abstract class PlayerOrbisSession extends OrbisSession {
@@ -35,4 +37,9 @@ public abstract class PlayerOrbisSession extends OrbisSession {
     public UUID getUuid() {
         return uuid;
     }
+
+    // TODO: I can't think of a better way to do this
+    public abstract void giveWandItem();
+
+    public abstract Vector3dc getPosition();
 }

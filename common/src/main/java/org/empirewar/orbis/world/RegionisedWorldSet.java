@@ -31,7 +31,7 @@ import org.empirewar.orbis.area.EncompassingArea;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.joml.Vector3ic;
 
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     @Override
     public RegionQuery.FilterableRegionResult<RegionQuery.Position> query(
             RegionQuery.Position position) {
-        Vector3d pos = position.position();
+        Vector3dc pos = position.position();
 
         // Query the RTree for regions that might contain this point
         Rectangle pointRect = Rectangle.create(

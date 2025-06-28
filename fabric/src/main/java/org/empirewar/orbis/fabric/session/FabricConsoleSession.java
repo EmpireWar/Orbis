@@ -19,17 +19,16 @@
  */
 package org.empirewar.orbis.fabric.session;
 
-import net.kyori.adventure.platform.modcommon.AdventureCommandSourceStack;
 import net.minecraft.commands.CommandSourceStack;
 
 import org.empirewar.orbis.player.ConsoleOrbisSession;
 
-public final class FabricConsoleOrbisSession extends ConsoleOrbisSession {
+public final class FabricConsoleSession extends ConsoleOrbisSession {
 
     private final CommandSourceStack cause;
 
-    public FabricConsoleOrbisSession(CommandSourceStack cause) {
-        super(((AdventureCommandSourceStack) cause).audience());
+    public FabricConsoleSession(CommandSourceStack cause) {
+        super(cause.audience());
         this.cause = cause;
     }
 

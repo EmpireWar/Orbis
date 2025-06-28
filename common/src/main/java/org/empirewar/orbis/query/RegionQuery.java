@@ -104,7 +104,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
          *
          * @return the position
          */
-        Vector3d position();
+        Vector3dc position();
 
         @Override
         default FilterableRegionResult.Builder<
@@ -132,7 +132,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
 
         sealed interface Builder permits RegionQueryPositionBuilder {
 
-            Builder position(Vector3d position);
+            Builder position(Vector3dc position);
 
             default Builder position(double x, double y, double z) {
                 return position(new Vector3d(x, y, z));
@@ -145,7 +145,7 @@ public sealed interface RegionQuery<R> permits RegionQuery.Position, RegionQuery
             return new RegionQueryPositionBuilder();
         }
 
-        static Builder at(Vector3d position) {
+        static Builder at(Vector3dc position) {
             return builder().position(position);
         }
 

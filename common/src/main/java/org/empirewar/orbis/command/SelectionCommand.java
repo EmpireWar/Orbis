@@ -46,10 +46,8 @@ public final class SelectionCommand {
                         selection -> selection.setSelectionType(type),
                         () -> orbis.selectionManager().add(session.getUuid(), new Selection(type)));
         final Key typeKey = OrbisRegistries.AREA_TYPE.getKey(type).orElseThrow();
-        session.audience()
-                .sendMessage(OrbisText.PREFIX.append(text(
-                        "Set your selection to an " + typeKey.asString() + ".",
-                        OrbisText.EREBOR_GREEN)));
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "Set your selection to an " + typeKey.asString() + ".", OrbisText.EREBOR_GREEN)));
     }
 
     @Command("orbis select|selection|sel clear")
@@ -60,17 +58,14 @@ public final class SelectionCommand {
                 .ifPresentOrElse(
                         selection -> {
                             selection.clear();
-                            session.audience()
-                                    .sendMessage(OrbisText.PREFIX.append(text(
-                                            "Cleared your current selection.",
-                                            OrbisText.EREBOR_GREEN)));
+                            session.sendMessage(OrbisText.PREFIX.append(text(
+                                    "Cleared your current selection.", OrbisText.EREBOR_GREEN)));
                             orbis.selectionManager().remove(session.getUuid());
                         },
                         () -> {
-                            session.audience()
-                                    .sendMessage(OrbisText.PREFIX.append(text(
-                                            "You don't have an active selection.",
-                                            OrbisText.SECONDARY_RED)));
+                            session.sendMessage(OrbisText.PREFIX.append(text(
+                                    "You don't have an active selection.",
+                                    OrbisText.SECONDARY_RED)));
                         });
     }
 }

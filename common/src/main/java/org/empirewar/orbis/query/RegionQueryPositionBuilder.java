@@ -21,13 +21,13 @@ package org.empirewar.orbis.query;
 
 import com.google.common.base.Preconditions;
 
-import org.joml.Vector3d;
+import org.joml.Vector3dc;
 
 import java.util.Objects;
 
 non-sealed class RegionQueryPositionBuilder implements RegionQuery.Position.Builder {
 
-    private Vector3d position;
+    private Vector3dc position;
 
     RegionQueryPositionBuilder() {}
 
@@ -38,7 +38,7 @@ non-sealed class RegionQueryPositionBuilder implements RegionQuery.Position.Buil
     }
 
     @Override
-    public RegionQuery.Position.Builder position(Vector3d position) {
+    public RegionQuery.Position.Builder position(Vector3dc position) {
         Objects.requireNonNull(position, "Position cannot be null");
         this.position = position;
         return this;

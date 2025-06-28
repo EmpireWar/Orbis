@@ -26,9 +26,6 @@ import static org.incendo.cloud.minecraft.modded.parser.VanillaArgumentParsers.s
 
 import io.leangen.geantyref.TypeToken;
 
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.key.Keyed;
 import net.kyori.adventure.platform.modcommon.impl.NonWrappingComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -44,16 +41,13 @@ import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.fabric.OrbisFabric;
-import org.empirewar.orbis.fabric.session.FabricConsoleOrbisSession;
-import org.empirewar.orbis.fabric.session.FabricPlayerOrbisSession;
+import org.empirewar.orbis.fabric.session.FabricConsoleSession;
+import org.empirewar.orbis.fabric.session.FabricPlayerSession;
 import org.empirewar.orbis.member.Member;
 import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.player.OrbisSession;
-import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
-import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
-import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.brigadier.suggestion.TooltipSuggestion;
 import org.incendo.cloud.execution.ExecutionCoordinator;
@@ -72,16 +66,16 @@ public final class FabricCommands {
                 SenderMapper.create(
                         sender -> {
                             if (sender.getPlayer() instanceof ServerPlayer player) {
-                                return new FabricPlayerOrbisSession(player, sender);
+                                return new FabricPlayerSession(player, sender);
                             }
-                            return new FabricConsoleOrbisSession(sender);
+                            return new FabricConsoleSession(sender);
                         },
                         session -> {
-                            if (session instanceof FabricPlayerOrbisSession playerSession) {
+                            if (session instanceof FabricPlayerSession playerSession) {
                                 return playerSession.getCause();
                             }
 
-                            return ((FabricConsoleOrbisSession) session).cause();
+                            return ((FabricConsoleSession) session).cause();
                         }));
 
         manager.appendSuggestionMapper(suggestion -> {
@@ -142,46 +136,6 @@ public final class FabricCommands {
     private void registerCommands(OrbisFabric mod) {
         new CommonCommands(manager);
 
-        manager.command(manager.commandBuilder("orbis")
-                .permission(Permissions.MANAGE)
-                .senderType(FabricPlayerOrbisSession.class)
-                .literal("where")
-                .handler(context -> {
-                    final FabricPlayerOrbisSession sender = context.sender();
-                    final Audience audience = sender.audience();
-                    if (audience instanceof ServerPlayer player) {
-                        final Key playerWorld = ((Keyed) player.level().dimension()).key();
-                        final RegionisedWorld world = mod.getRegionisedWorld(playerWorld);
-                        audience.sendMessage(OrbisText.PREFIX.append(text(
-                                "You are in world " + world.worldName().orElseThrow() + ".",
-                                OrbisText.SECONDARY_ORANGE)));
-                        for (Region region : world.query(RegionQuery.Position.builder()
-                                        .position(
-                                                player.position().x(),
-                                                player.position().y(),
-                                                player.position().z())
-                                        .build())
-                                .result()) {
-                            audience.sendMessage(OrbisText.PREFIX.append(text(
-                                    "You are in region " + region.name() + ".",
-                                    OrbisText.EREBOR_GREEN)));
-                        }
-                    }
-                }));
-
-        manager.command(manager.commandBuilder("orbis")
-                .senderType(FabricPlayerOrbisSession.class)
-                .permission(Permissions.MANAGE)
-                .literal("wand")
-                .handler(context -> {
-                    final FabricPlayerOrbisSession sender = context.sender();
-                    final Audience audience = sender.audience();
-                    if (audience instanceof ServerPlayer player) {
-                        player.addItem(mod.getWandItem());
-                        Selection.WAND_LORE.forEach(audience::sendMessage);
-                    }
-                }));
-
         manager.command(manager.commandBuilder("region", "rg")
                 .permission(Permissions.MANAGE)
                 .literal("member")
@@ -195,12 +149,11 @@ public final class FabricCommands {
                     final ServerPlayer player = playerSelector.single();
                     region.addMember(new PlayerMember(player.getUUID()));
                     final OrbisSession sender = context.sender();
-                    sender.audience()
-                            .sendMessage(OrbisText.PREFIX.append(Component.text("Added ")
-                                    .append((ComponentLike) player.getName())
-                                    .append(text(
-                                            " as a member to region " + region.name() + ".",
-                                            OrbisText.EREBOR_GREEN))));
+                    sender.sendMessage(OrbisText.PREFIX.append(Component.text("Added ")
+                            .append((ComponentLike) player.getName())
+                            .append(text(
+                                    " as a member to region " + region.name() + ".",
+                                    OrbisText.EREBOR_GREEN))));
                 }));
 
         manager.command(manager.commandBuilder("region", "rg")
@@ -219,18 +172,15 @@ public final class FabricCommands {
                         if (member instanceof PlayerMember playerMember
                                 && playerMember.playerId().equals(player.getUUID())) {
                             region.removeMember(member);
-                            sender.audience()
-                                    .sendMessage(OrbisText.PREFIX.append(
-                                            Component.text("Removed member '")
-                                                    .append((ComponentLike) player.getName())
-                                                    .append(text("'.", OrbisText.EREBOR_GREEN))));
+                            sender.sendMessage(
+                                    OrbisText.PREFIX.append(Component.text("Removed member '")
+                                            .append((ComponentLike) player.getName())
+                                            .append(text("'.", OrbisText.EREBOR_GREEN))));
                             return;
                         }
                     }
-                    sender.audience()
-                            .sendMessage(OrbisText.PREFIX.append(Component.text(
-                                    "Couldn't find a member with that name.",
-                                    OrbisText.SECONDARY_RED)));
+                    sender.sendMessage(OrbisText.PREFIX.append(Component.text(
+                            "Couldn't find a member with that name.", OrbisText.SECONDARY_RED)));
                 }));
 
         //        manager.command(manager.commandBuilder("orbis")

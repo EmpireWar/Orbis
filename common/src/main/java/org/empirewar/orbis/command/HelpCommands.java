@@ -19,7 +19,6 @@
  */
 package org.empirewar.orbis.command;
 
-import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.player.OrbisSession;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.annotation.specifier.Greedy;
@@ -32,11 +31,11 @@ public final class HelpCommands {
 
     private final MinecraftHelp<OrbisSession> help;
 
-    public HelpCommands(Orbis orbis, CommandManager<OrbisSession> manager) {
-        this.help = MinecraftHelp.create("/orbis|region|rg help", manager, OrbisSession::audience);
+    public HelpCommands(CommandManager<OrbisSession> manager) {
+        this.help = MinecraftHelp.create("/orbis help", manager, OrbisSession::getAudience);
     }
 
-    @Command("orbis|region|rg help [query]")
+    @Command("orbis help [query]")
     public void onHelp(
             final OrbisSession sender, @Argument("query") @Greedy @Nullable String query) {
         help.queryCommands(query == null ? "" : query, sender);

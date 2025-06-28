@@ -237,6 +237,7 @@ public abstract class OrbisPlatform implements Orbis {
         }
     }
 
+    @Override
     public boolean removeRegion(Region region) {
         boolean anySucceeded = false;
         for (RegionisedWorld world : getRegionisedWorlds()) {
