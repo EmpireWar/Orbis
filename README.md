@@ -6,7 +6,7 @@
 
 </div>
 
-[![Discord](https://img.shields.io/discord/282242806695591938?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/empirewar)
+[![Discord](https://img.shields.io/discord/282242806695591938?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/fh62mxU)
 
 Orbis is a modern region protection plugin for Minecraft, supporting the latest version.
 
