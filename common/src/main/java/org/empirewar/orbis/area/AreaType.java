@@ -29,6 +29,7 @@ public interface AreaType<A extends Area> {
     AreaType<CuboidArea> CUBOID = register("cuboid", CuboidArea.CODEC);
     AreaType<PolygonArea> POLYGON = register("polygon", PolygonArea.CODEC);
     AreaType<PolyhedralArea> POLYHEDRAL = register("polyhedral", PolyhedralArea.CODEC);
+    AreaType<SphericalArea> SPHERE = register("sphere", SphericalArea.CODEC);
 
     MapCodec<A> codec();
 

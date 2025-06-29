@@ -24,7 +24,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
 import org.joml.Vector3dc;
-import org.joml.Vector3i;
+import org.joml.Vector3ic;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +42,7 @@ public final class CuboidArea extends EncompassingArea {
         super();
     }
 
-    private CuboidArea(List<Vector3i> points) {
+    private CuboidArea(List<Vector3ic> points) {
         super(points);
     }
 

@@ -30,15 +30,16 @@ import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 
 import org.joml.Vector2i;
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 
 import java.util.UUID;
 
 public interface ExtraCodecs {
 
-    Codec<Vector3i> VEC_3I = RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.INT.fieldOf("x").forGetter(Vector3i::x),
-                    Codec.INT.fieldOf("y").forGetter(Vector3i::y),
-                    Codec.INT.fieldOf("z").forGetter(Vector3i::z))
+    Codec<Vector3ic> VEC_3I = RecordCodecBuilder.create(instance -> instance.group(
+                    Codec.INT.fieldOf("x").forGetter(Vector3ic::x),
+                    Codec.INT.fieldOf("y").forGetter(Vector3ic::y),
+                    Codec.INT.fieldOf("z").forGetter(Vector3ic::z))
             .apply(instance, Vector3i::new));
 
     Codec<Vector2i> VEC_2I = RecordCodecBuilder.create(instance -> instance.group(

@@ -25,7 +25,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.empirewar.orbis.util.ExtraCodecs;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
-import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
 import java.util.LinkedList;
@@ -45,7 +44,7 @@ public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea 
         super();
     }
 
-    protected PolygonArea(List<Vector3i> points) {
+    protected PolygonArea(List<Vector3ic> points) {
         super(points);
     }
 

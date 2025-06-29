@@ -26,7 +26,6 @@ import org.empirewar.orbis.util.ExtraCodecs;
 import org.empirewar.orbis.util.QuickHull3D;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
-import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
 import java.util.Arrays;
@@ -55,7 +54,7 @@ public final class PolyhedralArea extends PolygonArea {
         super();
     }
 
-    private PolyhedralArea(List<Vector3i> points) {
+    private PolyhedralArea(List<Vector3ic> points) {
         super(points);
     }
 
@@ -202,7 +201,7 @@ public final class PolyhedralArea extends PolygonArea {
         int[][][] faces = new int[faceIndices.length][][];
 
         // Convert face indices to actual points
-        final LinkedList<Vector3i> pointsList = new LinkedList<>(points);
+        final LinkedList<Vector3ic> pointsList = new LinkedList<>(points);
         for (int f = 0; f < faceIndices.length; f++) {
             int[] face = faceIndices[f];
             faces[f] = new int[face.length][3];

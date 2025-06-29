@@ -31,9 +31,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract sealed class EncompassingArea implements Area permits CuboidArea, PolygonArea {
+public abstract sealed class EncompassingArea implements Area
+        permits CuboidArea, PolygonArea, SphericalArea {
 
-    protected final Set<Vector3i> points;
+    protected final Set<Vector3ic> points;
     protected final Vector3i min = new Vector3i();
     protected final Vector3i max = new Vector3i();
 
@@ -45,7 +46,7 @@ public abstract sealed class EncompassingArea implements Area permits CuboidArea
         calculateEncompassingArea();
     }
 
-    EncompassingArea(List<Vector3i> points) {
+    EncompassingArea(List<Vector3ic> points) {
         this.points = new LinkedHashSet<>(points);
         calculateEncompassingArea();
     }
