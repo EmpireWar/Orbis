@@ -421,7 +421,7 @@ public final class RegionCommand {
                 OrbisText.SECONDARY_RED)));
     }
 
-    @Command("region|rg member permission add <region> <permission>")
+    @Command("region|rg member add permission <region> <permission>")
     @CommandDescription(
             "Adds a permission member to a region. This will match players with the specified permission.")
     public void onAddPermission(
@@ -434,7 +434,7 @@ public final class RegionCommand {
                 OrbisText.EREBOR_GREEN)));
     }
 
-    @Command("region|rg member permission remove <region> <permission>")
+    @Command("region|rg member remove permission <region> <permission>")
     @CommandDescription("Removes a permission member from a region.")
     public void onRemovePermission(
             OrbisSession session,

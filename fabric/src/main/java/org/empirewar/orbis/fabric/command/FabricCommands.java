@@ -139,8 +139,8 @@ public final class FabricCommands {
         manager.command(manager.commandBuilder("region", "rg")
                 .permission(Permissions.MANAGE)
                 .literal("member")
-                .literal("player")
                 .literal("add")
+                .literal("player")
                 .required("region", regionParser())
                 .required("player", singlePlayerSelectorParser())
                 .handler(context -> {
@@ -159,8 +159,8 @@ public final class FabricCommands {
         manager.command(manager.commandBuilder("region", "rg")
                 .permission(Permissions.MANAGE)
                 .literal("member")
-                .literal("player")
                 .literal("remove")
+                .literal("player")
                 .required("region", regionParser())
                 .required("player", singlePlayerSelectorParser())
                 .handler(context -> {

@@ -100,8 +100,8 @@ public class BukkitCommands<
         manager.command(manager.commandBuilder("region", "rg")
                 .permission(Permissions.MANAGE)
                 .literal("member")
-                .literal("player")
                 .literal("add")
+                .literal("player")
                 .required("region", regionParser())
                 .required("player", offlinePlayerParser())
                 .handler(context -> {
@@ -118,8 +118,8 @@ public class BukkitCommands<
         manager.command(manager.commandBuilder("region", "rg")
                 .permission(Permissions.MANAGE)
                 .literal("member")
-                .literal("player")
                 .literal("remove")
+                .literal("player")
                 .required("region", regionParser())
                 .required("player", offlinePlayerParser())
                 .handler(context -> {
