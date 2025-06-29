@@ -30,6 +30,7 @@ import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.area.EncompassingArea;
 import org.empirewar.orbis.area.PolygonArea;
 import org.empirewar.orbis.area.PolyhedralArea;
+import org.empirewar.orbis.area.SphericalArea;
 import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.util.OrbisText;
 import org.joml.Vector3i;
@@ -91,6 +92,8 @@ public final class Selection {
             area = new CuboidArea();
         } else if (selectionType == AreaType.POLYHEDRAL) {
             area = new PolyhedralArea();
+        } else if (selectionType == AreaType.SPHERE) {
+            area = new SphericalArea();
         } else {
             area = new PolygonArea();
         }

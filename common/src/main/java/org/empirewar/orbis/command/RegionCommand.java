@@ -39,6 +39,7 @@ import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.area.PolygonArea;
 import org.empirewar.orbis.area.PolyhedralArea;
+import org.empirewar.orbis.area.SphericalArea;
 import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.flag.GroupedMutableRegionFlag;
 import org.empirewar.orbis.flag.MutableRegionFlag;
@@ -142,10 +143,14 @@ public final class RegionCommand {
                     OrbisText.SECONDARY_ORANGE)));
         } else if (areaType == null || areaType == AreaType.CUBOID) {
             area = new CuboidArea();
+        } else if (areaType == AreaType.POLYGON) {
+            area = new PolygonArea();
         } else if (areaType == AreaType.POLYHEDRAL) {
             area = new PolyhedralArea();
+        } else if (areaType == AreaType.SPHERE) {
+            area = new SphericalArea();
         } else {
-            area = new PolygonArea();
+            area = new CuboidArea();
         }
 
         final Region region = global ? new GlobalRegion(regionName) : new Region(regionName, area);
