@@ -68,8 +68,8 @@ public final class SpongeCommands {
                 .permission(Permissions.MANAGE)
                 .literal("member")
                 .literal("add")
-                .literal("player")
                 .required("region", regionParser())
+                .literal("player")
                 .required("player", userParser())
                 .handler(context -> {
                     final Region region = context.get("region");
@@ -86,8 +86,8 @@ public final class SpongeCommands {
                 .permission(Permissions.MANAGE)
                 .literal("member")
                 .literal("remove")
-                .literal("player")
                 .required("region", regionParser())
+                .literal("player")
                 .required("player", userParser())
                 .handler(context -> {
                     final Region region = context.get("region");

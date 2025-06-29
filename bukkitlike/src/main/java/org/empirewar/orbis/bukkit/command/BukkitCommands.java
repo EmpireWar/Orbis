@@ -101,8 +101,8 @@ public class BukkitCommands<
                 .permission(Permissions.MANAGE)
                 .literal("member")
                 .literal("add")
-                .literal("player")
                 .required("region", regionParser())
+                .literal("player")
                 .required("player", offlinePlayerParser())
                 .handler(context -> {
                     final Region region = context.get("region");
@@ -119,8 +119,8 @@ public class BukkitCommands<
                 .permission(Permissions.MANAGE)
                 .literal("member")
                 .literal("remove")
-                .literal("player")
                 .required("region", regionParser())
+                .literal("player")
                 .required("player", offlinePlayerParser())
                 .handler(context -> {
                     final Region region = context.get("region");
