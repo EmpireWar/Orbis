@@ -682,9 +682,9 @@ public final class RegionCommand {
                     .orElseThrow();
             String value = "";
             if (member instanceof PermissionMember permissionMember) {
-                value += " " + permissionMember.permission();
+                value = permissionMember.permission();
             } else if (member instanceof PlayerMember playerMember) {
-                value += " " + playerMember.playerId().toString();
+                value = playerMember.playerId().toString();
             }
 
             Component memberLine = text("  " + typeName.asString() + ": ", NamedTextColor.GRAY)
