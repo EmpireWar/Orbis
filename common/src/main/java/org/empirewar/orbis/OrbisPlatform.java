@@ -122,12 +122,19 @@ public abstract class OrbisPlatform implements Orbis {
 
     public void loadWorld(Key world, UUID worldId) {
         try {
-            final List<String> regionNames = config().node("worlds", world.asString(), "regions")
-                    .getList(String.class, new ArrayList<>());
+            final List<String> regionNames = new ArrayList<>();
+            final ConfigurationNode worldsNode = worldsConfig().node("worlds");
+            for (Object configWorldName : worldsNode.childrenMap().keySet()) {
+                String stringConfigWorldName = (String) configWorldName;
+                if (world.asString().matches(stringConfigWorldName)) {
+                    regionNames.addAll(worldsNode.node(stringConfigWorldName, "regions")
+                            .getList(String.class, new ArrayList<>()));
+                }
+            }
 
             final RegionisedWorldSet set = new RegionisedWorldSet(world, world.asString());
 
-            List<Region> regions = new ArrayList<>();
+            List<Region> regions = new ArrayList<>(regionNames.size());
             Region globalRegion = OrbisAPI.get()
                     .getGlobalWorld()
                     .getByName(set.worldName().orElseThrow())
