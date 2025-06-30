@@ -127,7 +127,8 @@ public abstract class OrbisPlatform implements Orbis {
             for (Object configWorldName : worldsNode.childrenMap().keySet()) {
                 String stringConfigWorldName = (String) configWorldName;
                 if (world.asString().matches(stringConfigWorldName)) {
-                    regionNames.addAll(worldsNode.node(stringConfigWorldName, "regions")
+                    regionNames.addAll(worldsNode
+                            .node(stringConfigWorldName, "regions")
                             .getList(String.class, new ArrayList<>()));
                 }
             }

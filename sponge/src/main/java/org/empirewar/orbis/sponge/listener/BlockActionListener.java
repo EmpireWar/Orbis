@@ -100,8 +100,9 @@ public final class BlockActionListener {
         event.transactions(Operations.MODIFY.get()).forEach(transaction -> {
             final BlockSnapshot original = transaction.original();
             final BlockSnapshot replacement = transaction.finalReplacement();
-            if (original.state().type().isAnyOf(BlockTypes.FARMLAND.get())
-                    && replacement.state().type().isAnyOf(BlockTypes.DIRT.get())) {
+            if ((original.state().type().isAnyOf(BlockTypes.FARMLAND.get())
+                            && replacement.state().type().isAnyOf(BlockTypes.DIRT.get()))
+                    || original.state().type().isAnyOf(BlockTypes.TURTLE_EGG.get())) {
                 if (shouldPreventBlockAction(original, serverPlayer, DefaultFlags.BLOCK_TRAMPLE)) {
                     transaction.invalidate();
                 }

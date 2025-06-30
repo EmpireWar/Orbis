@@ -677,9 +677,8 @@ public final class RegionCommand {
 
         // List existing members with remove buttons
         for (Member member : region.members()) {
-            final Key typeName = OrbisRegistries.MEMBER_TYPE
-                    .getKey(member.getType())
-                    .orElseThrow();
+            final Key typeName =
+                    OrbisRegistries.MEMBER_TYPE.getKey(member.getType()).orElseThrow();
             String value = "";
             if (member instanceof PermissionMember permissionMember) {
                 value = permissionMember.permission();
@@ -693,8 +692,8 @@ public final class RegionCommand {
                     .append(text("[-]", NamedTextColor.RED)
                             .hoverEvent(HoverEvent.showText(
                                     text("Click to remove this member", OrbisText.SECONDARY_RED)))
-                            .clickEvent(ClickEvent.suggestCommand(
-                                    "/rg member remove " + regionName + " " + typeName.value() + " " + value)));
+                            .clickEvent(ClickEvent.suggestCommand("/rg member remove " + regionName
+                                    + " " + typeName.value() + " " + value)));
             session.sendMessage(memberLine);
         }
     }

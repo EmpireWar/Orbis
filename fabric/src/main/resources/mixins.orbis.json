@@ -6,11 +6,13 @@
   "mixins": [
     "BlockEventMixin",
     "CoralBlockMixin",
+    "FarmBlockMixin",
     "FireBlockMixin",
     "ItemEntityMixin",
     "LeavesBlockMixin",
     "LivingEntityMixin",
-    "ServerPlayerEntityMixin"
+    "ServerPlayerEntityMixin",
+    "TurtleEggBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

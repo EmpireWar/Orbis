@@ -21,9 +21,9 @@ package org.empirewar.orbis.bukkit.listener;
 
 import net.kyori.adventure.key.Key;
 
+import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.type.Farmland;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -83,7 +83,9 @@ public record BlockActionListener(OrbisBukkitPlatform<?> orbis) implements Liste
 
         final Player player = event.getPlayer();
         final Block block = event.getClickedBlock();
-        if (block instanceof Farmland) {
+        if (block != null
+                && (block.getType() == Material.FARMLAND
+                        || block.getType() == Material.TURTLE_EGG)) {
             if (event.getAction() == Action.PHYSICAL
                     && shouldPreventBlockAction(block, player, DefaultFlags.BLOCK_TRAMPLE)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
