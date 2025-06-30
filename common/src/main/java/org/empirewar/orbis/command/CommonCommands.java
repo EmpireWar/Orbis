@@ -32,17 +32,19 @@ import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
-import org.empirewar.orbis.command.parser.AreaTypeParser;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
+import org.empirewar.orbis.command.parser.RegistryValueParser;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
+import org.empirewar.orbis.member.MemberType;
 import org.empirewar.orbis.player.OrbisSession;
 import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
@@ -150,7 +152,16 @@ public final class CommonCommands {
         final TypeToken<?> areaTypeToken = TypeToken.get(
                 TypeFactory.parameterizedClass(AreaType.class, TypeFactory.unboundWildcard()));
         manager.parserRegistry()
-                .registerParserSupplier(areaTypeToken, parserParameters -> new AreaTypeParser<>());
+                .registerParserSupplier(
+                        areaTypeToken,
+                        parserParameters -> new RegistryValueParser<>(OrbisRegistries.AREA_TYPE));
+
+        final TypeToken<?> memberTypeToken = TypeToken.get(
+                TypeFactory.parameterizedClass(MemberType.class, TypeFactory.unboundWildcard()));
+        manager.parserRegistry()
+                .registerParserSupplier(
+                        memberTypeToken,
+                        parserParameters -> new RegistryValueParser<>(OrbisRegistries.MEMBER_TYPE));
 
         AnnotationParser<OrbisSession> annotationParser =
                 new AnnotationParser<>(manager, OrbisSession.class);

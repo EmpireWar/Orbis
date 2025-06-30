@@ -56,8 +56,8 @@ public final class OrbisCaptionKeys {
     public static final Caption ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID =
             of("argument.parse.failure.flag_value_invalid");
 
-    public static final Caption ARGUMENT_PARSE_FAILURE_AREA_TYPE_NOT_FOUND =
-            of("argument.parse.failure.area_type_not_found");
+    public static final Caption ARGUMENT_PARSE_FAILURE_REGISTRY_VALUE_NOT_FOUND =
+            of("argument.parse.failure.registry_value_not_found");
 
     private OrbisCaptionKeys() {}
 

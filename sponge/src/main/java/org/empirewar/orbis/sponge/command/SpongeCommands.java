@@ -19,25 +19,14 @@
  */
 package org.empirewar.orbis.sponge.command;
 
-import static org.empirewar.orbis.command.parser.RegionParser.regionParser;
-import static org.incendo.cloud.sponge.parser.UserParser.userParser;
-
-import net.kyori.adventure.text.Component;
-
 import org.empirewar.orbis.command.CommonCommands;
-import org.empirewar.orbis.command.Permissions;
-import org.empirewar.orbis.member.Member;
-import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.player.OrbisSession;
-import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.sponge.OrbisSponge;
 import org.empirewar.orbis.sponge.session.SpongeConsoleSession;
 import org.empirewar.orbis.sponge.session.SpongePlayerSession;
-import org.empirewar.orbis.util.OrbisText;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.sponge.SpongeCommandManager;
-import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.registry.RegistryHolder;
 
@@ -63,48 +52,5 @@ public final class SpongeCommands {
                         }));
 
         new CommonCommands(manager);
-
-        manager.command(manager.commandBuilder("region", "rg")
-                .permission(Permissions.MANAGE)
-                .literal("member")
-                .literal("add")
-                .required("region", regionParser())
-                .literal("player")
-                .required("player", userParser())
-                .handler(context -> {
-                    final Region region = context.get("region");
-                    final User player = context.get("player");
-                    region.addMember(new PlayerMember(player.uniqueId()));
-                    final OrbisSession sender = context.sender();
-                    sender.sendMessage(OrbisText.PREFIX.append(Component.text(
-                            "Added " + player.name() + " as a member to region " + region.name()
-                                    + ".",
-                            OrbisText.EREBOR_GREEN)));
-                }));
-
-        manager.command(manager.commandBuilder("region", "rg")
-                .permission(Permissions.MANAGE)
-                .literal("member")
-                .literal("remove")
-                .required("region", regionParser())
-                .literal("player")
-                .required("player", userParser())
-                .handler(context -> {
-                    final Region region = context.get("region");
-                    final User player = context.get("player");
-                    final OrbisSession sender = context.sender();
-                    for (Member member : region.members()) {
-                        if (member instanceof PlayerMember playerMember
-                                && playerMember.playerId().equals(player.uniqueId())) {
-                            region.removeMember(member);
-                            sender.sendMessage(OrbisText.PREFIX.append(Component.text(
-                                    "Removed member '" + player.name() + "'.",
-                                    OrbisText.EREBOR_GREEN)));
-                            return;
-                        }
-                    }
-                    sender.sendMessage(OrbisText.PREFIX.append(Component.text(
-                            "Couldn't find a member with that name.", OrbisText.SECONDARY_RED)));
-                }));
     }
 }

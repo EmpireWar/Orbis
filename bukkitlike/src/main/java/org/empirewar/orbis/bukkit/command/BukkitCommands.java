@@ -19,30 +19,22 @@
  */
 package org.empirewar.orbis.bukkit.command;
 
-import static org.empirewar.orbis.command.parser.RegionParser.regionParser;
-import static org.incendo.cloud.bukkit.parser.OfflinePlayerParser.offlinePlayerParser;
-
 import io.leangen.geantyref.TypeToken;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 import org.empirewar.orbis.command.CommonCommands;
 import org.empirewar.orbis.command.Permissions;
-import org.empirewar.orbis.command.parser.AreaTypeParser;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
-import org.empirewar.orbis.member.Member;
-import org.empirewar.orbis.member.PlayerMember;
+import org.empirewar.orbis.command.parser.RegistryValueParser;
 import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
 import org.empirewar.orbis.player.OrbisSession;
-import org.empirewar.orbis.region.Region;
-import org.empirewar.orbis.util.OrbisText;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.brigadier.BrigadierManagerHolder;
 import org.incendo.cloud.bukkit.BukkitCommandManager;
@@ -96,49 +88,6 @@ public class BukkitCommands<
                     }
                     new WorldGuardMigrator(sender);
                 }));
-
-        manager.command(manager.commandBuilder("region", "rg")
-                .permission(Permissions.MANAGE)
-                .literal("member")
-                .literal("add")
-                .required("region", regionParser())
-                .literal("player")
-                .required("player", offlinePlayerParser())
-                .handler(context -> {
-                    final Region region = context.get("region");
-                    final OfflinePlayer player = context.get("player");
-                    region.addMember(new PlayerMember(player.getUniqueId()));
-                    final OrbisSession sender = context.sender();
-                    sender.sendMessage(OrbisText.PREFIX.append(Component.text(
-                            "Added " + player.getName() + " as a member to region " + region.name()
-                                    + ".",
-                            OrbisText.EREBOR_GREEN)));
-                }));
-
-        manager.command(manager.commandBuilder("region", "rg")
-                .permission(Permissions.MANAGE)
-                .literal("member")
-                .literal("remove")
-                .required("region", regionParser())
-                .literal("player")
-                .required("player", offlinePlayerParser())
-                .handler(context -> {
-                    final Region region = context.get("region");
-                    final OfflinePlayer player = context.get("player");
-                    final OrbisSession sender = context.sender();
-                    for (Member member : region.members()) {
-                        if (member instanceof PlayerMember playerMember
-                                && playerMember.playerId().equals(player.getUniqueId())) {
-                            region.removeMember(member);
-                            sender.sendMessage(OrbisText.PREFIX.append(Component.text(
-                                    "Removed member '" + player.getName() + "'.",
-                                    OrbisText.EREBOR_GREEN)));
-                            return;
-                        }
-                    }
-                    sender.sendMessage(OrbisText.PREFIX.append(Component.text(
-                            "Couldn't find a member with that name.", OrbisText.SECONDARY_RED)));
-                }));
     }
 
     // How sad that Cloud changed from being clientside, tons of issues stem from this.
@@ -171,6 +120,8 @@ public class BukkitCommands<
                 new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
 
         brigadierMapper.mapSimpleNMS(
-                new TypeToken<AreaTypeParser<OrbisSession>>() {}, "resource_location", true);
+                new TypeToken<RegistryValueParser<OrbisSession, ?>>() {},
+                "resource_location",
+                true);
     }
 }

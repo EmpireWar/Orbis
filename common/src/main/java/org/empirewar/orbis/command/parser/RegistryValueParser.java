@@ -22,9 +22,8 @@ package org.empirewar.orbis.command.parser;
 import net.kyori.adventure.key.Key;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.command.caption.OrbisCaptionKeys;
-import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.registry.OrbisRegistry;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.context.CommandInput;
@@ -36,44 +35,51 @@ import org.incendo.cloud.suggestion.BlockingSuggestionProvider;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public final class AreaTypeParser<C>
-        implements ArgumentParser<C, AreaType<?>>, BlockingSuggestionProvider.Strings<C> {
+public final class RegistryValueParser<C, R>
+        implements ArgumentParser<C, R>, BlockingSuggestionProvider.Strings<C> {
+
+    private final OrbisRegistry<R> registry;
+
+    public RegistryValueParser(OrbisRegistry<R> registry) {
+        this.registry = registry;
+    }
 
     @Override
-    public @NonNull ArgumentParseResult<@NonNull AreaType<?>> parse(
+    public @NonNull ArgumentParseResult<@NonNull R> parse(
             @NonNull CommandContext<@NonNull C> commandContext,
             @NonNull CommandInput commandInput) {
         final String input = commandInput.peekString();
 
-        final Optional<AreaType<?>> areaType =
-                OrbisRegistries.AREA_TYPE.get(Key.key(commandInput.peekString()));
-        if (areaType.isPresent()) {
+        final Optional<R> registered = registry.get(Key.key(commandInput.peekString()));
+        if (registered.isPresent()) {
             commandInput.readString();
-            return ArgumentParseResult.success(areaType.get());
+            return ArgumentParseResult.success(registered.get());
         }
 
-        return ArgumentParseResult.failure(new AreaTypeParserException(input, commandContext));
+        return ArgumentParseResult.failure(
+                new RegistryValueParserException(input, registry, commandContext));
     }
 
     @Override
     public @NonNull Iterable<@NonNull String> stringSuggestions(
             @NonNull CommandContext<C> commandContext, @NonNull CommandInput input) {
-        return OrbisRegistries.AREA_TYPE.getKeys().stream()
-                .map(Key::asString)
-                .collect(Collectors.toSet());
+        return registry.getKeys().stream().map(Key::asString).collect(Collectors.toSet());
     }
 
-    public static final class AreaTypeParserException extends ParserException {
+    public static final class RegistryValueParserException extends ParserException {
 
         private final String input;
 
-        public AreaTypeParserException(
-                final @NonNull String input, final @NonNull CommandContext<?> context) {
+        public RegistryValueParserException(
+                final @NonNull String input,
+                final @NonNull OrbisRegistry<?> registry,
+                final @NonNull CommandContext<?> context) {
             super(
-                    AreaTypeParser.class,
+                    RegistryValueParser.class,
                     context,
-                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_AREA_TYPE_NOT_FOUND,
-                    CaptionVariable.of("input", input));
+                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGISTRY_VALUE_NOT_FOUND,
+                    CaptionVariable.of("input", input),
+                    CaptionVariable.of("registry", registry.getKey().asString()));
             this.input = input;
         }
 

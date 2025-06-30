@@ -25,6 +25,7 @@ import static net.kyori.adventure.text.Component.text;
 
 import com.google.common.collect.Iterables;
 
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -405,8 +406,8 @@ public final class RegionCommand {
         }
     }
 
-    @Command("region|rg addpos <region> <x> <y> <z>")
-    @CommandDescription("Adds a position to a region's area.")
+    @Command("region|rg points add <region> <x> <y> <z>")
+    @CommandDescription("Adds a point to a region's area.")
     public void onAddPos(
             OrbisSession session,
             @Argument("region") Region region,
@@ -424,6 +425,69 @@ public final class RegionCommand {
                 "Unable to add point to '" + region.name()
                         + "'. The area does not support any additional points.",
                 OrbisText.SECONDARY_RED)));
+    }
+
+    @Command("region|rg points list <region>")
+    @CommandDescription("Lists all points in a region's area.")
+    public void onListPoints(OrbisSession session, @Argument("region") Region region) {
+        session.sendMessage(OrbisText.PREFIX.append(text("Points in region ")
+                .append(text(region.name(), OrbisText.SECONDARY_ORANGE))
+                .append(text(":"))));
+
+        Set<Vector3ic> points = region.area().points();
+        if (points.isEmpty()) {
+            session.sendMessage(
+                    text("  No points defined for this region.", OrbisText.SECONDARY_RED));
+            return;
+        }
+
+        int index = 1;
+        for (Vector3ic point : points) {
+            String pointStr =
+                    String.format("%d. [%d, %d, %d]", index++, point.x(), point.y(), point.z());
+            String teleportCmd = String.format("/tp %d %d %d", point.x(), point.y(), point.z());
+
+            Component pointComponent = text().content("  " + pointStr)
+                    .hoverEvent(HoverEvent.showText(text("Click to teleport to this point")))
+                    .clickEvent(ClickEvent.runCommand(teleportCmd))
+                    .append(space())
+                    .append(text("["))
+                    .append(text("TP", OrbisText.EREBOR_GREEN))
+                    .append(text("]"))
+                    .build();
+
+            session.sendMessage(pointComponent);
+        }
+
+        session.sendMessage(empty());
+    }
+
+    @Command("region|rg member add <region> player <uuid>")
+    @CommandDescription(
+            "Adds a player member to a region. This will match a player with the specified UUID.")
+    public void onAddPlayer(
+            OrbisSession session, @Argument("region") Region region, @Argument("uuid") UUID uuid) {
+        region.addMember(new PlayerMember(uuid));
+        session.sendMessage(OrbisText.PREFIX.append(Component.text(
+                "Added '" + uuid + "' as a member to region " + region.name() + ".",
+                OrbisText.EREBOR_GREEN)));
+    }
+
+    @Command("region|rg member remove <region> player <uuid>")
+    @CommandDescription("Removes a player member from a region.")
+    public void onRemovePlayer(
+            OrbisSession session, @Argument("region") Region region, @Argument("uuid") UUID uuid) {
+        for (Member member : region.members()) {
+            if (member instanceof PlayerMember playerMember
+                    && playerMember.playerId().equals(uuid)) {
+                region.removeMember(member);
+                session.sendMessage(OrbisText.PREFIX.append(
+                        Component.text("Removed member '" + uuid + "'.", OrbisText.EREBOR_GREEN)));
+                return;
+            }
+        }
+        session.sendMessage(OrbisText.PREFIX.append(
+                Component.text("Couldn't find a member with that UUID.", OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg member add <region> permission <permission>")
@@ -457,8 +521,8 @@ public final class RegionCommand {
             }
         }
 
-        session.sendMessage(OrbisText.PREFIX.append(
-                Component.text("Couldn't find a member with that name.", OrbisText.SECONDARY_RED)));
+        session.sendMessage(OrbisText.PREFIX.append(Component.text(
+                "Couldn't find a member with that permission.", OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg info <region>")
@@ -613,25 +677,24 @@ public final class RegionCommand {
 
         // List existing members with remove buttons
         for (Member member : region.members()) {
-            final String typeName = OrbisRegistries.MEMBER_TYPE
+            final Key typeName = OrbisRegistries.MEMBER_TYPE
                     .getKey(member.getType())
-                    .orElseThrow()
-                    .asString();
+                    .orElseThrow();
             String value = "";
             if (member instanceof PermissionMember permissionMember) {
-                value = permissionMember.permission();
+                value += " " + permissionMember.permission();
             } else if (member instanceof PlayerMember playerMember) {
-                value = playerMember.playerId().toString();
+                value += " " + playerMember.playerId().toString();
             }
 
-            Component memberLine = text("  " + typeName + ": ", NamedTextColor.GRAY)
+            Component memberLine = text("  " + typeName.asString() + ": ", NamedTextColor.GRAY)
                     .append(text(value, NamedTextColor.WHITE))
                     .append(text(" ", NamedTextColor.GRAY))
                     .append(text("[-]", NamedTextColor.RED)
                             .hoverEvent(HoverEvent.showText(
                                     text("Click to remove this member", OrbisText.SECONDARY_RED)))
-                            .clickEvent(ClickEvent.runCommand(
-                                    "/rg member remove " + regionName + " " + value)));
+                            .clickEvent(ClickEvent.suggestCommand(
+                                    "/rg member remove " + regionName + " " + typeName.value() + " " + value)));
             session.sendMessage(memberLine);
         }
     }

@@ -1,6 +1,6 @@
 /**
  * Player-related functionality and data management.
- * 
+ *
  * <p>This package contains interfaces and implementations for managing player data,
  * states, and interactions within the Orbis plugin.</p>
  *
