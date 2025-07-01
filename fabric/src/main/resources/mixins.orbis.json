@@ -6,6 +6,7 @@
   "mixins": [
     "BlockEventMixin",
     "CoralBlockMixin",
+    "MinecraftServerMixin",
     "FarmBlockMixin",
     "FireBlockMixin",
     "ItemEntityMixin",

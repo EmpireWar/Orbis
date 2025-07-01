@@ -112,5 +112,10 @@ public sealed interface Area extends Iterable<Vector3ic> permits EncompassingAre
      */
     Set<Vector3ic> points();
 
+    /**
+     * Returns a set of points representing the boundary of this area.
+     */
+    Set<Vector3ic> getBoundaryPoints();
+
     AreaType<?> getType();
 }

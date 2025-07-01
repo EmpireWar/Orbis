@@ -35,6 +35,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.OrbisPlatform;
 import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.area.CuboidArea;
@@ -695,6 +696,22 @@ public final class RegionCommand {
                             .clickEvent(ClickEvent.suggestCommand("/rg member remove " + regionName
                                     + " " + typeName.value() + " " + value)));
             session.sendMessage(memberLine);
+        }
+    }
+
+    @Command("region|rg visualise|visualize")
+    @CommandDescription("Toggle region boundary visualisation.")
+    public void onVisualise(PlayerOrbisSession session) {
+        OrbisPlatform platform = (OrbisPlatform) OrbisAPI.get();
+        UUID uuid = session.getUuid();
+        boolean nowVisualising = !platform.isVisualising(uuid);
+        platform.setVisualising(uuid, nowVisualising);
+        if (nowVisualising) {
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("Region visualisation enabled!", OrbisText.EREBOR_GREEN)));
+        } else {
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("Region visualisation disabled!", OrbisText.SECONDARY_RED)));
         }
     }
 

@@ -60,6 +60,9 @@ public abstract class OrbisPlatform implements Orbis {
     private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
     private final Map<Key, RegionisedWorldSet> worldSets = new ConcurrentHashMap<>();
 
+    // Players currently visualizing regions
+    private final Set<UUID> visualisingPlayers = ConcurrentHashMap.newKeySet();
+
     public OrbisPlatform() {
         OrbisAPI.set(this);
     }
@@ -277,5 +280,27 @@ public abstract class OrbisPlatform implements Orbis {
     @Override
     public RegionisedWorld getRegionisedWorld(Key worldId) {
         return worldSets.get(worldId);
+    }
+
+    /**
+     * Returns true if the player is currently visualising regions.
+     */
+    public boolean isVisualising(UUID uuid) {
+        return visualisingPlayers.contains(uuid);
+    }
+
+    /**
+     * Sets whether the player is visualising regions.
+     */
+    public void setVisualising(UUID uuid, boolean visualising) {
+        if (visualising) visualisingPlayers.add(uuid);
+        else visualisingPlayers.remove(uuid);
+    }
+
+    /**
+     * Returns the set of all visualising player UUIDs.
+     */
+    public Set<UUID> getVisualisingPlayers() {
+        return visualisingPlayers;
     }
 }

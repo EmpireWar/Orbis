@@ -29,7 +29,9 @@ import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 public final class SphericalArea extends EncompassingArea {
 
@@ -108,5 +110,22 @@ public final class SphericalArea extends EncompassingArea {
 
     public double getRadius() {
         return radius;
+    }
+
+    @Override
+    public Set<Vector3ic> getBoundaryPoints() {
+        Set<Vector3ic> points = new HashSet<>();
+        Vector3ic c = getCenter();
+        double r = getRadius();
+        int samples = (int) (20 * Math.PI * r);
+        for (int i = 0; i < samples; i++) {
+            double phi = Math.acos(2.0 * i / samples - 1.0);
+            double theta = Math.PI * (1 + Math.sqrt(5)) * i;
+            double x = c.x() + r * Math.sin(phi) * Math.cos(theta);
+            double y = c.y() + r * Math.sin(phi) * Math.sin(theta);
+            double z = c.z() + r * Math.cos(phi);
+            points.add(new Vector3i((int) Math.round(x), (int) Math.round(y), (int) Math.round(z)));
+        }
+        return points;
     }
 }

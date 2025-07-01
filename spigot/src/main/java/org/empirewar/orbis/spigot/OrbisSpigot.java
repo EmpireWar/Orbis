@@ -65,6 +65,7 @@ public class OrbisSpigot extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        platform.onEnable();
         this.adventure = BukkitAudiences.create(this);
         this.registerListeners();
 

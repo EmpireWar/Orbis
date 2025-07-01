@@ -28,7 +28,11 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.empirewar.orbis.bukkit.listener.*;
+import org.empirewar.orbis.bukkit.listener.BlockActionListener;
+import org.empirewar.orbis.bukkit.listener.ConnectionListener;
+import org.empirewar.orbis.bukkit.listener.EntityDamageListener;
+import org.empirewar.orbis.bukkit.listener.MovementListener;
+import org.empirewar.orbis.bukkit.listener.RegionEnterLeaveListener;
 import org.empirewar.orbis.bukkit.selection.SelectionListener;
 import org.empirewar.orbis.paper.listener.InteractEntityExtensionListener;
 
@@ -40,6 +44,7 @@ public class OrbisPaper extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        platform.onEnable();
         this.registerListeners();
         try {
             platform.loadRegions();

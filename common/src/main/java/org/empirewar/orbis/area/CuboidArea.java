@@ -24,10 +24,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import org.empirewar.orbis.util.ExtraCodecs;
 import org.joml.Vector3dc;
+import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public final class CuboidArea extends EncompassingArea {
 
@@ -79,5 +82,38 @@ public final class CuboidArea extends EncompassingArea {
         // In which case the area is a point and only spans a single block
         // However, to validate the area is complete, we shall require two points.
         return 2;
+    }
+
+    @Override
+    public Set<Vector3ic> getBoundaryPoints() {
+        Set<Vector3ic> points = new HashSet<>();
+        if (points().size() < 2) return points;
+        Vector3ic min = getMin();
+        Vector3ic max = getMax();
+        // 12 edges of the cuboid
+        addLine(points, min.x(), min.y(), min.z(), max.x(), min.y(), min.z()); // bottom front
+        addLine(points, max.x(), min.y(), min.z(), max.x(), max.y(), min.z()); // bottom right
+        addLine(points, max.x(), max.y(), min.z(), min.x(), max.y(), min.z()); // bottom back
+        addLine(points, min.x(), max.y(), min.z(), min.x(), min.y(), min.z()); // bottom left
+        addLine(points, min.x(), min.y(), max.z(), max.x(), min.y(), max.z()); // top front
+        addLine(points, max.x(), min.y(), max.z(), max.x(), max.y(), max.z()); // top right
+        addLine(points, max.x(), max.y(), max.z(), min.x(), max.y(), max.z()); // top back
+        addLine(points, min.x(), max.y(), max.z(), min.x(), min.y(), max.z()); // top left
+        addLine(points, min.x(), min.y(), min.z(), min.x(), min.y(), max.z()); // front left
+        addLine(points, max.x(), min.y(), min.z(), max.x(), min.y(), max.z()); // front right
+        addLine(points, min.x(), max.y(), min.z(), min.x(), max.y(), max.z()); // back left
+        addLine(points, max.x(), max.y(), min.z(), max.x(), max.y(), max.z()); // back right
+        return points;
+    }
+
+    private void addLine(Set<Vector3ic> points, int x1, int y1, int z1, int x2, int y2, int z2) {
+        int dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1), dz = Math.abs(z2 - z1);
+        int n = Math.max(Math.max(dx, dy), dz);
+        for (int i = 0; i <= n; i++) {
+            int x = x1 + i * (x2 - x1) / n;
+            int y = y1 + i * (y2 - y1) / n;
+            int z = z1 + i * (z2 - z1) / n;
+            points.add(new Vector3i(x, y, z));
+        }
     }
 }

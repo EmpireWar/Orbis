@@ -21,13 +21,17 @@ package org.empirewar.orbis.fabric.listener;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
-import org.empirewar.orbis.Orbis;
+import org.empirewar.orbis.OrbisPlatform;
+
+import java.util.UUID;
 
 public final class ConnectionListener {
 
-    public ConnectionListener(Orbis api) {
+    public ConnectionListener(OrbisPlatform api) {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            api.selectionManager().remove(handler.getPlayer().getUUID());
+            final UUID uuid = handler.getPlayer().getUUID();
+            api.selectionManager().remove(uuid);
+            api.setVisualising(uuid, false);
         });
     }
 }

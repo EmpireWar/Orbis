@@ -26,6 +26,7 @@ import org.empirewar.orbis.util.ExtraCodecs;
 import org.empirewar.orbis.util.QuickHull3D;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
+import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
 import java.util.Arrays;
@@ -464,6 +465,36 @@ public final class PolyhedralArea extends PolygonArea {
 
         // Check if t is between 0 and 1 (inclusive with epsilon tolerance)
         return t >= -EPSILON && t <= 1.0 + EPSILON;
+    }
+
+    @Override
+    public Set<Vector3ic> getBoundaryPoints() {
+        Set<Vector3ic> points = new HashSet<>();
+        if (edges == null) calculateEncompassingArea();
+        if (edges != null) {
+            for (int[][] edge : edges) {
+                Vector3ic a = new Vector3i(edge[0][0], edge[0][1], edge[0][2]);
+                Vector3ic b = new Vector3i(edge[1][0], edge[1][1], edge[1][2]);
+                points.addAll(getLinePoints(a, b));
+            }
+        }
+        return points;
+    }
+
+    private Set<Vector3i> getLinePoints(Vector3ic start, Vector3ic end) {
+        Set<Vector3i> points = new HashSet<>();
+        int x1 = start.x(), y1 = start.y(), z1 = start.z();
+        int x2 = end.x(), y2 = end.y(), z2 = end.z();
+        int dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1), dz = Math.abs(z2 - z1);
+        int xs = x2 > x1 ? 1 : -1, ys = y2 > y1 ? 1 : -1, zs = z2 > z1 ? 1 : -1;
+        int n = Math.max(Math.max(dx, dy), dz);
+        for (int i = 0; i <= n; i++) {
+            int x = x1 + i * (x2 - x1) / n;
+            int y = y1 + i * (y2 - y1) / n;
+            int z = z1 + i * (z2 - z1) / n;
+            points.add(new Vector3i(x, y, z));
+        }
+        return points;
     }
 
     @Override

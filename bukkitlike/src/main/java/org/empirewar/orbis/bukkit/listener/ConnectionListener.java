@@ -22,12 +22,16 @@ package org.empirewar.orbis.bukkit.listener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.empirewar.orbis.Orbis;
+import org.empirewar.orbis.OrbisPlatform;
 
-public record ConnectionListener(Orbis api) implements Listener {
+import java.util.UUID;
+
+public record ConnectionListener(OrbisPlatform api) implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        api.selectionManager().remove(event.getPlayer().getUniqueId());
+        final UUID uuid = event.getPlayer().getUniqueId();
+        api.selectionManager().remove(uuid);
+        api.setVisualising(uuid, false);
     }
 }

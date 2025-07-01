@@ -31,6 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisPlatform;
+import org.empirewar.orbis.bukkit.task.BukkitRegionVisualiserTask;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -46,6 +47,12 @@ public abstract class OrbisBukkitPlatform<P extends JavaPlugin> extends OrbisPla
     public OrbisBukkitPlatform(P plugin) {
         this.plugin = plugin;
         load();
+    }
+
+    public void onEnable() {
+        // Start region visualizer
+        Bukkit.getScheduler()
+                .scheduleSyncRepeatingTask(plugin, new BukkitRegionVisualiserTask(this), 20L, 20L);
     }
 
     public boolean isWand(ItemStack stack) {

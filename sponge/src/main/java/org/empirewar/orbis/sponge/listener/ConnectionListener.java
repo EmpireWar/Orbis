@@ -19,20 +19,24 @@
  */
 package org.empirewar.orbis.sponge.listener;
 
-import org.empirewar.orbis.Orbis;
+import org.empirewar.orbis.OrbisPlatform;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
+import java.util.UUID;
+
 public final class ConnectionListener {
 
-    private final Orbis api;
+    private final OrbisPlatform api;
 
-    public ConnectionListener(Orbis api) {
+    public ConnectionListener(OrbisPlatform api) {
         this.api = api;
     }
 
     @Listener
     public void onQuit(ServerSideConnectionEvent.Leave event) {
-        api.selectionManager().remove(event.player().uniqueId());
+        final UUID uuid = event.player().uniqueId();
+        api.selectionManager().remove(uuid);
+        api.setVisualising(uuid, false);
     }
 }

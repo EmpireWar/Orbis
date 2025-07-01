@@ -29,6 +29,7 @@ import org.empirewar.orbis.sponge.command.SpongeCommands;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.sponge.listener.*;
 import org.empirewar.orbis.sponge.selection.SelectionListener;
+import org.empirewar.orbis.sponge.task.SpongeRegionVisualiserTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Server;
@@ -46,6 +47,8 @@ import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.event.world.UnloadWorldEvent;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
@@ -103,6 +106,13 @@ public class OrbisSponge extends OrbisPlatform {
     public void onServerStarted(final StartedEngineEvent<Server> event) {
         SpongeDataKeys.initialized();
         Sponge.server().worldManager().worlds().forEach(w -> this.loadWorld(w.key(), w.uniqueId()));
+        Sponge.server()
+                .scheduler()
+                .submit(Task.builder()
+                        .execute(new SpongeRegionVisualiserTask(this))
+                        .interval(Ticks.of(20))
+                        .plugin(pluginContainer)
+                        .build());
     }
 
     @Listener
