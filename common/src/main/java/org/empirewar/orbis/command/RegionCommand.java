@@ -70,6 +70,7 @@ import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.context.CommandInput;
 import org.incendo.cloud.minecraft.extras.suggestion.ComponentTooltipSuggestion;
 import org.incendo.cloud.processors.confirmation.annotation.Confirmation;
+import org.incendo.cloud.suggestion.Suggestion;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
@@ -699,6 +700,34 @@ public final class RegionCommand {
         }
     }
 
+    @Command("region|rg list")
+    @CommandDescription("List all regions, optionally filtered by worlds.")
+    public void onList(
+            OrbisSession session,
+            @Flag(value = "worlds", suggestions = "worlds") @Nullable String[] worlds
+    ) {
+        final Orbis orbis = OrbisAPI.get();
+        Set<Region> regions = new HashSet<>();
+        if (worlds != null && worlds.length > 0) {
+            for (String worldKey : worlds) {
+                final RegionisedWorld world = OrbisAPI.get().getRegionisedWorld(Key.key(worldKey));
+                regions.addAll(world.regions());
+            }
+        } else {
+            // Add regions from all worlds
+            regions.addAll(orbis.getGlobalWorld().regions());
+        }
+        if (regions.isEmpty()) {
+            session.sendMessage(OrbisText.PREFIX.append(text("No regions found.", OrbisText.SECONDARY_RED)));
+            return;
+        }
+        session.sendMessage(OrbisText.PREFIX.append(text("Regions:", OrbisText.EREBOR_GREEN)));
+        for (Region region : regions) {
+            session.sendMessage(text("- ", NamedTextColor.GRAY)
+                    .append(text(region.name(), OrbisText.SECONDARY_ORANGE)));
+        }
+    }
+
     @Command("region|rg visualise|visualize")
     @CommandDescription("Toggle region boundary visualisation.")
     public void onVisualise(PlayerOrbisSession session) {
@@ -721,6 +750,14 @@ public final class RegionCommand {
         return Arrays.stream(FlagMemberGroup.values())
                 .map(fmg ->
                         ComponentTooltipSuggestion.suggestion(fmg.name(), text(fmg.description())))
+                .toList();
+    }
+
+    @Suggestions("worlds")
+    public List<Suggestion> worldSuggestions(
+            CommandContext<OrbisSession> context, CommandInput input) {
+        return OrbisAPI.get().getRegionisedWorlds().stream()
+                .map(rw -> Suggestion.suggestion(rw.worldName().orElseThrow()))
                 .toList();
     }
 
