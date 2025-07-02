@@ -18,6 +18,25 @@ These are the key features that makes Orbis stand out against other region prote
 - Advanced API that lets you perform a set of queries on a world or region.
 - No external dependencies.
 
+### Migrating from WorldGuard?
+Orbis has an inbuilt migration tool that allows you to migrate your WorldGuard regions.
+
+Simply run `/orbis migrate` on a server with Orbis and WorldGuard installed, and your WorldGuard regions will be migrated to Orbis.
+
+#### Key differences
+- Regions are not "protected by default". Instead, you need to add what flags you want to a region to make it protected.
+- The "`passthrough`" flag: There isn't one, due to the above.
+- Flags affect all "members" by default.
+- The `greeting` and `farewell` flags are by default empty.
+- Orbis tries to avoid making flags that don't let you (the user) fine-tune them. 
+For example, the `damage-animals` on WorldGuard is instead `damageable_entities` on Orbis. 
+It is a list of entity "keys" e.g. `["minecraft:zombie", "minecraft:husk"]`. 
+Meaning, you can pick *only the entities you want to allow to take damage*. This will also work with modded entities.
+- WorldEdit: Orbis does not use WorldEdit's wand. Instead, it has a custom wand.
+- `__global__` region: In Orbis, there is a global region per world and a global region for all worlds.
+- Region priorities: By default, a region has a priority of 2. A world's global region has a priority of 1. The global region encompassing all worlds has a priority of 0.
+- Plugins that use WorldGuard's API: Orbis does not support WorldGuard's API. Plugin developers will have to add support for Orbis' API.
+
 ## 📆 Supported versions
 Orbis aims to always support the latest version of Minecraft. It currently targets **1.21.4**. 
 Newer or older versions may work, but are not tested.

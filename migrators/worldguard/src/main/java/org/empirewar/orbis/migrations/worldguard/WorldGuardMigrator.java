@@ -317,6 +317,7 @@ public final class WorldGuardMigrator {
         audience.sendMessage(Component.text(" 1) Stop your server.", NamedTextColor.GRAY));
         audience.sendMessage(Component.text(" 2) Remove the WorldGuard plugin.", NamedTextColor.GRAY));
         audience.sendMessage(Component.text(" 3) Start your server again. Welcome to Orbis!", NamedTextColor.GRAY));
+        audience.sendMessage(Component.text("Make sure to check for any migration errors. Most should be harmless, but you may need to adjust some flags.", NamedTextColor.YELLOW));
         // spotless:on
     }
 }
