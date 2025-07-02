@@ -111,7 +111,7 @@ public final class CommonCommands {
                     final Key playerWorld = orbis.getPlayerWorld(sender.getUuid());
                     final RegionisedWorld world = orbis.getRegionisedWorld(playerWorld);
                     sender.sendMessage(OrbisText.PREFIX.append(text(
-                            "You are in world " + world.worldName().orElseThrow() + ".",
+                            "You are in world " + world.worldId().orElseThrow().asString() + ".",
                             OrbisText.SECONDARY_ORANGE)));
                     for (Region region : world.query(RegionQuery.Position.at(sender.getPosition())
                                     .build())

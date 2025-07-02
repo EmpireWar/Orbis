@@ -41,7 +41,7 @@ public final class RegionisedWorldParser<C>
         final String input = commandInput.peekString();
 
         for (RegionisedWorld regionisedWorld : OrbisAPI.get().getRegionisedWorlds()) {
-            if (regionisedWorld.worldName().orElseThrow().equalsIgnoreCase(input)) {
+            if (regionisedWorld.worldId().orElseThrow().asString().equalsIgnoreCase(input)) {
                 commandInput.readString();
                 return ArgumentParseResult.success(regionisedWorld);
             }
@@ -55,7 +55,7 @@ public final class RegionisedWorldParser<C>
     public @NonNull Iterable<@NonNull String> stringSuggestions(
             @NonNull CommandContext<C> commandContext, @NonNull CommandInput input) {
         return OrbisAPI.get().getRegionisedWorlds().stream()
-                .map(rw -> rw.worldName().orElseThrow())
+                .map(rw -> rw.worldId().orElseThrow().asString())
                 .toList();
     }
 

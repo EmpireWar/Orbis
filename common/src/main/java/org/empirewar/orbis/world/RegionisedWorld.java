@@ -38,18 +38,10 @@ public sealed interface RegionisedWorld extends RegionQuery.Position.Queryable p
 // spotless:on
 
     /**
-     * Gets the name of the world this represents.
+     * Gets the key of the world this represents.
      * <p>
      * This method may return an empty optional if this is a "global holder" of all regions.
-     * @return name of world this represents
-     */
-    Optional<String> worldName();
-
-    /**
-     * Gets the UUID of the world this represents.
-     * <p>
-     * This method may return an empty optional if this is a "global holder" of all regions.
-     * @return uuid of world this represents
+     * @return key of world this represents
      */
     Optional<Key> worldId();
 

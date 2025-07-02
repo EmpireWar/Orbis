@@ -137,7 +137,7 @@ public class RegionisedWorldTest {
         region2.area().addPoint(new Vector3i(5, 5, 5));
         region2.addFlag(DefaultFlags.CAN_BREAK);
         region2.setFlag(DefaultFlags.CAN_BREAK, true);
-        region2.priority(2);
+        region2.priority(region.priority() + 1);
 
         set.add(region);
         set.add(region2);
@@ -169,7 +169,7 @@ public class RegionisedWorldTest {
     @Test
     @Order(6)
     void testGlobalRegionQuery() {
-        RegionisedWorldSet set = new RegionisedWorldSet(Key.key("orbis:world"), "world");
+        RegionisedWorldSet set = new RegionisedWorldSet(Key.key("orbis:world"));
         final Region global = new GlobalRegion(set);
         assertTrue(global.isGlobal());
         set.add(global);

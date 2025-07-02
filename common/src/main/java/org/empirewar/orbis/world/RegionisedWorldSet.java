@@ -52,7 +52,6 @@ public final class RegionisedWorldSet implements RegionisedWorld {
 
     private record GeometryEntry(@Nullable Geometry geometry, Runnable listener) {}
 
-    private final String worldName;
     private final Key worldId;
     private final Set<Region> regions;
     private final Map<Region, GeometryEntry> regionGeometries;
@@ -60,20 +59,14 @@ public final class RegionisedWorldSet implements RegionisedWorld {
     private RTree<Region, Geometry> regionRTree;
 
     public RegionisedWorldSet() {
-        this(null, null);
+        this(null);
     }
 
-    public RegionisedWorldSet(@Nullable Key worldId, @Nullable String worldName) {
-        this.worldName = worldName;
+    public RegionisedWorldSet(@Nullable Key worldId) {
         this.worldId = worldId;
         this.regions = ConcurrentHashMap.newKeySet();
         this.regionRTree = RTree.dimensions(3).create();
         this.regionGeometries = new ConcurrentHashMap<>();
-    }
-
-    @Override
-    public Optional<String> worldName() {
-        return Optional.ofNullable(worldName);
     }
 
     @Override

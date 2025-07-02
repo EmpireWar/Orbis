@@ -105,7 +105,7 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
         this.members = new HashSet<>();
         this.flags = new HashMap<>();
         this.area = area;
-        this.priority = 1;
+        this.priority = 2;
     }
 
     private Region(

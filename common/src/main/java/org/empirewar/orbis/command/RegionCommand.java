@@ -383,7 +383,7 @@ public final class RegionCommand {
         if (world.add(region)) {
             session.sendMessage(OrbisText.PREFIX.append(text(
                     "Added region '" + region.name() + "' to world '"
-                            + world.worldName().orElseThrow() + "'.",
+                            + world.worldId().orElseThrow().asString() + "'.",
                     OrbisText.EREBOR_GREEN)));
         }
     }
@@ -403,7 +403,7 @@ public final class RegionCommand {
         if (world.remove(region)) {
             session.sendMessage(OrbisText.PREFIX.append(text(
                     "Removed region '" + region.name() + "' from world '"
-                            + world.worldName().orElseThrow() + "'.",
+                            + world.worldId().orElseThrow().asString() + "'.",
                     OrbisText.SECONDARY_RED)));
         }
     }
@@ -704,8 +704,7 @@ public final class RegionCommand {
     @CommandDescription("List all regions, optionally filtered by worlds.")
     public void onList(
             OrbisSession session,
-            @Flag(value = "worlds", suggestions = "worlds") @Nullable String[] worlds
-    ) {
+            @Flag(value = "worlds", suggestions = "worlds") @Nullable String[] worlds) {
         final Orbis orbis = OrbisAPI.get();
         Set<Region> regions = new HashSet<>();
         if (worlds != null && worlds.length > 0) {
@@ -718,7 +717,8 @@ public final class RegionCommand {
             regions.addAll(orbis.getGlobalWorld().regions());
         }
         if (regions.isEmpty()) {
-            session.sendMessage(OrbisText.PREFIX.append(text("No regions found.", OrbisText.SECONDARY_RED)));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(text("No regions found.", OrbisText.SECONDARY_RED)));
             return;
         }
         session.sendMessage(OrbisText.PREFIX.append(text("Regions:", OrbisText.EREBOR_GREEN)));
@@ -757,7 +757,7 @@ public final class RegionCommand {
     public List<Suggestion> worldSuggestions(
             CommandContext<OrbisSession> context, CommandInput input) {
         return OrbisAPI.get().getRegionisedWorlds().stream()
-                .map(rw -> Suggestion.suggestion(rw.worldName().orElseThrow()))
+                .map(rw -> Suggestion.suggestion(rw.worldId().orElseThrow().asString()))
                 .toList();
     }
 
