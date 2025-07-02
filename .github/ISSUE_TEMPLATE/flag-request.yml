@@ -7,7 +7,7 @@ body:
     id: flag_name
     attributes:
       label: "Flag Name"
-      description: "Short name for the flag (must match: [a-z0-9_\-./]+)"
+      description: "Short name for the flag (must match: [a-z0-9_\\-./]+)"
       placeholder: "e.g., damageable_entities"
     validations:
       required: true
