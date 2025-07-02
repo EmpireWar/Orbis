@@ -6,3 +6,8 @@ authors: ["SamB440", "LimeeFox", "StealWonders"]
 website: https://www.empirewar.org
 api-version: '1.21.4'
 bootstrapper: org.empirewar.orbis.paper.bootstrap.OrbisPluginBootstrap
+dependencies:
+  server:
+    WorldGuard:
+      load: AFTER
+      required: false

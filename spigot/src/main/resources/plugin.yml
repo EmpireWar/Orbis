@@ -5,3 +5,4 @@ description: "A modern, multi-platform region protection plugin for Minecraft: J
 authors: ["SamB440", "LimeeFox", "StealWonders"]
 website: https://www.empirewar.org
 api-version: '1.20'
+softdepend: ["WorldGuard"]
