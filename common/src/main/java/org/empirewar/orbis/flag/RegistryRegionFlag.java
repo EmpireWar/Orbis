@@ -24,7 +24,6 @@ import com.mojang.serialization.Codec;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.registry.OrbisRegistries;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -40,20 +39,23 @@ import java.util.function.Supplier;
 public final class RegistryRegionFlag<T> extends RegionFlag<T> {
 
     private final Supplier<T> defaultValueSupplier;
-    private final T defaultValue;
+    private final Class<T> defaultValueType;
     private final @Nullable String description;
 
     RegistryRegionFlag(
             Key key, @Nullable String description, Supplier<T> defaultValue, Codec<T> codec) {
         super(key, codec);
         this.defaultValueSupplier = defaultValue;
-        this.defaultValue = defaultValue.get();
+        this.defaultValueType = (Class<T>) defaultValue.get().getClass();
         this.description = description;
     }
 
-    @ApiStatus.Internal
-    public T getDefaultValue() {
-        return defaultValue;
+    /**
+     * Gets the class of the default value of this flag.
+     * @return class of the default value
+     */
+    public Class<T> defaultValueType() {
+        return defaultValueType;
     }
 
     /**
@@ -72,6 +74,12 @@ public final class RegistryRegionFlag<T> extends RegionFlag<T> {
         return new GroupedMutableRegionFlag<>(key, defaultValueSupplier, codec);
     }
 
+    /**
+     * Gets the description of this flag.
+     * <p>
+     * This description is displayed as a tooltip when hovering over the flag name in chat or command suggestions.
+     * @return the description
+     */
     public Optional<String> description() {
         return Optional.ofNullable(description);
     }

@@ -89,10 +89,9 @@ public record FlagValueParser<C>(CommandManager<?> manager)
             suggestionsFuture(@NonNull CommandContext<C> context, @NonNull CommandInput input) {
         final RegistryRegionFlag<?> flag = context.get("flag");
         // Try to find a valid parser for this. Very cursed but works epic.
-        final Object defaultValue = flag.getDefaultValue();
         final ParserRegistry<C> parserRegistry = (ParserRegistry<C>) manager.parserRegistry();
         final Optional<? extends ArgumentParser<C, ?>> parser = parserRegistry.createParser(
-                TypeToken.get(defaultValue.getClass()), ParserParameters.empty());
+                TypeToken.get(flag.defaultValueType()), ParserParameters.empty());
         if (parser.isPresent()) {
             return parser.get().suggestionProvider().suggestionsFuture(context, input);
         }
