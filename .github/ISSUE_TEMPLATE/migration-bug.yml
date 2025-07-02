@@ -1,0 +1,35 @@
+name: "Migration Bug"
+description: "Report a bug encountered during migration from WorldGuard or another plugin."
+labels:
+  - migration bug
+body:
+  - type: input
+    id: orbis_version
+    attributes:
+      label: "Orbis Version"
+      description: "Which version of Orbis are you using? (e.g., 1.2.3)"
+      placeholder: "1.2.3"
+    validations:
+      required: true
+  - type: input
+    id: server_version
+    attributes:
+      label: "Server Version"
+      description: "What is your Minecraft server version? (e.g., 1.21.4)"
+      placeholder: "1.21.4"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe the migration bug"
+      description: "A clear and concise description of the issue encountered during migration. Include steps to reproduce if possible."
+    validations:
+      required: true
+  - type: textarea
+    id: plugins_mods
+    attributes:
+      label: "Plugins/Mods on the server"
+      description: "List any other plugins or mods present on your server."
+    validations:
+      required: false

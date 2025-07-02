@@ -1,0 +1,20 @@
+name: "Flag Request"
+description: "Request a new region flag for Orbis."
+labels:
+  - flag request
+body:
+  - type: input
+    id: flag_name
+    attributes:
+      label: "Flag Name"
+      description: "Short name for the flag (must match: [a-z0-9_\-./]+)"
+      placeholder: "e.g., damageable_entities"
+    validations:
+      required: true
+  - type: textarea
+    id: flag_description
+    attributes:
+      label: "Flag Description"
+      description: "Describe what this flag should do and why it would be useful."
+    validations:
+      required: true

@@ -1,0 +1,48 @@
+name: "Bug report"
+description: "Report a bug with Orbis."
+labels:
+  - bug
+body:
+  - type: input
+    id: orbis_version
+    attributes:
+      label: "Orbis Version"
+      description: "Which version of Orbis are you using? (e.g., 1.2.3)"
+      placeholder: "1.2.3"
+    validations:
+      required: true
+  - type: input
+    id: server_version
+    attributes:
+      label: "Server Version"
+      description: "What is your Minecraft server version? (e.g., 1.21.4)"
+      placeholder: "1.21.4"
+    validations:
+      required: true
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: "Platforms Affected"
+      description: "Which platforms are affected?"
+      options:
+        - label: "Paper"
+        - label: "Spigot"
+        - label: "Sponge"
+        - label: "Fabric"
+        - label: "NeoForge"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe the bug"
+      description: "A clear and concise description of what the bug is. Include steps to reproduce if possible."
+    validations:
+      required: true
+  - type: textarea
+    id: plugins_mods
+    attributes:
+      label: "Plugins/Mods on the server"
+      description: "List any other plugins or mods present on your server."
+    validations:
+      required: false
