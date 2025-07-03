@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024 Empire War
+ * Copyright (C) 2025 Empire War
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,46 +17,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.bukkit.listener;
+package org.empirewar.orbis.paper.listener;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.paper.OrbisPaper;
 import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
 import org.empirewar.orbis.paper.api.event.RegionLeaveEvent;
 import org.empirewar.orbis.query.RegionQuery;
-import org.empirewar.orbis.world.RegionisedWorld;
+import org.empirewar.orbis.region.Region;
 
-import java.util.Optional;
-
-public record RegionEnterLeaveListener(Orbis orbis) implements Listener {
+public record RegionMessagesListener(OrbisPaper orbis) implements Listener {
 
     @EventHandler
     public void onEnter(RegionEnterEvent event) {
         final Player player = event.getPlayer();
-        final Location location = event.getLocation();
-        final RegionisedWorld world = event.getWorld();
-        this.applyTimeChanges(player, world, location.getX(), location.getY(), location.getZ());
+        final Region region = event.getRegion();
+        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
+                .result()
+                .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
     }
 
     @EventHandler
     public void onLeave(RegionLeaveEvent event) {
         final Player player = event.getPlayer();
-        final Location location = event.getLocation();
-        final RegionisedWorld world = event.getWorld();
-        this.applyTimeChanges(player, world, location.getX(), location.getY(), location.getZ());
-    }
-
-    private void applyTimeChanges(
-            Player player, RegionisedWorld world, double x, double y, double z) {
-        final Optional<Long> timeResult = world.query(
-                        RegionQuery.Position.builder().position(x, y, z).build())
-                .query(RegionQuery.Flag.builder(DefaultFlags.TIME))
-                .result();
-        timeResult.ifPresentOrElse(
-                time -> player.setPlayerTime(time, false), player::resetPlayerTime);
+        final Region region = event.getRegion();
+        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
+                .result()
+                .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
     }
 }

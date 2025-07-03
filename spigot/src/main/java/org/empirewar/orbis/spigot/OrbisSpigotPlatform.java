@@ -21,6 +21,7 @@ package org.empirewar.orbis.spigot;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import org.bukkit.Bukkit;
@@ -52,8 +53,14 @@ public final class OrbisSpigotPlatform extends OrbisBukkitPlatform<OrbisSpigot> 
         WAND_ITEM.setItemMeta(meta);
     }
 
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
+
     OrbisSpigotPlatform(OrbisSpigot plugin) {
         super(plugin);
+    }
+
+    public MiniMessage miniMessage() {
+        return miniMessage;
     }
 
     public Key worldToKey(World world) {

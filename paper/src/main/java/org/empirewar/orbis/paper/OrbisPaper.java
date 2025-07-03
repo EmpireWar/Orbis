@@ -19,6 +19,8 @@
  */
 package org.empirewar.orbis.paper;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
@@ -32,15 +34,21 @@ import org.empirewar.orbis.bukkit.listener.BlockActionListener;
 import org.empirewar.orbis.bukkit.listener.ConnectionListener;
 import org.empirewar.orbis.bukkit.listener.EntityDamageListener;
 import org.empirewar.orbis.bukkit.listener.MovementListener;
-import org.empirewar.orbis.bukkit.listener.RegionEnterLeaveListener;
+import org.empirewar.orbis.bukkit.listener.RegionTimeListener;
 import org.empirewar.orbis.bukkit.selection.SelectionListener;
 import org.empirewar.orbis.paper.listener.InteractEntityExtensionListener;
+import org.empirewar.orbis.paper.listener.RegionMessagesListener;
 
 import java.io.IOException;
 
 public class OrbisPaper extends JavaPlugin implements Listener {
 
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final OrbisPaperPlatform platform = new OrbisPaperPlatform(this);
+
+    public MiniMessage miniMessage() {
+        return miniMessage;
+    }
 
     @Override
     public void onEnable() {
@@ -81,9 +89,10 @@ public class OrbisPaper extends JavaPlugin implements Listener {
         pluginManager.registerEvents(new BlockActionListener(platform), this);
         pluginManager.registerEvents(new InteractEntityExtensionListener(platform), this);
         pluginManager.registerEvents(new MovementListener(platform), this);
-        pluginManager.registerEvents(new RegionEnterLeaveListener(platform), this);
+        pluginManager.registerEvents(new RegionTimeListener(platform), this);
         pluginManager.registerEvents(new ConnectionListener(platform), this);
         pluginManager.registerEvents(new SelectionListener(platform), this);
         pluginManager.registerEvents(new EntityDamageListener(platform), this);
+        pluginManager.registerEvents(new RegionMessagesListener(this), this);
     }
 }

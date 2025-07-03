@@ -28,6 +28,7 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionType;
+
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -117,7 +118,11 @@ public final class WorldGuardMigrator {
                 "fire-spread",
                 DefaultFlags.FIRE_SPREAD,
                 "time-lock",
-                DefaultFlags.TIME));
+                DefaultFlags.TIME,
+                "greeting",
+                DefaultFlags.ENTRY_MESSAGE,
+                "farewell",
+                DefaultFlags.EXIT_MESSAGE));
     }
 
     private static final Map<RegionFlag<?>, FlagTransformer> TRANSFORMERS = Map.of(

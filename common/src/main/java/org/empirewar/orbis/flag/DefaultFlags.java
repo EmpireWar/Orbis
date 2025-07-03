@@ -79,6 +79,10 @@ public final class DefaultFlags {
             "An integer/long specifying the time of day in ticks", () -> 12000L, Codec.LONG);
     public static final RegistryRegionFlag<Boolean> INVULNERABILITY = register("invulnerability",
             "Whether players should take damage from any source", () -> false, Codec.BOOL);
+    public static final RegistryRegionFlag<String> ENTRY_MESSAGE = register("entry_message",
+            "A message to display when a player enters this region (supports MiniMessage)", () -> "", Codec.STRING);
+    public static final RegistryRegionFlag<String> EXIT_MESSAGE = register("exit_message",
+            "A message to display when a player leaves this region (supports MiniMessage)", () -> "", Codec.STRING);
 //    public static final RegionFlag<Component> DENY_MESSAGE = register("deny_message", () -> Component.text("You can't do that here.", TextColor.color(244, 61, 61)), ExtraCodecs.COMPONENT);
     // spotless:on
 
