@@ -27,7 +27,6 @@ Simply run `/orbis migrate` on a server with Orbis and WorldGuard installed, and
 - Regions are not "protected by default". Instead, you need to add what flags you want to a region to make it protected.
 - The "`passthrough`" flag: There isn't one, due to the above.
 - Flags affect all "members" by default.
-- The `greeting` and `farewell` flags are by default empty.
 - Orbis tries to avoid making flags that don't let you (the user) fine-tune them. 
 For example, the `damage-animals` on WorldGuard is instead `damageable_entities` on Orbis. 
 It is a list of entity "keys" e.g. `["minecraft:zombie", "minecraft:husk"]`. 
