@@ -120,8 +120,7 @@ public record BlockActionListener(OrbisBukkitPlatform<?> orbis) implements Liste
         final Block block = event.getBlock();
         final RegionisedWorld world =
                 orbis.getRegionisedWorld(orbis.adventureKey(block.getWorld()));
-        final List<Key> growable = world.query(RegionQuery.Position.builder()
-                        .position(block.getX(), block.getY(), block.getZ()))
+        final List<Key> growable = world.query(RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
                 .query(RegionQuery.Flag.builder(DefaultFlags.GROWABLE_BLOCKS))
                 .result()
                 .orElse(null);
@@ -137,6 +136,19 @@ public record BlockActionListener(OrbisBukkitPlatform<?> orbis) implements Liste
         final Block block = event.getBlock();
         if (Tag.FIRE.isTagged(block.getType())
                 && shouldPreventBlockAction(block, DefaultFlags.FIRE_SPREAD)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(orbis.adventureKey(block.getWorld()));
+        final List<Key> growable = world.query(RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
+                .query(RegionQuery.Flag.builder(DefaultFlags.GROWABLE_BLOCKS))
+                .result()
+                .orElse(null);
+        if (growable == null) return;
+
+        if (!growable.contains(orbis.adventureKey(block.getType()))) {
             event.setCancelled(true);
         }
     }
