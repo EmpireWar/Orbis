@@ -89,7 +89,7 @@ You can define and register your own region flags. **Registering a flag requires
 Here’s how Orbis registers its default flags and how you can register your own:
 
 ```java
-// Register your flag (e.g. in plugin init)
+// Register your flag (in plugin init)
 RegistryRegionFlag<Boolean> CAN_FLY = RegistryRegionFlag.<Boolean>builder()
     .key(Key.key("myplugin", "can_fly"))
     .codec(Codec.BOOL) // Mojang DFU Codec
@@ -102,6 +102,8 @@ OrbisRegistries.FLAGS.register(CAN_FLY.key(), CAN_FLY);
 region.addFlag(CAN_FLY);
 region.setFlag(CAN_FLY, true); // Allow flying in this region
 ```
+
+**You must register your flags prior to Orbis being enabled! (i.e. before `onEnable()` on Bukkit platforms)**
 
 To query a flag on a region:
 ```java
