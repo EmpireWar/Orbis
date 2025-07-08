@@ -29,6 +29,7 @@ import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -117,14 +118,48 @@ public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea 
 
     @Override
     public Set<Vector3ic> generateBoundaryPoints() {
-        Set<Vector3ic> points = new HashSet<>();
-        List<Vector3ic> vertices = new ArrayList<>(points());
-        for (int i = 0; i < vertices.size(); i++) {
-            Vector3ic a = vertices.get(i);
-            Vector3ic b = vertices.get((i + 1) % vertices.size());
-            points.addAll(getLinePoints(a, b));
+        Set<Vector3ic> boundary = new HashSet<>();
+        List<Vector3ic> pts = new ArrayList<>(points());
+        if (pts.size() < 3) return boundary;
+        // Project to 2D (XZ), compute convex hull, then reconstruct 3D points
+        List<Vector3ic> hull = convexHullXZ(pts);
+        for (int i = 0; i < hull.size(); i++) {
+            Vector3ic a = hull.get(i);
+            Vector3ic b = hull.get((i + 1) % hull.size());
+            boundary.addAll(getLinePoints(a, b));
         }
-        return points;
+        return boundary;
+    }
+
+    /**
+     * Computes the convex hull of the given points in XZ plane using Andrew's monotone chain algorithm.
+     * Returns the hull points in counter-clockwise order.
+     */
+    private List<Vector3ic> convexHullXZ(List<Vector3ic> pts) {
+        List<Vector3ic> sorted = new ArrayList<>(pts);
+        sorted.sort(Comparator.comparingInt(Vector3ic::x).thenComparingInt(Vector3ic::z));
+        List<Vector3ic> lower = new ArrayList<>();
+        for (Vector3ic p : sorted) {
+            while (lower.size() >= 2 && cross(lower.get(lower.size() - 2), lower.getLast(), p) <= 0)
+                lower.removeLast();
+            lower.add(p);
+        }
+        List<Vector3ic> upper = new ArrayList<>();
+        for (int i = sorted.size() - 1; i >= 0; i--) {
+            Vector3ic p = sorted.get(i);
+            while (upper.size() >= 2 && cross(upper.get(upper.size() - 2), upper.getLast(), p) <= 0)
+                upper.removeLast();
+            upper.add(p);
+        }
+        lower.removeLast();
+        upper.removeLast();
+        lower.addAll(upper);
+        return lower;
+    }
+
+    // Cross product for 2D (XZ)
+    private long cross(Vector3ic o, Vector3ic a, Vector3ic b) {
+        return (long) (a.x() - o.x()) * (b.z() - o.z()) - (long) (a.z() - o.z()) * (b.x() - o.x());
     }
 
     private Set<Vector3i> getLinePoints(Vector3ic start, Vector3ic end) {

@@ -42,10 +42,11 @@ public class AreaBoundaryPointsTest {
                 new Vector3i(0, 0, 0),
                 new Vector3i(1, 0, 0),
                 new Vector3i(2, 0, 0),
-                new Vector3i(1, 0, 1),
+                new Vector3i(2, 0, 1),
                 new Vector3i(2, 0, 2),
                 new Vector3i(1, 0, 2),
-                new Vector3i(0, 0, 2)));
+                new Vector3i(0, 0, 2),
+                new Vector3i(0, 0, 1)));
         if (!expected.equals(boundary)) {
             System.out.println("Expected: " + expected);
             System.out.println("Actual:   " + boundary);
