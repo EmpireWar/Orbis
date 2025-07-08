@@ -32,6 +32,7 @@ import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.util.OrbisText;
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.type.HandTypes;
@@ -72,7 +73,7 @@ public final class SelectionListener {
             return;
         }
 
-        final Vector3i last =
+        final Vector3ic last =
                 selection.getPoints().stream().reduce((first, second) -> second).orElse(null);
         if (last == null) return;
         selection.removePoint(last);

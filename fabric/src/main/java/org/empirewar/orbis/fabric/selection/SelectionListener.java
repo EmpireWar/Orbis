@@ -44,6 +44,7 @@ import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 
 import java.time.Duration;
 
@@ -79,7 +80,7 @@ public final class SelectionListener {
             return InteractionResult.PASS;
         }
 
-        final Vector3i last =
+        final Vector3ic last =
                 selection.getPoints().stream().reduce((first, second) -> second).orElse(null);
         if (last == null) return InteractionResult.PASS;
         selection.removePoint(last);

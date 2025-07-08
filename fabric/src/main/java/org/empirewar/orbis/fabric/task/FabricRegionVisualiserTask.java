@@ -19,8 +19,12 @@
  */
 package org.empirewar.orbis.fabric.task;
 
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ARGB;
 
 import org.empirewar.orbis.OrbisPlatform;
 import org.empirewar.orbis.task.RegionVisualiserTaskBase;
@@ -30,12 +34,11 @@ import org.joml.Vector3dc;
 import java.util.UUID;
 
 public class FabricRegionVisualiserTask extends RegionVisualiserTaskBase implements Runnable {
-    private final OrbisPlatform platform;
+
     private final MinecraftServer server;
 
     public FabricRegionVisualiserTask(OrbisPlatform platform, MinecraftServer server) {
         super(platform);
-        this.platform = platform;
         this.server = server;
     }
 
@@ -46,20 +49,49 @@ public class FabricRegionVisualiserTask extends RegionVisualiserTaskBase impleme
     }
 
     @Override
-    protected void showParticle(UUID uuid, Vector3dc point) {
+    protected void showGreenParticle(UUID uuid, Vector3dc point) {
         ServerPlayer player = server.getPlayerList().getPlayer(uuid);
-        player.connection.send(
-                new net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket(
-                        net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
-                        false,
-                        false,
-                        (float) point.x(),
-                        (float) point.y(),
-                        (float) point.z(),
-                        0,
-                        0,
-                        0,
-                        0,
-                        1));
+        player.connection.send(new ClientboundLevelParticlesPacket(
+                ParticleTypes.HAPPY_VILLAGER,
+                false,
+                true,
+                (float) point.x(),
+                (float) point.y(),
+                (float) point.z(),
+                0,
+                0,
+                0,
+                0,
+                1));
+    }
+
+    @Override
+    protected void showOrangeParticle(UUID uuid, Vector3dc point) {
+        ServerPlayer player = server.getPlayerList().getPlayer(uuid);
+        // Create orange color (RGB: 255, 165, 0)
+        float r = 1.0F; // 255/255
+        float g = 0.647F; // 165/255
+        float b = 0.0F; // 0/255
+        float size = 1.0F; // Particle size
+
+        // Create dust particle options
+        DustParticleOptions particleOptions =
+                new DustParticleOptions(ARGB.colorFromFloat(r, g, b, 1f), size);
+
+        ClientboundLevelParticlesPacket packet = new ClientboundLevelParticlesPacket(
+                particleOptions,
+                false,
+                true, // long distance
+                point.x(),
+                point.y(),
+                point.z(),
+                0,
+                0,
+                0, // xd, yd, zd (velocity)
+                0, // speed
+                1 // count
+                );
+
+        player.connection.send(packet);
     }
 }

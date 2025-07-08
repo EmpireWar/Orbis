@@ -101,7 +101,7 @@ public abstract sealed class EncompassingArea implements Area
     }
 
     @Override
-    public boolean addPoint(Vector3i point) {
+    public boolean addPoint(Vector3ic point) {
         final Optional<Integer> expectedPoints = getMaximumPoints();
         if (expectedPoints.isPresent()) {
             if (points.size() + 1 > expectedPoints.get()) {
@@ -117,7 +117,7 @@ public abstract sealed class EncompassingArea implements Area
     }
 
     @Override
-    public boolean removePoint(Vector3i point) {
+    public boolean removePoint(Vector3ic point) {
         if (points.remove(point)) {
             calculateEncompassingArea();
             return true;

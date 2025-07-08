@@ -33,7 +33,7 @@ import org.empirewar.orbis.area.PolyhedralArea;
 import org.empirewar.orbis.area.SphericalArea;
 import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.util.OrbisText;
-import org.joml.Vector3i;
+import org.joml.Vector3ic;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -55,7 +55,7 @@ public final class Selection {
                     .append(text(" to remove the last added point.", OrbisText.SECONDARY_RED)));
 
     private AreaType<?> selectionType;
-    private final Set<Vector3i> points;
+    private final Set<Vector3ic> points;
 
     public Selection(AreaType<?> selectionType) {
         this.selectionType = selectionType;
@@ -70,15 +70,15 @@ public final class Selection {
         this.selectionType = selectionType;
     }
 
-    public Set<Vector3i> getPoints() {
+    public Set<Vector3ic> getPoints() {
         return Set.copyOf(points);
     }
 
-    public void addPoint(Vector3i point) {
+    public void addPoint(Vector3ic point) {
         this.points.add(point);
     }
 
-    public void removePoint(Vector3i point) {
+    public void removePoint(Vector3ic point) {
         this.points.remove(point);
     }
 

@@ -20,6 +20,7 @@
 package org.empirewar.orbis.bukkit.task;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
@@ -44,9 +45,19 @@ public class BukkitRegionVisualiserTask extends RegionVisualiserTaskBase {
     }
 
     @Override
-    protected void showParticle(UUID uuid, Vector3dc point) {
+    protected void showGreenParticle(UUID uuid, Vector3dc point) {
         final Player player = Bukkit.getPlayer(uuid);
         Location loc = new Location(player.getWorld(), point.x(), point.y(), point.z());
         player.spawnParticle(Particle.HAPPY_VILLAGER, loc, 1, 0, 0, 0, 0);
+    }
+
+    @Override
+    protected void showOrangeParticle(UUID uuid, Vector3dc point) {
+        final Player player = Bukkit.getPlayer(uuid);
+        Location loc = new Location(player.getWorld(), point.x(), point.y(), point.z());
+        // Create an orange color (RGB: 255, 165, 0)
+        Particle.DustOptions dustOptions =
+                new Particle.DustOptions(Color.fromRGB(255, 165, 0), 1.0F);
+        player.spawnParticle(Particle.DUST, loc, 1, 0, 0, 0, 0, dustOptions);
     }
 }

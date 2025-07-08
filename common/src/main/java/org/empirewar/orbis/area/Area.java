@@ -54,7 +54,7 @@ public sealed interface Area extends Iterable<Vector3ic> permits EncompassingAre
      * @param point the point to add
      * @return true if the point is able to fit into this area
      */
-    boolean addPoint(Vector3i point);
+    boolean addPoint(Vector3ic point);
 
     /**
      * Attempts to remove a point from this area.
@@ -64,7 +64,7 @@ public sealed interface Area extends Iterable<Vector3ic> permits EncompassingAre
      * @param point the point to remove
      * @return specified by {@link java.util.Set#remove(Object)}
      */
-    boolean removePoint(Vector3i point);
+    boolean removePoint(Vector3ic point);
 
     /**
      * @see #contains(double, double, double)

@@ -24,9 +24,12 @@ import org.empirewar.orbis.task.RegionVisualiserTaskBase;
 import org.joml.Vector3dc;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.particle.ParticleOptions;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.math.vector.Vector3d;
 
 import java.util.UUID;
 
@@ -44,13 +47,25 @@ public class SpongeRegionVisualiserTask extends RegionVisualiserTaskBase impleme
     }
 
     @Override
-    protected void showParticle(UUID uuid, Vector3dc point) {
+    protected void showGreenParticle(UUID uuid, Vector3dc point) {
         ServerPlayer player = Sponge.server().player(uuid).orElseThrow();
         ServerWorld world = player.world();
         world.spawnParticles(
                 ParticleEffect.builder()
                         .type(ParticleTypes.HAPPY_VILLAGER.get())
                         .build(),
-                new org.spongepowered.math.vector.Vector3d(point.x(), point.y(), point.z()));
+                new Vector3d(point.x(), point.y(), point.z()));
+    }
+
+    @Override
+    protected void showOrangeParticle(UUID uuid, Vector3dc point) {
+        ServerPlayer player = Sponge.server().player(uuid).orElseThrow();
+        ServerWorld world = player.world();
+        world.spawnParticles(
+                ParticleEffect.builder()
+                        .type(ParticleTypes.DUST.get())
+                        .option(ParticleOptions.COLOR, Color.ofRgb(255, 165, 0))
+                        .build(),
+                new Vector3d(point.x(), point.y(), point.z()));
     }
 }

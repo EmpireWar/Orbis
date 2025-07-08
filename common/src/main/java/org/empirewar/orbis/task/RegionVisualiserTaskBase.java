@@ -23,8 +23,10 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.OrbisPlatform;
 import org.empirewar.orbis.area.Area;
+import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
@@ -33,6 +35,7 @@ import org.joml.Vector3ic;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 public abstract class RegionVisualiserTaskBase implements Runnable {
 
@@ -45,24 +48,49 @@ public abstract class RegionVisualiserTaskBase implements Runnable {
     @Override
     public void run() {
         for (UUID player : platform.getVisualisingPlayers()) {
-            final Key playerWorld = platform.getPlayerWorld(player);
-            final RegionisedWorld regionisedWorld = platform.getRegionisedWorld(playerWorld);
-            final Vector3dc position = getPlayerPosition(player);
-            final Optional<Region> region =
-                    regionisedWorld.query(RegionQuery.Position.at(position)).result().stream()
-                            .findFirst();
-            if (region.isEmpty() || region.get().isGlobal()) continue;
+            showSelection(player);
+            showCurrentPrioritisedRegionArea(player);
+        }
+    }
 
-            Area area = region.get().area();
-            Set<Vector3ic> boundary = area.getBoundaryPoints();
-            for (Vector3ic point : boundary) {
-                showParticle(
-                        player, new Vector3d(point.x() + 0.5, point.y() + 0.5, point.z() + 0.5));
-            }
+    private void showCurrentPrioritisedRegionArea(UUID player) {
+        final Key playerWorld = platform.getPlayerWorld(player);
+        final RegionisedWorld regionisedWorld = platform.getRegionisedWorld(playerWorld);
+        final Vector3dc position = getPlayerPosition(player);
+        final Optional<Region> region =
+                regionisedWorld.query(RegionQuery.Position.at(position)).result().stream()
+                        .findFirst();
+        if (region.isEmpty() || region.get().isGlobal()) return;
+
+        Area area = region.get().area();
+        showParticlesForArea(area, player, this::showGreenParticle);
+    }
+
+    private void showSelection(UUID player) {
+        final Selection selection = platform.selectionManager().get(player).orElse(null);
+        if (selection == null) return;
+        try {
+            final Area area = selection.build();
+            showParticlesForArea(area, player, this::showOrangeParticle);
+        } catch (IncompleteAreaException ignored) {
+            // Not complete yet
+        }
+    }
+
+    private void showParticlesForArea(
+            Area area, UUID player, BiConsumer<UUID, Vector3dc> particle) {
+        Set<Vector3ic> boundary = area.getBoundaryPoints();
+        for (Vector3ic point : boundary) {
+            particle.accept(
+                    player, new Vector3d(point.x() + 0.5, point.y() + 0.5, point.z() + 0.5));
         }
     }
 
     protected abstract Vector3dc getPlayerPosition(UUID uuid);
 
-    protected abstract void showParticle(UUID uuid, Vector3dc point);
+    // Really not sure how to make a better abstracted particle system - no adventure API and each
+    // platform is vastly different
+    protected abstract void showGreenParticle(UUID uuid, Vector3dc point);
+
+    protected abstract void showOrangeParticle(UUID uuid, Vector3dc point);
 }
