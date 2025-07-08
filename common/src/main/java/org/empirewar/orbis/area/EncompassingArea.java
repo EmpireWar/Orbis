@@ -35,6 +35,7 @@ public abstract sealed class EncompassingArea implements Area
         permits CuboidArea, PolygonArea, SphericalArea {
 
     protected final Set<Vector3ic> points;
+    protected final Set<Vector3ic> boundaryPoints;
     protected final Vector3i min = new Vector3i();
     protected final Vector3i max = new Vector3i();
 
@@ -43,11 +44,13 @@ public abstract sealed class EncompassingArea implements Area
     EncompassingArea() {
         final int expected = getMaximumPoints().orElse(0);
         this.points = new LinkedHashSet<>(expected);
+        this.boundaryPoints = new LinkedHashSet<>(expected * 4);
         calculateEncompassingArea();
     }
 
     EncompassingArea(List<Vector3ic> points) {
         this.points = new LinkedHashSet<>(points);
+        this.boundaryPoints = new LinkedHashSet<>(points.size() * 4);
         calculateEncompassingArea();
     }
 
@@ -89,6 +92,12 @@ public abstract sealed class EncompassingArea implements Area
         max.x = maxX;
         max.y = maxY;
         max.z = maxZ;
+
+        this.boundaryPoints.clear();
+        // Only generate boundary points if we have enough points
+        if (points.size() >= getMinimumPoints()) {
+            this.boundaryPoints.addAll(generateBoundaryPoints());
+        }
 
         // Copy to prevent concurrent modification
         List.copyOf(updateListeners).forEach(Runnable::run);
@@ -139,6 +148,13 @@ public abstract sealed class EncompassingArea implements Area
     public Set<Vector3ic> points() {
         return Set.copyOf(points);
     }
+
+    @Override
+    public Set<Vector3ic> getBoundaryPoints() {
+        return boundaryPoints;
+    }
+
+    protected abstract Set<Vector3ic> generateBoundaryPoints();
 
     /**
      * Gets the maximum number of points for this area.

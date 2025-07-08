@@ -116,7 +116,7 @@ public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea 
     }
 
     @Override
-    public Set<Vector3ic> getBoundaryPoints() {
+    public Set<Vector3ic> generateBoundaryPoints() {
         Set<Vector3ic> points = new HashSet<>();
         List<Vector3ic> vertices = new ArrayList<>(points());
         for (int i = 0; i < vertices.size(); i++) {

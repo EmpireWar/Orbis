@@ -65,6 +65,10 @@ public final class PolyhedralArea extends PolygonArea {
         try {
             this.edges = getPolyhedronEdges();
             this.faces = getPolyhedronFaces();
+            this.boundaryPoints.clear();
+            if (points.size() >= getMinimumPoints()) {
+                this.boundaryPoints.addAll(generateBoundaryPoints());
+            }
         } catch (IllegalArgumentException ignored) {
             // Means there were not enough points
         }

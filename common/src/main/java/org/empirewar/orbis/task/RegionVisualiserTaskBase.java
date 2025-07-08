@@ -32,14 +32,28 @@ import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.joml.Vector3ic;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public abstract class RegionVisualiserTaskBase implements Runnable {
 
     protected final OrbisPlatform platform;
+
+    // To prevent constantly building the same area, which will cause lag (due to generating
+    // boundary points etc.), cache it
+    private final Map<UUID, CachedArea> areaCache = new HashMap<>();
+
+    /**
+     * @param pointsHash To detect changes in selection points
+     */
+    private record CachedArea(Area area, int pointsHash) {}
 
     public RegionVisualiserTaskBase(OrbisPlatform platform) {
         this.platform = platform;
@@ -47,7 +61,16 @@ public abstract class RegionVisualiserTaskBase implements Runnable {
 
     @Override
     public void run() {
-        for (UUID player : platform.getVisualisingPlayers()) {
+        Set<UUID> currentPlayers = new HashSet<>(platform.getVisualisingPlayers());
+
+        // Clean up cache for players who are no longer visualizing
+        Set<UUID> playersToRemove = areaCache.keySet().stream()
+                .filter(uuid -> !currentPlayers.contains(uuid))
+                .collect(Collectors.toSet());
+        playersToRemove.forEach(areaCache::remove);
+
+        // Process current players
+        for (UUID player : currentPlayers) {
             showSelection(player);
             showCurrentPrioritisedRegionArea(player);
         }
@@ -68,21 +91,46 @@ public abstract class RegionVisualiserTaskBase implements Runnable {
 
     private void showSelection(UUID player) {
         final Selection selection = platform.selectionManager().get(player).orElse(null);
-        if (selection == null) return;
+        if (selection == null) {
+            areaCache.remove(player);
+            return;
+        }
+
         try {
-            final Area area = selection.build();
-            showParticlesForArea(area, player, this::showOrangeParticle);
+            // Calculate hash of current selection points for change detection
+            int currentHash = Objects.hash(selection.getPoints().toArray());
+
+            System.out.println("hash: " + currentHash);
+
+            // Get cached area or build a new one if needed
+            CachedArea cached = areaCache.get(player);
+            if (cached == null || cached.pointsHash != currentHash) {
+                final Area area = selection.build();
+                areaCache.put(player, new CachedArea(area, currentHash));
+                showParticlesForArea(area, player, this::showOrangeParticle);
+            } else {
+                // Use cached area
+                showParticlesForArea(cached.area, player, this::showOrangeParticle);
+            }
         } catch (IncompleteAreaException ignored) {
+            areaCache.remove(player);
             // Not complete yet
         }
     }
 
+    private static final double MAX_DISTANCE_SQUARED =
+            128.0 * 128.0; // 128 blocks squared for distance check
+
     private void showParticlesForArea(
             Area area, UUID player, BiConsumer<UUID, Vector3dc> particle) {
+        Vector3dc playerPos = getPlayerPosition(player);
         Set<Vector3ic> boundary = area.getBoundaryPoints();
         for (Vector3ic point : boundary) {
-            particle.accept(
-                    player, new Vector3d(point.x() + 0.5, point.y() + 0.5, point.z() + 0.5));
+            Vector3d particlePos = new Vector3d(point.x() + 0.5, point.y() + 0.5, point.z() + 0.5);
+            // Only show particle if it's within 96 blocks of the player
+            if (playerPos.distanceSquared(particlePos) <= MAX_DISTANCE_SQUARED) {
+                particle.accept(player, particlePos);
+            }
         }
     }
 

@@ -85,7 +85,7 @@ public final class CuboidArea extends EncompassingArea {
     }
 
     @Override
-    public Set<Vector3ic> getBoundaryPoints() {
+    public Set<Vector3ic> generateBoundaryPoints() {
         Set<Vector3ic> points = new HashSet<>();
         if (points().size() < 2) return points;
         Vector3ic min = getMin();
@@ -107,12 +107,14 @@ public final class CuboidArea extends EncompassingArea {
     }
 
     private void addLine(Set<Vector3ic> points, int x1, int y1, int z1, int x2, int y2, int z2) {
-        int dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1), dz = Math.abs(z2 - z1);
-        int n = Math.max(Math.max(dx, dy), dz);
-        for (int i = 0; i <= n; i++) {
-            int x = x1 + i * (x2 - x1) / n;
-            int y = y1 + i * (y2 - y1) / n;
-            int z = z1 + i * (z2 - z1) / n;
+        int dx = Integer.compare(x2, x1);
+        int dy = Integer.compare(y2, y1);
+        int dz = Integer.compare(z2, z1);
+        int length = Math.max(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)), Math.abs(z2 - z1));
+        for (int i = 0; i <= length; i++) {
+            int x = x1 + dx * i;
+            int y = y1 + dy * i;
+            int z = z1 + dz * i;
             points.add(new Vector3i(x, y, z));
         }
     }

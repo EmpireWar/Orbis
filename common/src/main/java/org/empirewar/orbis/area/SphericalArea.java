@@ -113,7 +113,7 @@ public final class SphericalArea extends EncompassingArea {
     }
 
     @Override
-    public Set<Vector3ic> getBoundaryPoints() {
+    public Set<Vector3ic> generateBoundaryPoints() {
         Set<Vector3ic> points = new HashSet<>();
         Vector3ic c = getCenter();
         double r = getRadius();
