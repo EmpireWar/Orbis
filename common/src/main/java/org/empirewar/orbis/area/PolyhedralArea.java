@@ -29,7 +29,7 @@ import org.joml.Vector3dc;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +49,22 @@ public final class PolyhedralArea extends PolygonArea {
 
     private static final double EPSILON = 1e-7;
 
-    private int[][][] edges, faces;
+    public record Vertex(int x, int y, int z) {
+        public Vertex(Vector3ic v) {
+            this(v.x(), v.y(), v.z());
+        }
+
+        public Vector3i toVector3i() {
+            return new Vector3i(x, y, z);
+        }
+    }
+
+    public record Edge(Vertex v1, Vertex v2) {}
+
+    public record Face(List<Vertex> vertices) {}
+
+    private List<Edge> edges;
+    private List<Face> faces;
 
     public PolyhedralArea() {
         super();
@@ -63,8 +78,8 @@ public final class PolyhedralArea extends PolygonArea {
     protected void calculateEncompassingArea() {
         super.calculateEncompassingArea();
         try {
-            this.edges = getPolyhedronEdges();
             this.faces = getPolyhedronFaces();
+            this.edges = getPolyhedronEdges(faces);
             this.boundaryPoints.clear();
             if (points.size() >= getMinimumPoints()) {
                 this.boundaryPoints.addAll(generateBoundaryPoints());
@@ -83,37 +98,24 @@ public final class PolyhedralArea extends PolygonArea {
                 || y > max.y() + EPSILON
                 || z < min.z() - EPSILON
                 || z > max.z() + EPSILON) {
-            //            System.out.println(
-            //                    String.format("Point (%.2f, %.2f, %.2f) is outside bounding box",
-            // x, y, z));
             return false;
         }
 
         Vector3dc point = new Vector3d(x, y, z);
-        //        System.out.println(String.format("\nTesting point: (%.2f, %.2f, %.2f)", x, y, z));
 
         // Check if point is exactly on a vertex
         for (Vector3ic vertex : points) {
             double dist = point.distanceSquared(vertex.x(), vertex.y(), vertex.z());
             if (dist < EPSILON * EPSILON) {
-                //                System.out.println(String.format(
-                //                        "Point is on vertex (%d, %d, %d), distance=%.6f",
-                //                        vertex.x(), vertex.y(), vertex.z(), dist));
                 return true; // Point is on a vertex
             }
         }
 
         // Check if point is on any edge
-        //        System.out.println("Checking " + edges.length + " edges");
-        for (int[][] edge : edges) {
-            Vector3dc v1 = new Vector3d(edge[0][0], edge[0][1], edge[0][2]);
-            Vector3dc v2 = new Vector3d(edge[1][0], edge[1][1], edge[1][2]);
-
+        for (Edge edge : edges) {
+            Vector3dc v1 = new Vector3d(edge.v1().x, edge.v1().y, edge.v1().z);
+            Vector3dc v2 = new Vector3d(edge.v2().x, edge.v2().y, edge.v2().z);
             if (isPointOnEdge(point, v1, v2)) {
-                //                System.out.println(String.format(
-                //                        "Point is on edge between (%.2f, %.2f, %.2f) and (%.2f,
-                // %.2f, %.2f)",
-                //                        v1.x, v1.y, v1.z, v2.x, v2.y, v2.z));
                 return true; // Point is on an edge
             }
         }
@@ -121,58 +123,29 @@ public final class PolyhedralArea extends PolygonArea {
         // Use ray casting algorithm for point-in-polyhedron test
         // Cast a ray in a direction that's unlikely to be parallel to any face
         Vector3dc rayDir = new Vector3d(1, 0.5, 0.3).normalize();
-        //        System.out.println("Using ray direction: " + rayDir);
         int intersections = 0;
-
-        // Get all faces of the polyhedron
-        //        System.out.println("Checking " + faces.length + " faces");
-
-        for (int[][] face : faces) {
+        for (Face face : faces) {
             // Convert face vertices to Vector3d
-            Vector3d[] vertices = new Vector3d[face.length];
-            for (int i = 0; i < face.length; i++) {
-                vertices[i] = new Vector3d(face[i][0], face[i][1], face[i][2]);
-            }
+            List<Vertex> verts = face.vertices();
+            Vector3d[] vertices =
+                    verts.stream().map(v -> new Vector3d(v.x, v.y, v.z)).toArray(Vector3d[]::new);
 
             // Check if point is on the face's plane
             if (isPointOnFace(point, vertices)) {
-                //                System.out.println("Point is on face " + f);
                 return true; // Point is on the face
             }
 
             // Check intersection with the face (as triangles)
             int faceIntersections = 0;
-            for (int i = 1; i < face.length - 1; i++) {
+            for (int i = 1; i < vertices.length - 1; i++) {
                 if (rayIntersectsTriangle(
                         point, rayDir, vertices[0], vertices[i], vertices[i + 1])) {
                     faceIntersections++;
-                    //                    System.out.println(String.format(
-                    //                            "  Intersection with triangle %d: (%.2f, %.2f,
-                    // %.2f), (%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f)",
-                    //                            i,
-                    //                            vertices[0].x,
-                    //                            vertices[0].y,
-                    //                            vertices[0].z,
-                    //                            vertices[i].x,
-                    //                            vertices[i].y,
-                    //                            vertices[i].z,
-                    //                            vertices[i + 1].x,
-                    //                            vertices[i + 1].y,
-                    //                            vertices[i + 1].z));
                 }
             }
             intersections += faceIntersections;
-            if (faceIntersections > 0) {
-                //                System.out.println(String.format(
-                //                        "Face %d: %d intersections (total: %d)",
-                //                        f, faceIntersections, intersections));
-            }
         }
-
         boolean isInside = (intersections % 2) == 1;
-        //        System.out.println(String.format(
-        //                "Total intersections: %d, point is %s",
-        //                intersections, isInside ? "inside" : "outside"));
         return isInside;
     }
 
@@ -180,15 +153,13 @@ public final class PolyhedralArea extends PolygonArea {
      * Returns the faces of the polyhedron by computing the convex hull of the points.
      * Each face is defined by its vertices in counter-clockwise order when viewed from outside.
      *
-     * @return array of faces, where each face is an array of 3D points
+     * @return list of faces, where each face is an array of 3D points
      */
-    private int[][][] getPolyhedronFaces() {
+    private List<Face> getPolyhedronFaces() {
         if (points.size() < 4) {
             // Not enough points to form a 3D polyhedron
-            return new int[0][][];
+            return List.of();
         }
-
-        // Convert points to double array for QuickHull3D
         double[] coords = new double[points.size() * 3];
         int i = 0;
         for (Vector3ic point : points) {
@@ -203,22 +174,37 @@ public final class PolyhedralArea extends PolygonArea {
 
         // Get faces from convex hull
         int[][] faceIndices = hull.getFaces();
-        int[][][] faces = new int[faceIndices.length][][];
 
         // Convert face indices to actual points
         final LinkedList<Vector3ic> pointsList = new LinkedList<>(points);
-        for (int f = 0; f < faceIndices.length; f++) {
-            int[] face = faceIndices[f];
-            faces[f] = new int[face.length][3];
-            for (int v = 0; v < face.length; v++) {
-                Vector3ic point = pointsList.get(face[v]);
-                faces[f][v][0] = point.x();
-                faces[f][v][1] = point.y();
-                faces[f][v][2] = point.z();
+        List<Face> faces = new ArrayList<>();
+        for (int[] face : faceIndices) {
+            List<Vertex> verts = new ArrayList<>();
+            for (int v : face) {
+                Vector3ic p = pointsList.get(v);
+                verts.add(new Vertex(p));
+            }
+            faces.add(new Face(verts));
+        }
+        return faces;
+    }
+
+    private List<Edge> getPolyhedronEdges(List<Face> faces) {
+        Set<String> edgeSet = new HashSet<>();
+        List<Edge> edges = new java.util.ArrayList<>();
+        for (Face face : faces) {
+            List<Vertex> verts = face.vertices();
+            for (int i = 0; i < verts.size(); i++) {
+                Vertex v1 = verts.get(i);
+                Vertex v2 = verts.get((i + 1) % verts.size());
+                String key =
+                        v1.toString().compareTo(v2.toString()) < 0 ? v1 + "-" + v2 : v2 + "-" + v1;
+                if (edgeSet.add(key)) {
+                    edges.add(new Edge(v1, v2));
+                }
             }
         }
-
-        return faces;
+        return edges;
     }
 
     /**
@@ -372,77 +358,6 @@ public final class PolyhedralArea extends PolygonArea {
     }
 
     /**
-     * Gets all edges of the polyhedron.
-     *
-     * @return Array of edges, where each edge is represented by two points
-     */
-    private int[][][] getPolyhedronEdges() {
-        Set<Edge> edgeSet = new HashSet<>();
-        int[][][] faces = getPolyhedronFaces();
-
-        // Extract edges from all faces
-        for (int[][] face : faces) {
-            for (int i = 0; i < face.length; i++) {
-                int[] v1 = face[i];
-                int[] v2 = face[(i + 1) % face.length];
-
-                // Create a normalized edge (smaller index first to avoid duplicates)
-                Edge edge = new Edge(v1, v2);
-                edgeSet.add(edge);
-            }
-        }
-
-        // Convert to array format
-        int[][][] edges = new int[edgeSet.size()][2][3];
-        int i = 0;
-        for (Edge edge : edgeSet) {
-            edges[i][0] = edge.v1;
-            edges[i][1] = edge.v2;
-            i++;
-        }
-
-        return edges;
-    }
-
-    /**
-     * Helper class to represent an edge and handle equality checks.
-     */
-    private record Edge(int[] v1, int[] v2) {
-        private Edge(int[] v1, int[] v2) {
-            // Ensure consistent ordering of vertices for equality comparison
-            if (compareVertices(v1, v2) < 0) {
-                this.v1 = v1;
-                this.v2 = v2;
-            } else {
-                this.v1 = v2;
-                this.v2 = v1;
-            }
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-            Edge other = (Edge) obj;
-            return Arrays.equals(v1, other.v1) && Arrays.equals(v2, other.v2);
-        }
-
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(v1) * 31 + Arrays.hashCode(v2);
-        }
-
-        /**
-         * Compares two vertices lexicographically.
-         */
-        private static int compareVertices(int[] a, int[] b) {
-            if (a[0] != b[0]) return Integer.compare(a[0], b[0]);
-            if (a[1] != b[1]) return Integer.compare(a[1], b[1]);
-            return Integer.compare(a[2], b[2]);
-        }
-    }
-
-    /**
      * Checks if a point lies on an edge between two points.
      *
      * @param point The point to check
@@ -476,9 +391,9 @@ public final class PolyhedralArea extends PolygonArea {
         Set<Vector3ic> points = new HashSet<>();
         if (edges == null) calculateEncompassingArea();
         if (edges != null) {
-            for (int[][] edge : edges) {
-                Vector3ic a = new Vector3i(edge[0][0], edge[0][1], edge[0][2]);
-                Vector3ic b = new Vector3i(edge[1][0], edge[1][1], edge[1][2]);
+            for (Edge edge : edges) {
+                Vector3ic a = edge.v1().toVector3i();
+                Vector3ic b = edge.v2().toVector3i();
                 points.addAll(getLinePoints(a, b));
             }
         }
