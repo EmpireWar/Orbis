@@ -65,6 +65,7 @@ public class SpongeRegionVisualiserTask extends RegionVisualiserTaskBase impleme
                 ParticleEffect.builder()
                         .type(ParticleTypes.DUST.get())
                         .option(ParticleOptions.COLOR, Color.ofRgb(255, 165, 0))
+                        .option(ParticleOptions.SCALE, 2.0)
                         .build(),
                 new Vector3d(point.x(), point.y(), point.z()));
     }

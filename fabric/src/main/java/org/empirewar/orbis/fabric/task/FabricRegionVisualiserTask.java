@@ -72,7 +72,7 @@ public class FabricRegionVisualiserTask extends RegionVisualiserTaskBase impleme
         float r = 1.0F; // 255/255
         float g = 0.647F; // 165/255
         float b = 0.0F; // 0/255
-        float size = 1.0F; // Particle size
+        float size = 2.0F; // Particle size
 
         // Create dust particle options
         DustParticleOptions particleOptions =

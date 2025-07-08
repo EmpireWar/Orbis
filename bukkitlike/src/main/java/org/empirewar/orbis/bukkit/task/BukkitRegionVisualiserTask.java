@@ -57,7 +57,7 @@ public class BukkitRegionVisualiserTask extends RegionVisualiserTaskBase {
         Location loc = new Location(player.getWorld(), point.x(), point.y(), point.z());
         // Create an orange color (RGB: 255, 165, 0)
         Particle.DustOptions dustOptions =
-                new Particle.DustOptions(Color.fromRGB(255, 165, 0), 1.0F);
+                new Particle.DustOptions(Color.fromRGB(255, 165, 0), 2.0F);
         player.spawnParticle(Particle.DUST, loc, 1, 0, 0, 0, 0, dustOptions);
     }
 }
