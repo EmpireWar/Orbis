@@ -28,7 +28,13 @@ import org.empirewar.orbis.sponge.api.RegionLeaveEvent;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 
-public record RegionMessagesListener(OrbisSponge orbis) {
+public final class RegionMessagesListener {
+
+    private final OrbisSponge orbis;
+
+    public RegionMessagesListener(OrbisSponge orbis) {
+        this.orbis = orbis;
+    }
 
     @Listener
     public void onEnter(RegionEnterEvent event) {
