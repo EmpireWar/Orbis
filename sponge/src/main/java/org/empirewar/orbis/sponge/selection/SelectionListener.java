@@ -35,15 +35,12 @@ import org.joml.Vector3i;
 import org.joml.Vector3ic;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
-import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.math.vector.Vector3d;
 
@@ -58,7 +55,7 @@ public final class SelectionListener {
     }
 
     @Listener
-    public void onRightClick(InteractItemEvent.Secondary event, @Root ServerPlayer player) {
+    public void onRightClick(InteractItemEvent.Secondary.Pre event, @Root ServerPlayer player) {
         if (!player.hasPermission(Permissions.MANAGE)) return;
 
         final ItemStackSnapshot item =
@@ -130,12 +127,7 @@ public final class SelectionListener {
                 OrbisText.PREFIX.append(Component.text("Added point ", OrbisText.EREBOR_GREEN)
                         .append(teleportPart)
                         .append(Component.text(" to selection.", OrbisText.EREBOR_GREEN))));
-    }
 
-    @Listener
-    public void onBreak(ChangeBlockEvent.All event, @Root ServerPlayer player) {
-        final ItemStack item = player.itemInHand(HandTypes.MAIN_HAND.get());
-        if (item.isEmpty() || !item.getOrElse(SpongeDataKeys.IS_WAND, false)) return;
         event.setCancelled(true);
     }
 }

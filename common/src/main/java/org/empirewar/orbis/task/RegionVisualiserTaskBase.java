@@ -100,8 +100,6 @@ public abstract class RegionVisualiserTaskBase implements Runnable {
             // Calculate hash of current selection points for change detection
             int currentHash = Objects.hash(selection.getPoints().toArray());
 
-            System.out.println("hash: " + currentHash);
-
             // Get cached area or build a new one if needed
             CachedArea cached = areaCache.get(player);
             if (cached == null || cached.pointsHash != currentHash) {
