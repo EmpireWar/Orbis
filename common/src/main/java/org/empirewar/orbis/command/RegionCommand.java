@@ -316,6 +316,12 @@ public final class RegionCommand {
             OrbisSession session,
             @Argument("region") Region region,
             @Argument("priority") int priority) {
+        if (region.isGlobal()) {
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("Can't assign priority to a global region.", OrbisText.SECONDARY_RED)));
+            return;
+        }
+
         region.priority(priority);
         session.sendMessage(OrbisText.PREFIX.append(text(
                 "Set priority of region '" + region.name() + "' to " + priority + ".",
@@ -329,6 +335,12 @@ public final class RegionCommand {
             OrbisSession session,
             @Argument("region") Region region,
             @Argument("parent") Region parent) {
+        if (region.isGlobal()) {
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("Can't assign parent to a global region.", OrbisText.SECONDARY_RED)));
+            return;
+        }
+
         if (region.equals(parent)) {
             session.sendMessage(OrbisText.PREFIX.append(
                     text("A region cannot be a parent of itself.", OrbisText.SECONDARY_RED)));
@@ -361,6 +373,12 @@ public final class RegionCommand {
             OrbisSession session,
             @Argument("region") Region region,
             @Argument("parent") Region parent) {
+        if (region.isGlobal()) {
+            session.sendMessage(OrbisText.PREFIX.append(
+                    text("Can't assign parent to a global region.", OrbisText.SECONDARY_RED)));
+            return;
+        }
+
         region.removeParent(parent);
         session.sendMessage(OrbisText.PREFIX.append(text(
                 "Removed parent '" + parent.name() + "' from '" + region.name() + "'.",
