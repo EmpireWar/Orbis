@@ -416,7 +416,7 @@ public final class RegionCommand {
             @Argument("x") int x,
             @Argument("y") int y,
             @Argument("z") int z) {
-        if (region.area().addPoint(new Vector3i(x, y, z))) {
+        if (!region.isGlobal() && region.area().addPoint(new Vector3i(x, y, z))) {
             session.sendMessage(OrbisText.PREFIX.append(text(
                     "Added point [" + x + ", " + y + ", " + z + "] to '" + region.name() + "'",
                     OrbisText.EREBOR_GREEN)));
@@ -435,6 +435,11 @@ public final class RegionCommand {
         session.sendMessage(OrbisText.PREFIX.append(text("Points in region ")
                 .append(text(region.name(), OrbisText.SECONDARY_ORANGE))
                 .append(text(":"))));
+
+        if (region.isGlobal()) {
+            session.sendMessage(text("  Global region - no area defined", NamedTextColor.GRAY));
+            return;
+        }
 
         Set<Vector3ic> points = region.area().points();
         if (points.isEmpty()) {
