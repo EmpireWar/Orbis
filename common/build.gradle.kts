@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly("net.kyori:adventure-text-serializer-gson:4.16.0")
     compileOnly("org.slf4j:slf4j-api:2.0.12")
+    testImplementation("org.slf4j:slf4j-api:2.0.12")
+    testImplementation("net.kyori:adventure-text-serializer-plain:4.22.0")
 }

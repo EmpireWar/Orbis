@@ -194,6 +194,10 @@ public final class RegionisedWorldSet implements RegionisedWorld {
 
     @Override
     public boolean remove(Region region) {
+        if (region.isGlobal() && worldId != null && region.name().equals(worldId.asString())) {
+            throw new IllegalArgumentException("Cannot remove global region of the world");
+        }
+
         if (regions.remove(region)) {
             if (!region.isGlobal()) {
                 // Remove from RTree

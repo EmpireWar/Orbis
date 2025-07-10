@@ -21,6 +21,7 @@ package org.empirewar.orbis.world;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.kyori.adventure.key.Key;
@@ -172,10 +173,18 @@ public class RegionisedWorldTest {
         RegionisedWorldSet set = new RegionisedWorldSet(Key.key("orbis:world"));
         final Region global = new GlobalRegion(set);
         assertTrue(global.isGlobal());
-        set.add(global);
+        // Adding should succeed
+        assertTrue(set.add(global));
+        // Trying to add again should fail
+        assertFalse(set.add(global));
+
+        // Querying the global region of the world at any position should succeed
         assertTrue(set.query(RegionQuery.Position.builder().position(5, 5, 5))
                 .result()
                 .contains(global));
+
+        // Removing the global region of the world should not be allowed
+        assertThrows(IllegalArgumentException.class, () -> set.remove(global));
     }
 
     @Test

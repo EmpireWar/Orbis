@@ -38,14 +38,16 @@ dependencies {
         // Define dependency versions as constraints
         compileOnly("org.joml:joml:1.10.5")
         testImplementation("org.joml:joml:1.10.5")
-        compileOnly("net.kyori:adventure-api:4.17.0")
-        testImplementation("net.kyori:adventure-api:4.17.0")
+        compileOnly("net.kyori:adventure-api:4.22.0")
+        testImplementation("net.kyori:adventure-api:4.22.0")
     }
 
     compileOnly("org.spongepowered:configurate-yaml:4.1.2")
     testImplementation("org.spongepowered:configurate-yaml:4.1.2")
     compileOnly("net.kyori:adventure-api")
     testImplementation("net.kyori:adventure-api")
+    compileOnly("net.kyori:adventure-text-serializer-gson:4.22.0")
+    testImplementation("net.kyori:adventure-text-serializer-gson:4.22.0")
     compileOnly("org.joml:joml")
     testImplementation("org.joml:joml")
     compileOnly("com.mojang:datafixerupper:8.0.16")
@@ -59,19 +61,32 @@ dependencies {
     implementation("org.incendo:cloud-annotations:2.0.0") {
         exclude("io.leangen.geantyref")
     }
+    testImplementation("org.incendo:cloud-annotations:2.0.0") {
+        exclude("io.leangen.geantyref")
+    }
     annotationProcessor("org.incendo:cloud-annotations:2.0.0") {
         exclude("io.leangen.geantyref")
     }
     implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10") {
         exclude("io.leangen.geantyref")
     }
+    testImplementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10") {
+        exclude("io.leangen.geantyref")
+    }
     implementation("org.incendo:cloud-brigadier:2.0.0-beta.10") {
+        exclude("io.leangen.geantyref")
+    }
+    testImplementation("org.incendo:cloud-brigadier:2.0.0-beta.10") {
         exclude("io.leangen.geantyref")
     }
     implementation("org.incendo:cloud-processors-confirmation:1.0.0-rc.1") {
         exclude("io.leangen.geantyref")
     }
+    testImplementation("org.incendo:cloud-processors-confirmation:1.0.0-rc.1") {
+        exclude("io.leangen.geantyref")
+    }
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+    testImplementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 }
 
 testing {

@@ -158,7 +158,7 @@ public final class RegionCommand {
 
         final Region region = global ? new GlobalRegion(regionName) : new Region(regionName, area);
         orbis.getGlobalWorld().add(region);
-        if (session instanceof PlayerOrbisSession player) {
+        if (session instanceof PlayerOrbisSession player && !region.isGlobal()) {
             orbis.getRegionisedWorld(orbis.getPlayerWorld(player.getUuid())).add(region);
         }
         session.sendMessage(OrbisText.PREFIX.append(text(
@@ -169,6 +169,14 @@ public final class RegionCommand {
     @Command("region|rg setarea <region>")
     @CommandDescription("Set the area a region spans.")
     public void onSetArea(PlayerOrbisSession session, @Argument("region") Region region) {
+        if (region.isGlobal()) {
+            session.sendMessage(OrbisText.PREFIX.append(text(
+                    "Unable to set area for '" + region.name()
+                            + "'. Global regions do not support an area.",
+                    OrbisText.SECONDARY_RED)));
+            return;
+        }
+
         final Selection selection =
                 OrbisAPI.get().selectionManager().get(session.getUuid()).orElse(null);
         if (selection == null) {
@@ -403,7 +411,13 @@ public final class RegionCommand {
                     "Added region '" + region.name() + "' to world '"
                             + world.worldId().orElseThrow().asString() + "'.",
                     OrbisText.EREBOR_GREEN)));
+            return;
         }
+
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "FAILED to add the '" + region.name() + "' region to world '"
+                        + world.worldId().orElseThrow().asString() + "'.",
+                OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg world remove <region> <world>")
@@ -423,7 +437,13 @@ public final class RegionCommand {
                     "Removed region '" + region.name() + "' from world '"
                             + world.worldId().orElseThrow().asString() + "'.",
                     OrbisText.SECONDARY_RED)));
+            return;
         }
+
+        session.sendMessage(OrbisText.PREFIX.append(text(
+                "FAILED to remove the '" + region.name() + "' region from world '"
+                        + world.worldId().orElseThrow().asString() + "'.",
+                OrbisText.SECONDARY_RED)));
     }
 
     @Command("region|rg points add <region> <x> <y> <z>")

@@ -1,0 +1,148 @@
+/*
+ * This file is part of Orbis, licensed under the GNU GPL v3 License.
+ *
+ * Copyright (C) 2025 Empire War
+ * Copyright (C) contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package org.empirewar.orbis.command;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.TestOrbisPlatform;
+import org.empirewar.orbis.area.CuboidArea;
+import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.flag.value.FlagValue;
+import org.empirewar.orbis.member.PermissionMember;
+import org.empirewar.orbis.region.GlobalRegion;
+import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.session.TestOrbisConsoleSession;
+import org.empirewar.orbis.session.TestOrbisPlayerSession;
+import org.joml.Vector3i;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
+import java.util.UUID;
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class RegionCommandTest {
+
+    private TestOrbisPlatform platform;
+    private RegionCommand cmd;
+
+    @BeforeAll
+    void setupPlatform() {
+        platform = new TestOrbisPlatform();
+        cmd = new RegionCommand();
+    }
+
+    @Test
+    void testOnAddPosWithNormalRegion() {
+        TestOrbisPlayerSession session = new TestOrbisPlayerSession(UUID.randomUUID());
+        Region region = new Region("test", new CuboidArea());
+
+        // Should add the point
+        cmd.onAddPos(session, region, 1, 2, 3);
+        assertTrue(region.area().points().contains(new Vector3i(1, 2, 3)));
+    }
+
+    @Test
+    void testOnAddPosWithGlobalRegion() {
+        TestOrbisConsoleSession session = new TestOrbisConsoleSession();
+        GlobalRegion region = new GlobalRegion("global");
+
+        // Should NOT throw from the command itself
+        assertDoesNotThrow(() -> cmd.onAddPos(session, region, 1, 2, 3));
+        // But accessing area() should throw
+        assertThrows(IllegalStateException.class, region::area);
+    }
+
+    @Test
+    void testOnCreateNormalRegion() {
+        TestOrbisPlayerSession session = new TestOrbisPlayerSession(UUID.randomUUID());
+        String regionName = "region1";
+        cmd.onCreate(session, false, true, regionName, null);
+        Region region = OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
+        assertNotNull(region);
+        assertFalse(region.isGlobal());
+    }
+
+    @Test
+    void testOnCreateGlobalRegion() {
+        TestOrbisConsoleSession session = new TestOrbisConsoleSession();
+        String regionName = "global1";
+        cmd.onCreate(session, true, true, regionName, null);
+        Region region = OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
+        assertNotNull(region);
+        assertTrue(region.isGlobal());
+    }
+
+    @Test
+    void testOnAddParent() {
+        TestOrbisPlayerSession session = new TestOrbisPlayerSession(UUID.randomUUID());
+        Region child = new Region("child", new CuboidArea());
+        Region parent = new Region("parent", new CuboidArea());
+        assertDoesNotThrow(() -> cmd.onAddParent(session, child, parent));
+        assertTrue(child.parents().contains(parent));
+    }
+
+    @Test
+    void testOnRemove() {
+        TestOrbisPlayerSession session = new TestOrbisPlayerSession(UUID.randomUUID());
+        String regionName = "toremove";
+        cmd.onCreate(session, false, true, regionName, null);
+        Region region = OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
+        assertNotNull(region);
+        cmd.onRemove(session, region);
+        assertFalse(OrbisAPI.get().getGlobalWorld().getByName(regionName).isPresent());
+    }
+
+    @Test
+    void testOnAddPermissionAndRemovePermission() {
+        TestOrbisPlayerSession session = new TestOrbisPlayerSession(UUID.randomUUID());
+        Region region = new Region("permregion", new CuboidArea());
+        String perm = "foo.bar";
+        cmd.onAddPermission(session, region, perm);
+        assertTrue(region.members().stream()
+                .anyMatch(m -> m instanceof PermissionMember
+                        && ((PermissionMember) m).permission().equals(perm)));
+        cmd.onRemovePermission(session, region, perm);
+        assertTrue(region.members().stream()
+                .noneMatch(m -> m instanceof PermissionMember
+                        && ((PermissionMember) m).permission().equals(perm)));
+    }
+
+    @Test
+    void testOnFlagAddAndSet() {
+        TestOrbisPlayerSession session = new TestOrbisPlayerSession(UUID.randomUUID());
+        Region region = new Region("flagregion", new CuboidArea());
+        RegistryRegionFlag<Boolean> flag = DefaultFlags.CAN_BREAK;
+        cmd.onFlagAdd(session, null, region, flag, null);
+        assertTrue(region.hasFlag(flag));
+        cmd.onFlagSet(session, null, region, flag, new FlagValue<>(true));
+        assertTrue(region.hasFlag(flag));
+    }
+
+    @Test
+    void testOnListPoints() {
+        TestOrbisConsoleSession session = new TestOrbisConsoleSession();
+        Region region = new Region("pointregion", new CuboidArea());
+        region.area().addPoint(new Vector3i(1, 2, 3));
+        assertDoesNotThrow(() -> cmd.onListPoints(session, region));
+    }
+}
