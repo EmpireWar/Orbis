@@ -20,6 +20,7 @@
 package org.empirewar.orbis;
 
 import org.empirewar.orbis.registry.OrbisRegistries;
+import org.jetbrains.annotations.VisibleForTesting;
 
 /**
  * Provides access to the {@link Orbis} instance.
@@ -38,5 +39,14 @@ public abstract class OrbisAPI implements Orbis {
         }
         OrbisRegistries.initialize();
         OrbisAPI.instance = instance;
+    }
+
+    // --- TESTING SUPPORT ---
+    /**
+     * Resets the OrbisAPI singleton. For test use only!
+     */
+    @VisibleForTesting
+    public static void reset() {
+        instance = null;
     }
 }

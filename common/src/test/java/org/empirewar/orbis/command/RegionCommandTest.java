@@ -33,6 +33,7 @@ import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.session.TestOrbisConsoleSession;
 import org.empirewar.orbis.session.TestOrbisPlayerSession;
 import org.joml.Vector3i;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -49,6 +50,11 @@ public class RegionCommandTest {
     void setupPlatform() {
         platform = new TestOrbisPlatform();
         cmd = new RegionCommand();
+    }
+
+    @AfterAll
+    static void cleanup() {
+        OrbisAPI.reset();
     }
 
     @Test
