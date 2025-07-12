@@ -21,8 +21,7 @@ package org.empirewar.orbis.region;
 
 import com.mojang.serialization.MapCodec;
 
-import net.kyori.adventure.key.Key;
-
+import org.empirewar.orbis.registry.KeyOrbisRegistry;
 import org.empirewar.orbis.registry.OrbisRegistries;
 
 public interface RegionType<R extends Region> {
@@ -30,24 +29,9 @@ public interface RegionType<R extends Region> {
     RegionType<Region> NORMAL = register("normal", Region.CODEC);
     RegionType<GlobalRegion> GLOBAL = register("global", GlobalRegion.CODEC);
 
-    Key key();
-
     MapCodec<R> codec();
 
-    static <R extends Region> RegionType<R> register(String id, MapCodec<R> codec) {
-        Key key = Key.key("orbis", id);
-        RegionType<R> type = new RegionType<R>() {
-            @Override
-            public Key key() {
-                return key;
-            }
-
-            @Override
-            public MapCodec<R> codec() {
-                return codec;
-            }
-        };
-        OrbisRegistries.REGION_TYPE.register(key, type);
-        return type;
+    private static <R extends Region> RegionType<R> register(String id, MapCodec<R> codec) {
+        return KeyOrbisRegistry.register(OrbisRegistries.REGION_TYPE, id, () -> codec);
     }
 }

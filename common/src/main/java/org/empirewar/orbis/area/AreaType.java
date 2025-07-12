@@ -21,8 +21,7 @@ package org.empirewar.orbis.area;
 
 import com.mojang.serialization.MapCodec;
 
-import net.kyori.adventure.key.Key;
-
+import org.empirewar.orbis.registry.KeyOrbisRegistry;
 import org.empirewar.orbis.registry.OrbisRegistries;
 
 public interface AreaType<A extends Area> {
@@ -32,24 +31,9 @@ public interface AreaType<A extends Area> {
     AreaType<PolyhedralArea> POLYHEDRAL = register("polyhedral", PolyhedralArea.CODEC);
     AreaType<SphericalArea> SPHERE = register("sphere", SphericalArea.CODEC);
 
-    Key key();
-
     MapCodec<A> codec();
 
-    static <A extends Area> AreaType<A> register(String id, MapCodec<A> codec) {
-        Key key = Key.key("orbis", id);
-        AreaType<A> type = new AreaType<A>() {
-            @Override
-            public Key key() {
-                return key;
-            }
-
-            @Override
-            public MapCodec<A> codec() {
-                return codec;
-            }
-        };
-        OrbisRegistries.AREA_TYPE.register(key, type);
-        return type;
+    private static <A extends Area> AreaType<A> register(String id, MapCodec<A> codec) {
+        return KeyOrbisRegistry.register(OrbisRegistries.AREA_TYPE, id, () -> codec);
     }
 }
