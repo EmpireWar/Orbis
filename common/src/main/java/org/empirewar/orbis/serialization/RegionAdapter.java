@@ -45,7 +45,8 @@ public final class RegionAdapter implements JsonSerializer<Region>, JsonDeserial
         final Codec<Region> dispatch =
                 OrbisRegistries.REGION_TYPE.getCodec().dispatch(Region::getType, RegionType::codec);
         final Optional<JsonElement> result = dispatch.encodeStart(JsonOps.INSTANCE, region)
-                .resultOrPartial(OrbisAPI.get().logger()::error);
+                .resultOrPartial(
+                        msg -> OrbisAPI.get().logger().error("Error saving region: {}", msg));
         return result.orElse(null);
     }
 
@@ -61,7 +62,8 @@ public final class RegionAdapter implements JsonSerializer<Region>, JsonDeserial
         final Codec<Region> dispatch =
                 OrbisRegistries.REGION_TYPE.getCodec().dispatch(Region::getType, RegionType::codec);
         final Optional<Region> result = dispatch.parse(JsonOps.INSTANCE, fixed)
-                .resultOrPartial(OrbisAPI.get().logger()::error);
+                .resultOrPartial(
+                        msg -> OrbisAPI.get().logger().error("Error loading region: {}", msg));
         return result.orElse(null);
     }
 }

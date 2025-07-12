@@ -21,65 +21,99 @@ package org.empirewar.orbis.registry;
 
 import net.kyori.adventure.key.Key;
 
-import org.jetbrains.annotations.NotNull;
+import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.registry.lifecycle.RegistryLifecycle;
+import org.empirewar.orbis.registry.lifecycle.RegistryLifecycles;
 
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-public final class SimpleOrbisRegistry<T> implements OrbisRegistry<T> {
+public abstract non-sealed class SimpleOrbisRegistry<T, K> implements OrbisRegistry<T, K> {
 
-    private final Key key;
+    protected final Key registryKey;
+    protected final Map<K, T> entries = new HashMap<>();
+    protected RegistryLifecycle lifecycle = RegistryLifecycles.loading();
 
-    private final Map<Key, T> idToEntry = new HashMap<>();
-    private final Map<T, Key> valueToEntry = new IdentityHashMap<>();
-
-    SimpleOrbisRegistry(Key key) {
-        this.key = key;
+    public SimpleOrbisRegistry(Key registryKey) {
+        this.registryKey = registryKey;
     }
 
     @Override
-    public Key getKey() {
-        return key;
+    public Key key() {
+        return registryKey;
     }
 
     @Override
-    public T register(Key key, T entry) {
-        idToEntry.put(key, entry);
-        valueToEntry.put(entry, key);
+    public T register(K key, T entry) {
+        if (lifecycle == RegistryLifecycles.frozen())
+            throw new IllegalStateException("Registry is frozen");
+        entries.put(key, entry);
         return entry;
     }
 
     @Override
-    public Optional<T> get(Key key) {
-        return Optional.ofNullable(idToEntry.get(key));
+    public Optional<T> unregister(K key) {
+        if (lifecycle == RegistryLifecycles.frozen())
+            throw new IllegalStateException("Registry is frozen");
+        T entry = entries.remove(key);
+        return Optional.ofNullable(entry);
     }
 
     @Override
-    public Optional<Key> getKey(T entry) {
-        return Optional.ofNullable(this.valueToEntry.get(entry));
+    public Optional<T> get(K key) {
+        return Optional.ofNullable(entries.get(key));
+    }
+
+    @Override
+    public Optional<K> getKey(T entry) {
+        for (Map.Entry<K, T> e : entries.entrySet()) {
+            if (Objects.equals(e.getValue(), entry)) return Optional.of(e.getKey());
+        }
+        return Optional.empty();
     }
 
     @Override
     public Set<T> getAll() {
-        return valueToEntry.keySet();
+        return new HashSet<>(entries.values());
     }
 
     @Override
-    public Set<Key> getKeys() {
-        return idToEntry.keySet();
+    public Set<K> getKeys() {
+        return new HashSet<>(entries.keySet());
+    }
+
+    @Override
+    public RegistryLifecycle getLifecycle() {
+        return lifecycle;
+    }
+
+    @Override
+    public void setLifecycle(RegistryLifecycle lifecycle) {
+        if (lifecycle.equals(this.lifecycle)) {
+            throw new IllegalArgumentException("Lifecycle has not changed");
+        }
+
+        // Registries initialise before the API is set, only log if the API is set (i.e. a runtime
+        // lifecycle change)
+        if (OrbisAPI.get() != null) {
+            OrbisAPI.get()
+                    .logger()
+                    .info(
+                            "Registry '{}' lifecycle changed from {} to {}",
+                            key().asString(),
+                            this.lifecycle.name(),
+                            lifecycle.name());
+        }
+
+        this.lifecycle = lifecycle;
     }
 
     @Override
     public String toString() {
-        return "Registry[" + this.key + "]";
+        return "Registry[" + this.registryKey + "]";
     }
 
-    @NotNull @Override
+    @Override
     public Iterator<T> iterator() {
-        return idToEntry.values().iterator();
+        return entries.values().iterator();
     }
 }

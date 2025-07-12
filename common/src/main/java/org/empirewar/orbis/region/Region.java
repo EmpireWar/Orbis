@@ -35,7 +35,8 @@ import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.member.FlagMemberGroup;
 import org.empirewar.orbis.member.Member;
 import org.empirewar.orbis.query.RegionQuery;
-import org.empirewar.orbis.serialization.context.CodecContext;
+import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.registry.RegistryResolvable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -67,7 +68,8 @@ import java.util.UUID;
  * Regions that have the same priority and conflicting flags have undefined behaviour.
  * In these cases, admins should be warned about possible issues.
  */
-public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Region>
+public sealed class Region
+        implements RegionQuery.Flag.Queryable, Comparable<Region>, RegistryResolvable<String>
         permits GlobalRegion {
 
     public static final MapCodec<Region> CODEC =
@@ -121,26 +123,13 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
             OrbisAPI.get()
                     .logger()
                     .info("Region {} waiting for region parent {}", name, parentName);
-            CodecContext.queue().beg(Region.class, r -> {
-                OrbisAPI.get()
-                        .logger()
-                        .info("Region {} checking for region parent {}", name, r.name);
-                if (r.name.equals(parentName)) {
-                    OrbisAPI.get()
-                            .logger()
-                            .info("Region {} found region parent {}", name, parentName);
-                    this.addParent(r);
-                    return true;
-                }
-                return false;
-            });
+            OrbisRegistries.REGIONS.resolve(parentName, this::addParent);
         });
         this.members = new HashSet<>(members);
         this.flags = new HashMap<>();
         flags.forEach(mu -> this.flags.put(mu.key(), mu));
         this.area = area;
         this.priority = priority;
-        CodecContext.queue().rewardPatience(Region.class, this);
     }
 
     /**
@@ -364,5 +353,10 @@ public sealed class Region implements RegionQuery.Flag.Queryable, Comparable<Reg
     @Override
     public int compareTo(@NotNull Region o) {
         return Integer.compare(this.priority, o.priority());
+    }
+
+    @Override
+    public String key() {
+        return name;
     }
 }

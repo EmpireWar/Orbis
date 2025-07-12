@@ -21,19 +21,35 @@ package org.empirewar.orbis.member;
 
 import com.mojang.serialization.MapCodec;
 
+import net.kyori.adventure.key.Key;
+
 import org.empirewar.orbis.registry.OrbisRegistries;
-import org.empirewar.orbis.registry.OrbisRegistry;
 
 public interface MemberType<M extends Member> {
 
-    // spotless:off
-    MemberType<PlayerMember> PLAYER = register("player", PlayerMember.CODEC);
-    MemberType<PermissionMember> PERMISSION = register("permission", PermissionMember.CODEC);
-    // spotless:on
+    Key key();
 
     MapCodec<M> codec();
 
-    private static <M extends Member> MemberType<M> register(String id, MapCodec<M> codec) {
-        return OrbisRegistry.register(OrbisRegistries.MEMBER_TYPE, id, () -> codec);
+    // Static registry entries
+    MemberType<PlayerMember> PLAYER = MemberType.register("player", PlayerMember.CODEC);
+    MemberType<PermissionMember> PERMISSION =
+            MemberType.register("permission", PermissionMember.CODEC);
+
+    static <M extends Member> MemberType<M> register(String id, MapCodec<M> codec) {
+        Key key = Key.key("orbis", id);
+        MemberType<M> type = new MemberType<M>() {
+            @Override
+            public Key key() {
+                return key;
+            }
+
+            @Override
+            public MapCodec<M> codec() {
+                return codec;
+            }
+        };
+        OrbisRegistries.MEMBER_TYPE.register(key, type);
+        return type;
     }
 }

@@ -20,49 +20,36 @@
 package org.empirewar.orbis.registry;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Lifecycle;
 
-import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.Keyed;
 
-import org.empirewar.orbis.util.ExtraCodecs;
+import org.empirewar.orbis.registry.lifecycle.RegistryLifecycle;
 
 import java.util.Optional;
 import java.util.Set;
 
-public sealed interface OrbisRegistry<T> extends Iterable<T> permits SimpleOrbisRegistry {
+public sealed interface OrbisRegistry<T, K> extends Iterable<T>, Keyed
+        permits ResolvableRegistry, SimpleOrbisRegistry {
 
-    Key getKey();
+    T register(K key, T entry);
 
-    T register(Key key, T entry);
+    Optional<T> unregister(K key);
 
-    Optional<T> get(Key key);
+    Optional<T> get(K key);
 
-    Optional<Key> getKey(T entry);
+    Optional<K> getKey(T entry);
 
-    default Codec<T> getCodec() {
-        return ExtraCodecs.KEY.flatXmap(
-                id -> this.get(id)
-                        .map(DataResult::success)
-                        .orElseGet(() -> DataResult.error(
-                                () -> "Unknown registry key in " + this.getKey() + ": " + id,
-                                Lifecycle.stable())),
-                value -> this.getKey(value)
-                        .map(DataResult::success)
-                        .orElseGet(() -> DataResult.error(
-                                () -> "Unknown registry element in " + this.getKey() + ":" + value,
-                                Lifecycle.stable())));
-    }
+    Codec<T> getCodec();
 
     Set<T> getAll();
 
-    Set<Key> getKeys();
+    Set<K> getKeys();
 
-    static <T> T register(OrbisRegistry<? super T> registry, String id, T entry) {
-        return register(registry, Key.key("orbis", id), entry);
-    }
+    RegistryLifecycle getLifecycle();
 
-    static <V, T extends V> T register(OrbisRegistry<V> registry, Key key, T entry) {
+    void setLifecycle(RegistryLifecycle lifecycle);
+
+    static <V, K, T extends V> T register(OrbisRegistry<V, K> registry, K key, T entry) {
         registry.register(key, entry);
         return entry;
     }

@@ -34,9 +34,9 @@ import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
-import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.command.parser.RegistryValueParser;
+import org.empirewar.orbis.command.parser.registry.RegistryMapper;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.member.MemberType;
@@ -131,10 +131,6 @@ public final class CommonCommands {
 
         manager.parserRegistry()
                 .registerParserSupplier(
-                        TypeToken.get(Region.class), parserParameters -> new RegionParser<>());
-
-        manager.parserRegistry()
-                .registerParserSupplier(
                         TypeToken.get(RegionisedWorld.class),
                         parserParameters -> new RegionisedWorldParser<>());
 
@@ -154,14 +150,22 @@ public final class CommonCommands {
         manager.parserRegistry()
                 .registerParserSupplier(
                         areaTypeToken,
-                        parserParameters -> new RegistryValueParser<>(OrbisRegistries.AREA_TYPE));
+                        parserParameters -> new RegistryValueParser<>(
+                                OrbisRegistries.AREA_TYPE, RegistryMapper.KEY));
 
         final TypeToken<?> memberTypeToken = TypeToken.get(
                 TypeFactory.parameterizedClass(MemberType.class, TypeFactory.unboundWildcard()));
         manager.parserRegistry()
                 .registerParserSupplier(
                         memberTypeToken,
-                        parserParameters -> new RegistryValueParser<>(OrbisRegistries.MEMBER_TYPE));
+                        parserParameters -> new RegistryValueParser<>(
+                                OrbisRegistries.MEMBER_TYPE, RegistryMapper.KEY));
+
+        manager.parserRegistry()
+                .registerParserSupplier(
+                        TypeToken.get(Region.class),
+                        parserParameters -> new RegistryValueParser<>(
+                                OrbisRegistries.REGIONS, RegistryMapper.IDENTITY));
 
         AnnotationParser<OrbisSession> annotationParser =
                 new AnnotationParser<>(manager, OrbisSession.class);

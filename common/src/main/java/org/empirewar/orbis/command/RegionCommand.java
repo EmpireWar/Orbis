@@ -88,7 +88,7 @@ public final class RegionCommand {
             @Argument("name") String regionName,
             @Argument("area_type") @Nullable AreaType<?> areaType) {
         final Orbis orbis = OrbisAPI.get();
-        if (orbis.getGlobalWorld().getByName(regionName).isPresent()) {
+        if (OrbisRegistries.REGIONS.get(regionName).isPresent()) {
             session.sendMessage(OrbisText.PREFIX.append(
                     text("Region by that name already exists.", OrbisText.SECONDARY_RED)));
             return;
@@ -157,7 +157,7 @@ public final class RegionCommand {
         }
 
         final Region region = global ? new GlobalRegion(regionName) : new Region(regionName, area);
-        orbis.getGlobalWorld().add(region);
+        OrbisRegistries.REGIONS.register(regionName, region);
         if (session instanceof PlayerOrbisSession player && !region.isGlobal()) {
             orbis.getRegionisedWorld(orbis.getPlayerWorld(player.getUuid())).add(region);
         }
@@ -752,18 +752,20 @@ public final class RegionCommand {
         Set<Region> regions = new HashSet<>();
         if (worlds != null && worlds.length > 0) {
             for (String worldKey : worlds) {
-                final RegionisedWorld world = OrbisAPI.get().getRegionisedWorld(Key.key(worldKey));
+                final RegionisedWorld world = orbis.getRegionisedWorld(Key.key(worldKey));
                 regions.addAll(world.regions());
             }
         } else {
             // Add regions from all worlds
-            regions.addAll(orbis.getGlobalWorld().regions());
+            regions.addAll(OrbisRegistries.REGIONS.getAll());
         }
+
         if (regions.isEmpty()) {
             session.sendMessage(
                     OrbisText.PREFIX.append(text("No regions found.", OrbisText.SECONDARY_RED)));
             return;
         }
+
         session.sendMessage(OrbisText.PREFIX.append(text("Regions:", OrbisText.EREBOR_GREEN)));
         for (Region region : regions) {
             session.sendMessage(text("- ", NamedTextColor.GRAY)

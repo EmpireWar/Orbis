@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024 Empire War
+ * Copyright (C) 2025 Empire War
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,22 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.serialization.context;
+package org.empirewar.orbis.registry;
 
-public final class CodecContext {
+public interface RegistryResolvable<K> {
 
-    private static final ContextQueue QUEUE = new ContextQueue();
-    private static boolean frozen;
-
-    public static void freeze() {
-        CodecContext.frozen = true;
-        QUEUE.clear();
-    }
-
-    public static ContextQueue queue() {
-        if (frozen) {
-            throw new IllegalStateException("Queue is frozen!");
-        }
-        return QUEUE;
-    }
+    /**
+     * Gets the registry key used for this object.
+     * @return the registry key
+     */
+    K key();
 }

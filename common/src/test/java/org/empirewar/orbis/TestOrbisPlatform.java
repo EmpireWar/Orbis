@@ -85,4 +85,9 @@ public class TestOrbisPlatform extends OrbisPlatform {
     public Logger logger() {
         return logger;
     }
+
+    @Override
+    public boolean isTestEnvironment() {
+        return true;
+    }
 }

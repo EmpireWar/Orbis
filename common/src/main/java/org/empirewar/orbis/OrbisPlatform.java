@@ -23,9 +23,10 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.registry.lifecycle.RegistryLifecycles;
 import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.serialization.StaticGsonProvider;
-import org.empirewar.orbis.serialization.context.CodecContext;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.spongepowered.configurate.CommentedConfigurationNode;
@@ -59,7 +60,6 @@ public abstract class OrbisPlatform implements Orbis {
     private static final String GLOBAL_REGION_ID = "orbis:global";
 
     private final SelectionManager selectionManager = new SelectionManager();
-    private final RegionisedWorldSet globalSet = new RegionisedWorldSet();
     private final Map<Key, RegionisedWorldSet> worldSets = new ConcurrentHashMap<>();
 
     // Players currently visualizing regions
@@ -139,22 +139,24 @@ public abstract class OrbisPlatform implements Orbis {
             }
 
             final RegionisedWorldSet set = new RegionisedWorldSet(world);
+            final String worldKeyName = set.worldId().orElseThrow().asString();
 
-            List<Region> regions = new ArrayList<>(regionNames.size());
+            final List<Region> regions = new ArrayList<>(regionNames.size());
 
             // Add the global set that encompasses the world
-            Region globalSetRegion = globalSet
-                    .getByName(set.worldId().orElseThrow().asString())
-                    .orElseGet(() -> new GlobalRegion(set));
-            globalSet.add(globalSetRegion);
+            // (either already exists from a loaded file, or is created here)
+            Region globalSetRegion = OrbisRegistries.REGIONS
+                    .get(worldKeyName)
+                    .orElseGet(() ->
+                            OrbisRegistries.REGIONS.register(worldKeyName, new GlobalRegion(set)));
 
             for (String regionName : regionNames) {
-                if (regionName.equals(set.worldId().orElseThrow().asString())) {
+                if (regionName.equals(worldKeyName)) {
                     logger().error("Illegal region name in world set");
                     continue;
                 }
 
-                final Region region = globalSet.getByName(regionName).orElse(null);
+                final Region region = OrbisRegistries.REGIONS.get(regionName).orElse(null);
                 if (region == null) {
                     logger().warn(
                                     "Region by name '{}' could not be found, ignoring...",
@@ -165,8 +167,11 @@ public abstract class OrbisPlatform implements Orbis {
                 regions.add(region);
             }
 
+            // Add the global region for *this* world
             set.add(globalSetRegion);
-            set.add(globalSet.getByName(GLOBAL_REGION_ID).orElseThrow());
+            // Also add the global region that is a part of all worlds
+            set.add(OrbisRegistries.REGIONS.get(GLOBAL_REGION_ID).orElseThrow());
+            // Now add all the regions that are part of this world
             regions.forEach(set::add);
             worldSets.put(world, set);
             logger().info(
@@ -180,33 +185,53 @@ public abstract class OrbisPlatform implements Orbis {
     }
 
     public void loadRegions() throws IOException {
+        // Flags should no longer be changed
+        // (might be called multiple times in test environments)
+        if (!isTestEnvironment()
+                || OrbisRegistries.FLAGS.getLifecycle() != RegistryLifecycles.frozen()) {
+            OrbisRegistries.FLAGS.setLifecycle(RegistryLifecycles.frozen());
+        }
+
         File regionsFolder = dataFolder().resolve("regions").toFile();
         if (!regionsFolder.exists()) regionsFolder.mkdirs();
         for (File regionFile : regionsFolder.listFiles()) {
             if (!regionFile.getName().endsWith(".json")) continue;
             try (FileReader reader = new FileReader(regionFile)) {
                 final Region region = StaticGsonProvider.GSON.fromJson(reader, Region.class);
-                if (region == null) throw new IllegalArgumentException("GSON returned null");
-                globalSet.add(region);
+                if (region == null) {
+                    logger().error(
+                                    "Error loading region from '{}' - is the file corrupted?",
+                                    regionFile);
+                    continue;
+                }
+                OrbisRegistries.REGIONS.register(region.name(), region);
             }
         }
 
-        final boolean hasGlobalRegion = globalSet.getByName(GLOBAL_REGION_ID).isPresent();
+        // Global region encompassing all worlds is either already loaded from a file, or is created
+        // here
+        final boolean hasGlobalRegion =
+                OrbisRegistries.REGIONS.get(GLOBAL_REGION_ID).isPresent();
         if (!hasGlobalRegion) {
             // Add the global region that encompasses all worlds
             final GlobalRegion globalRegion = new GlobalRegion(GLOBAL_REGION_ID);
             globalRegion.priority(0);
-            globalSet.add(globalRegion);
+            OrbisRegistries.REGIONS.register(GLOBAL_REGION_ID, globalRegion);
         }
 
-        CodecContext.freeze();
+        // Regions can still be changed at runtime
+        // (might be called multiple times in test environments)
+        if (!isTestEnvironment()
+                || OrbisRegistries.REGIONS.getLifecycle() != RegistryLifecycles.active()) {
+            OrbisRegistries.REGIONS.setLifecycle(RegistryLifecycles.active());
+        }
     }
 
     public void saveRegions() throws IOException {
         File regionsFolder = dataFolder().resolve("regions").toFile();
         if (!regionsFolder.exists()) regionsFolder.mkdirs();
 
-        for (Region region : globalSet.regions()) {
+        for (Region region : OrbisRegistries.REGIONS.getAll()) {
             File regionFile = new File(
                     regionsFolder + File.separator + region.name().replace(":", "-") + ".json");
             try (FileWriter writer = new FileWriter(regionFile)) {
@@ -266,7 +291,7 @@ public abstract class OrbisPlatform implements Orbis {
         for (RegionisedWorld world : getRegionisedWorlds()) {
             anySucceeded = world.remove(region) || anySucceeded;
         }
-        anySucceeded = globalSet.remove(region) || anySucceeded;
+        anySucceeded = OrbisRegistries.REGIONS.unregister(region.key()).isPresent() || anySucceeded;
 
         File regionsFolder = dataFolder().resolve("regions").toFile();
         File regionFile = new File(
@@ -282,11 +307,6 @@ public abstract class OrbisPlatform implements Orbis {
     @Override
     public Set<RegionisedWorld> getRegionisedWorlds() {
         return worldSets.values().stream().collect(Collectors.toUnmodifiableSet());
-    }
-
-    @Override
-    public RegionisedWorld getGlobalWorld() {
-        return globalSet;
     }
 
     @Override
@@ -314,5 +334,9 @@ public abstract class OrbisPlatform implements Orbis {
      */
     public Set<UUID> getVisualisingPlayers() {
         return visualisingPlayers;
+    }
+
+    public boolean isTestEnvironment() {
+        return false;
     }
 }

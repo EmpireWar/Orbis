@@ -30,6 +30,7 @@ import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.member.PermissionMember;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.session.TestOrbisConsoleSession;
 import org.empirewar.orbis.session.TestOrbisPlayerSession;
 import org.empirewar.orbis.world.RegionisedWorld;
@@ -84,7 +85,7 @@ public class RegionCommandTest {
         TestOrbisPlayerSession session = new TestOrbisPlayerSession(UUID.randomUUID());
         String regionName = "region1";
         cmd.onCreate(session, false, true, regionName, null);
-        Region region = OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
+        Region region = OrbisRegistries.REGIONS.get(regionName).orElse(null);
         assertNotNull(region);
         assertFalse(region.isGlobal());
     }
@@ -94,15 +95,14 @@ public class RegionCommandTest {
         TestOrbisConsoleSession session = new TestOrbisConsoleSession();
         String regionName = "global1";
         cmd.onCreate(session, true, true, regionName, null);
-        Region region = OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
+        Region region = OrbisRegistries.REGIONS.get(regionName).orElse(null);
         assertNotNull(region);
         assertTrue(region.isGlobal());
 
         TestOrbisPlayerSession playerSession = new TestOrbisPlayerSession(UUID.randomUUID());
         String playerRegionName = "playerglobalregion";
         cmd.onCreate(playerSession, true, true, playerRegionName, null);
-        Region playerRegion =
-                OrbisAPI.get().getGlobalWorld().getByName(playerRegionName).orElse(null);
+        Region playerRegion = OrbisRegistries.REGIONS.get(playerRegionName).orElse(null);
         assertNotNull(playerRegion);
         assertTrue(playerRegion.isGlobal());
 
@@ -129,11 +129,11 @@ public class RegionCommandTest {
 
         String regionName = "toremove";
         cmd.onCreate(session, false, true, regionName, null);
-        Region region = OrbisAPI.get().getGlobalWorld().getByName(regionName).orElse(null);
+        Region region = OrbisRegistries.REGIONS.get(regionName).orElse(null);
         assertNotNull(region);
         assertNotNull(playerRegionisedWorld.getByName(regionName).orElse(null));
         cmd.onRemove(session, region);
-        assertFalse(OrbisAPI.get().getGlobalWorld().getByName(regionName).isPresent());
+        assertFalse(OrbisRegistries.REGIONS.get(regionName).isPresent());
         assertFalse(playerRegionisedWorld.getByName(regionName).isPresent());
     }
 

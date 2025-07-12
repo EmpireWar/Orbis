@@ -30,7 +30,6 @@ import org.empirewar.orbis.command.CommonCommands;
 import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
-import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.command.parser.RegistryValueParser;
 import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
@@ -111,16 +110,10 @@ public class BukkitCommands<
                 new TypeToken<RegionisedWorldParser<OrbisSession>>() {}, "resource_location", true);
 
         brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
-
-        brigadierMapper.mapSimpleNMS(
                 new TypeToken<FlagValueParser<OrbisSession>>() {}, "message", true);
 
         brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegionParser<OrbisSession>>() {}, "resource_location", true);
-
-        brigadierMapper.mapSimpleNMS(
-                new TypeToken<RegistryValueParser<OrbisSession, ?>>() {},
+                new TypeToken<RegistryValueParser<OrbisSession, ?, ?>>() {},
                 "resource_location",
                 true);
     }

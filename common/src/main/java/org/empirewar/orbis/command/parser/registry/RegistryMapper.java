@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the GNU GPL v3 License.
  *
- * Copyright (C) 2024 Empire War
+ * Copyright (C) 2025 Empire War
  * Copyright (C) contributors
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,28 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.serialization.context.passport;
+package org.empirewar.orbis.command.parser.registry;
 
-import com.google.common.base.MoreObjects;
+import net.kyori.adventure.key.Key;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
-public final class Passport<P> {
+public interface RegistryMapper<I, K> {
 
-    private final List<Function<P, Boolean>> suppliers = new ArrayList<>();
+    RegistryMapper<String, Key> KEY = create(Key::key, Key::asString);
+    RegistryMapper<String, String> IDENTITY = create(Function.identity(), Function.identity());
 
-    public List<Function<P, Boolean>> getSuppliers() {
-        return suppliers;
-    }
+    K map(I base);
 
-    public void add(Function<P, Boolean> supplier) {
-        suppliers.add(supplier);
-    }
+    I reverse(K mapped);
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).add("suppliers", suppliers).toString();
+    static <I, K> RegistryMapper<I, K> create(
+            final Function<I, K> map, final Function<K, I> reverse) {
+        return new RegistryMapperImpl<>(map, reverse);
     }
 }

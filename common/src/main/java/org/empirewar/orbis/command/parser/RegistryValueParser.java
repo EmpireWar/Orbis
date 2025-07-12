@@ -19,10 +19,9 @@
  */
 package org.empirewar.orbis.command.parser;
 
-import net.kyori.adventure.key.Key;
-
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.empirewar.orbis.command.caption.OrbisCaptionKeys;
+import org.empirewar.orbis.command.parser.registry.RegistryMapper;
 import org.empirewar.orbis.registry.OrbisRegistry;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
@@ -35,13 +34,15 @@ import org.incendo.cloud.suggestion.BlockingSuggestionProvider;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public final class RegistryValueParser<C, R>
+public final class RegistryValueParser<C, R, K>
         implements ArgumentParser<C, R>, BlockingSuggestionProvider.Strings<C> {
 
-    private final OrbisRegistry<R> registry;
+    private final OrbisRegistry<R, K> registry;
+    private final RegistryMapper<String, K> keyMapper;
 
-    public RegistryValueParser(OrbisRegistry<R> registry) {
+    public RegistryValueParser(OrbisRegistry<R, K> registry, RegistryMapper<String, K> keyMapper) {
         this.registry = registry;
+        this.keyMapper = keyMapper;
     }
 
     @Override
@@ -50,7 +51,7 @@ public final class RegistryValueParser<C, R>
             @NonNull CommandInput commandInput) {
         final String input = commandInput.peekString();
 
-        final Optional<R> registered = registry.get(Key.key(commandInput.peekString()));
+        final Optional<R> registered = registry.get(keyMapper.map(commandInput.peekString()));
         if (registered.isPresent()) {
             commandInput.readString();
             return ArgumentParseResult.success(registered.get());
@@ -63,7 +64,7 @@ public final class RegistryValueParser<C, R>
     @Override
     public @NonNull Iterable<@NonNull String> stringSuggestions(
             @NonNull CommandContext<C> commandContext, @NonNull CommandInput input) {
-        return registry.getKeys().stream().map(Key::asString).collect(Collectors.toSet());
+        return registry.getKeys().stream().map(keyMapper::reverse).collect(Collectors.toSet());
     }
 
     public static final class RegistryValueParserException extends ParserException {
@@ -72,14 +73,14 @@ public final class RegistryValueParser<C, R>
 
         public RegistryValueParserException(
                 final @NonNull String input,
-                final @NonNull OrbisRegistry<?> registry,
+                final @NonNull OrbisRegistry<?, ?> registry,
                 final @NonNull CommandContext<?> context) {
             super(
                     RegistryValueParser.class,
                     context,
                     OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGISTRY_VALUE_NOT_FOUND,
                     CaptionVariable.of("input", input),
-                    CaptionVariable.of("registry", registry.getKey().asString()));
+                    CaptionVariable.of("registry", registry.key().asString()));
             this.input = input;
         }
 

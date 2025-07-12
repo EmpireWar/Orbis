@@ -53,6 +53,7 @@ import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
+import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.joml.Vector3i;
 
@@ -206,7 +207,7 @@ public final class WorldGuardMigrator {
             for (ProtectedRegion region : regionManager.getRegions().values()) {
                 // If added by another world
                 final Optional<Region> possibleExisting =
-                        OrbisAPI.get().getGlobalWorld().getByName(region.getId());
+                        OrbisRegistries.REGIONS.get(region.getId());
                 if (possibleExisting.isPresent()) {
                     regionisedWorld.add(possibleExisting.get());
                     continue;
@@ -255,7 +256,7 @@ public final class WorldGuardMigrator {
                 }
 
                 regionisedWorld.add(orbisRegion);
-                OrbisAPI.get().getGlobalWorld().add(orbisRegion);
+                OrbisRegistries.REGIONS.register(orbisRegion.key(), orbisRegion);
                 audience.sendMessage(Component.text(
                         "Added region '" + orbisRegion.name() + "'.", NamedTextColor.GREEN));
             }

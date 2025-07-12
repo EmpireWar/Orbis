@@ -29,7 +29,6 @@ import net.minecraft.server.level.ServerPlayer;
 import org.empirewar.orbis.command.CommonCommands;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
-import org.empirewar.orbis.command.parser.RegionParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.command.parser.RegistryValueParser;
 import org.empirewar.orbis.fabric.OrbisFabric;
@@ -97,25 +96,13 @@ public final class FabricCommands {
 
         manager.brigadierManager()
                 .registerMapping(
-                        new TypeToken<RegionParser<OrbisSession>>() {}, configurer -> configurer
-                                .to(parser -> ResourceLocationArgument.id())
-                                .cloudSuggestions());
-
-        manager.brigadierManager()
-                .registerMapping(
                         new TypeToken<FlagValueParser<OrbisSession>>() {}, configurer -> configurer
                                 .to(parser -> MessageArgument.message())
                                 .cloudSuggestions());
 
         manager.brigadierManager()
                 .registerMapping(
-                        new TypeToken<RegionParser<OrbisSession>>() {}, configurer -> configurer
-                                .to(parser -> ResourceLocationArgument.id())
-                                .cloudSuggestions());
-
-        manager.brigadierManager()
-                .registerMapping(
-                        new TypeToken<RegistryValueParser<OrbisSession, ?>>() {},
+                        new TypeToken<RegistryValueParser<OrbisSession, ?, ?>>() {},
                         configurer -> configurer
                                 .to(parser -> ResourceLocationArgument.id())
                                 .cloudSuggestions());

@@ -40,17 +40,9 @@ public interface Orbis {
 
     /**
      * Gets all regionised worlds.
-     * <p>
-     * This does not contain the {@link #getGlobalWorld()}.
      * @return {@link Set} of regionised worlds
      */
     Set<RegionisedWorld> getRegionisedWorlds();
-
-    /**
-     * Gets the "global world" which holds all regions.
-     * @return global world holding all regions
-     */
-    RegionisedWorld getGlobalWorld();
 
     RegionisedWorld getRegionisedWorld(Key worldId);
 
