@@ -31,62 +31,94 @@ repositories {
     maven("https://repo.empirewar.org/snapshots/")
 }
 
-project.version = "1.0.0-SNAPSHOT"
+object Libs {
+    // Project
+    const val PROJECT_VERSION = "1.0.0-SNAPSHOT"
+    
+    // Dependencies
+    const val JOML = "1.10.5"
+    const val ADVENTURE = "4.22.0"
+    const val CONFIGURATE = "4.1.2"
+    const val DATAFIXERUPPER = "8.0.16"
+    const val RTREE_MULTI = "0.1"
+    const val CLOUD = "2.0.0"
+    const val CLOUD_EXTRAS = "2.0.0-beta.10"
+    const val CLOUD_CONFIRMATION = "1.0.0-rc.1"
+    const val CAFFEINE = "3.1.8"
+    
+    // Test
+    const val JUNIT_JUPITER = "5.10.1"
+}
+
+project.version = Libs.PROJECT_VERSION
 
 dependencies {
     constraints {
         // Define dependency versions as constraints
-        compileOnly("org.joml:joml:1.10.5")
-        testImplementation("org.joml:joml:1.10.5")
-        compileOnly("net.kyori:adventure-api:4.22.0")
-        testImplementation("net.kyori:adventure-api:4.22.0")
+        compileOnly("org.joml:joml:${Libs.JOML}")
+        testImplementation("org.joml:joml:${Libs.JOML}")
+        compileOnly("net.kyori:adventure-api:${Libs.ADVENTURE}")
+        testImplementation("net.kyori:adventure-api:${Libs.ADVENTURE}")
     }
 
-    compileOnly("org.spongepowered:configurate-yaml:4.1.2")
-    testImplementation("org.spongepowered:configurate-yaml:4.1.2")
-    compileOnly("net.kyori:adventure-api")
-    testImplementation("net.kyori:adventure-api")
-    compileOnly("net.kyori:adventure-text-serializer-gson:4.22.0")
-    testImplementation("net.kyori:adventure-text-serializer-gson:4.22.0")
-    compileOnly("org.joml:joml")
-    testImplementation("org.joml:joml")
-    compileOnly("com.mojang:datafixerupper:8.0.16")
-    testImplementation("com.mojang:datafixerupper:8.0.16")
+    // Sponge
+    compileOnly("org.spongepowered:configurate-yaml:${Libs.CONFIGURATE}")
+    testImplementation("org.spongepowered:configurate-yaml:${Libs.CONFIGURATE}")
+    
+    // Kyori Adventure
+    compileOnly("net.kyori:adventure-api:${Libs.ADVENTURE}")
+    testImplementation("net.kyori:adventure-api:${Libs.ADVENTURE}")
+    compileOnly("net.kyori:adventure-text-serializer-gson:${Libs.ADVENTURE}")
+    testImplementation("net.kyori:adventure-text-serializer-gson:${Libs.ADVENTURE}")
+    
+    // JOML
+    compileOnly("org.joml:joml:${Libs.JOML}")
+    testImplementation("org.joml:joml:${Libs.JOML}")
+    
+    // Mojang
+    compileOnly("com.mojang:datafixerupper:${Libs.DATAFIXERUPPER}")
+    testImplementation("com.mojang:datafixerupper:${Libs.DATAFIXERUPPER}")
+    
+    // Google
     compileOnly("com.google.code.gson:gson:2.10.1")
     testImplementation("com.google.code.gson:gson:2.10.1")
 
-    implementation("com.github.davidmoten:rtree-multi:0.1")
-    testImplementation("com.github.davidmoten:rtree-multi:0.1")
+    // RTree
+    implementation("com.github.davidmoten:rtree-multi:${Libs.RTREE_MULTI}")
+    testImplementation("com.github.davidmoten:rtree-multi:${Libs.RTREE_MULTI}")
 
-    implementation("org.incendo:cloud-annotations:2.0.0") {
+    // Cloud
+    implementation("org.incendo:cloud-annotations:${Libs.CLOUD}") {
         exclude("io.leangen.geantyref")
     }
-    testImplementation("org.incendo:cloud-annotations:2.0.0") {
+    testImplementation("org.incendo:cloud-annotations:${Libs.CLOUD}") {
         exclude("io.leangen.geantyref")
     }
-    annotationProcessor("org.incendo:cloud-annotations:2.0.0") {
+    annotationProcessor("org.incendo:cloud-annotations:${Libs.CLOUD}") {
         exclude("io.leangen.geantyref")
     }
-    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10") {
+    implementation("org.incendo:cloud-minecraft-extras:${Libs.CLOUD_EXTRAS}") {
         exclude("io.leangen.geantyref")
     }
-    testImplementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10") {
+    testImplementation("org.incendo:cloud-minecraft-extras:${Libs.CLOUD_EXTRAS}") {
         exclude("io.leangen.geantyref")
     }
-    implementation("org.incendo:cloud-brigadier:2.0.0-beta.10") {
+    implementation("org.incendo:cloud-brigadier:${Libs.CLOUD_EXTRAS}") {
         exclude("io.leangen.geantyref")
     }
-    testImplementation("org.incendo:cloud-brigadier:2.0.0-beta.10") {
+    testImplementation("org.incendo:cloud-brigadier:${Libs.CLOUD_EXTRAS}") {
         exclude("io.leangen.geantyref")
     }
-    implementation("org.incendo:cloud-processors-confirmation:1.0.0-rc.1") {
+    implementation("org.incendo:cloud-processors-confirmation:${Libs.CLOUD_CONFIRMATION}") {
         exclude("io.leangen.geantyref")
     }
-    testImplementation("org.incendo:cloud-processors-confirmation:1.0.0-rc.1") {
+    testImplementation("org.incendo:cloud-processors-confirmation:${Libs.CLOUD_CONFIRMATION}") {
         exclude("io.leangen.geantyref")
     }
-    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
-    testImplementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+    
+    // Caffeine
+    implementation("com.github.ben-manes.caffeine:caffeine:${Libs.CAFFEINE}")
+    testImplementation("com.github.ben-manes.caffeine:caffeine:${Libs.CAFFEINE}")
 }
 
 testing {
@@ -94,7 +126,7 @@ testing {
         // Configure the built-in test suite
         val test by getting(JvmTestSuite::class) {
             // Use JUnit Jupiter test framework
-            useJUnitJupiter("5.10.1")
+            useJUnitJupiter(Libs.JUNIT_JUPITER)
         }
     }
 }
