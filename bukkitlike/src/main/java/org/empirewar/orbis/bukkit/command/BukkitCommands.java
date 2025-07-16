@@ -91,7 +91,6 @@ public class BukkitCommands<
 
     // How sad that Cloud changed from being clientside, tons of issues stem from this.
     private void mapDumbBrigadierStuff() {
-        // Not on Spigot.
         if (!manager.hasBrigadierManager()) return;
 
         final Logger logger;

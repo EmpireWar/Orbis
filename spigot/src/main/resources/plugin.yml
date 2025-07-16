@@ -1,8 +1,0 @@
-name: Orbis
-version: "${version}"
-main: org.empirewar.orbis.spigot.OrbisSpigot
-description: "A modern, multi-platform region protection plugin for Minecraft: Java Edition."
-authors: ["SamB440", "LimeeFox", "StealWonders"]
-website: https://www.empirewar.org
-api-version: '1.20'
-softdepend: ["WorldGuard"]

@@ -8,13 +8,22 @@
 
 [![Discord](https://img.shields.io/discord/282242806695591938?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/fh62mxU)
 
+> [!WARNING]
+> Orbis is still in early stages of development. There will likely be protection bypasses and other bugs. 
+> Please report any bugs or issues to the [GitHub](https://github.com/EmpireWar/Orbis/issues).
+> If there is a feature you would like to see, please open an [issue](https://github.com/EmpireWar/Orbis/issues/new/choose).
+
 Orbis is a modern region protection plugin for Minecraft, supporting the latest version.
+
+> [!IMPORTANT]
+> This plugin has been de-spigotified! Please use Paper instead.
+> Spigot is a hostile platform for developers and users.
 
 ## 🚀 What makes Orbis different?
 These are the key features that makes Orbis stand out against other region protection plugins:
 - Modern, user-friendly interface/commands.
 - Support for Cuboids, Polygons, Polyhedrons, and Spherical region area types.
-- Multi-platform support for Paper, Spigot, Fabric, NeoForge and Sponge.
+- Multi-platform support for Paper, Fabric, NeoForge and Sponge.
 - Advanced API that lets you perform a set of queries on a world or region.
 - No external dependencies.
 
