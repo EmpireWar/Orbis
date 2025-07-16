@@ -1,7 +1,7 @@
 plugins {
     // Use common to avoid shadow plugin
     id("buildlogic.java-common-conventions")
-    id("fabric-loom") version("1.10-SNAPSHOT")
+    id("fabric-loom") version("1.11-SNAPSHOT")
 }
 
 base {

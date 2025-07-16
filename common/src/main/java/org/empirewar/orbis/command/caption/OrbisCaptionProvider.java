@@ -19,6 +19,9 @@
  */
 package org.empirewar.orbis.command.caption;
 
+import static net.kyori.adventure.text.Component.translatable;
+import static net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText;
+
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.incendo.cloud.caption.CaptionProvider;
 import org.incendo.cloud.caption.DelegatingCaptionProvider;
@@ -30,53 +33,35 @@ import org.incendo.cloud.caption.DelegatingCaptionProvider;
  */
 public final class OrbisCaptionProvider<C> extends DelegatingCaptionProvider<C> {
 
-    /**
-     * Default caption for {@link OrbisCaptionKeys#ARGUMENT_PARSE_FAILURE_REGION_NOT_FOUND}.
-     */
-    public static final String ARGUMENT_PARSE_FAILURE_REGION_NOT_FOUND =
-            "Could not find region '<input>'";
+    private static CaptionProvider<?> PROVIDER;
 
-    /**
-     * Default caption for {@link OrbisCaptionKeys#ARGUMENT_PARSE_FAILURE_REGION_FLAG_NOT_FOUND}.
-     */
-    public static final String ARGUMENT_PARSE_FAILURE_REGION_FLAG_NOT_FOUND =
-            "Could not find flag '<input>'";
-
-    /**
-     * Default caption for {@link OrbisCaptionKeys#ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND}.
-     */
-    public static final String ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND =
-            "Could not find world '<input>'";
-
-    /**
-     * Default caption for {@link OrbisCaptionKeys#ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID}.
-     */
-    public static final String ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID =
-            "Invalid flag value '<input>': <error>";
-
-    /**
-     * Default caption for {@link OrbisCaptionKeys#ARGUMENT_PARSE_FAILURE_REGISTRY_VALUE_NOT_FOUND}.
-     */
-    public static final String ARGUMENT_PARSE_FAILURE_REGISTRY_VALUE_NOT_FOUND =
-            "Could not find value '<input>' in registry '<registry>'";
-
-    private static final CaptionProvider<?> PROVIDER = CaptionProvider.constantProvider()
-            .putCaption(
-                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGION_NOT_FOUND,
-                    ARGUMENT_PARSE_FAILURE_REGION_NOT_FOUND)
-            .putCaption(
-                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGION_FLAG_NOT_FOUND,
-                    ARGUMENT_PARSE_FAILURE_REGION_FLAG_NOT_FOUND)
-            .putCaption(
-                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND,
-                    ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND)
-            .putCaption(
-                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID,
-                    ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID)
-            .putCaption(
-                    OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGISTRY_VALUE_NOT_FOUND,
-                    ARGUMENT_PARSE_FAILURE_REGISTRY_VALUE_NOT_FOUND)
-            .build();
+    public static void registerTranslations() {
+         PROVIDER = CaptionProvider.constantProvider()
+                .putCaption(
+                        OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGION_FLAG_NOT_FOUND,
+                        plainText()
+                                .serialize(translatable(
+                                        OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGION_FLAG_NOT_FOUND
+                                                .key())))
+                .putCaption(
+                        OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND,
+                        plainText()
+                                .serialize(translatable(
+                                        OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_WORLD_NOT_FOUND.key())))
+                .putCaption(
+                        OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID,
+                        plainText()
+                                .serialize(translatable(
+                                        OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_FLAG_VALUE_INVALID
+                                                .key())))
+                .putCaption(
+                        OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGISTRY_VALUE_NOT_FOUND,
+                        plainText()
+                                .serialize(translatable(
+                                        OrbisCaptionKeys.ARGUMENT_PARSE_FAILURE_REGISTRY_VALUE_NOT_FOUND
+                                                .key())))
+                .build();
+    }
 
     @Override
     public @NonNull CaptionProvider<C> delegate() {

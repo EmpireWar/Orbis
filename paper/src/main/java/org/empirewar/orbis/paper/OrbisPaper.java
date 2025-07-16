@@ -19,8 +19,6 @@
  */
 package org.empirewar.orbis.paper;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
@@ -43,12 +41,7 @@ import java.io.IOException;
 
 public class OrbisPaper extends JavaPlugin implements Listener {
 
-    private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final OrbisPaperPlatform platform = new OrbisPaperPlatform(this);
-
-    public MiniMessage miniMessage() {
-        return miniMessage;
-    }
 
     @Override
     public void onEnable() {
@@ -93,6 +86,6 @@ public class OrbisPaper extends JavaPlugin implements Listener {
         pluginManager.registerEvents(new ConnectionListener(platform), this);
         pluginManager.registerEvents(new SelectionListener(platform), this);
         pluginManager.registerEvents(new EntityDamageListener(platform), this);
-        pluginManager.registerEvents(new RegionMessagesListener(this), this);
+        pluginManager.registerEvents(new RegionMessagesListener(platform), this);
     }
 }

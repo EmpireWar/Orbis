@@ -31,7 +31,7 @@ import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
-import org.empirewar.orbis.command.parser.RegistryValueParser;
+import org.empirewar.orbis.command.parser.registry.RegistryValueParser;
 import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
 import org.empirewar.orbis.player.OrbisSession;
 import org.incendo.cloud.CommandManager;

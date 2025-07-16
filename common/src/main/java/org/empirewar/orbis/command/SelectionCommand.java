@@ -23,12 +23,14 @@ import static net.kyori.adventure.text.Component.text;
 
 import net.kyori.adventure.key.Key;
 
+import net.kyori.adventure.text.Component;
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.selection.Selection;
+import org.empirewar.orbis.util.OrbisTranslations;
 import org.empirewar.orbis.util.OrbisText;
 import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
@@ -46,8 +48,7 @@ public final class SelectionCommand {
                         selection -> selection.setSelectionType(type),
                         () -> orbis.selectionManager().add(session.getUuid(), new Selection(type)));
         final Key typeKey = OrbisRegistries.AREA_TYPE.getKey(type).orElseThrow();
-        session.sendMessage(OrbisText.PREFIX.append(text(
-                "Set your selection to an " + typeKey.asString() + ".", OrbisText.EREBOR_GREEN)));
+        session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.SELECTION_SET_TYPE.arguments(Component.text(typeKey.asString()))));
     }
 
     @Command("orbis select|selection|sel clear")
@@ -58,14 +59,11 @@ public final class SelectionCommand {
                 .ifPresentOrElse(
                         selection -> {
                             selection.clear();
-                            session.sendMessage(OrbisText.PREFIX.append(text(
-                                    "Cleared your current selection.", OrbisText.EREBOR_GREEN)));
+                            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.SELECTION_CLEARED));
                             orbis.selectionManager().remove(session.getUuid());
                         },
                         () -> {
-                            session.sendMessage(OrbisText.PREFIX.append(text(
-                                    "You don't have an active selection.",
-                                    OrbisText.SECONDARY_RED)));
+                            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.SELECTION_NOT_ACTIVE));
                         });
     }
 }

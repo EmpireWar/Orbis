@@ -22,7 +22,6 @@ package org.empirewar.orbis.sponge;
 import com.google.inject.Inject;
 
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.OrbisPlatform;
@@ -63,13 +62,8 @@ import java.util.UUID;
 @Plugin("orbis")
 public class OrbisSponge extends OrbisPlatform {
 
-    private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final Logger logger = LoggerFactory.getLogger("orbis");
     private final PluginContainer pluginContainer;
-
-    public MiniMessage miniMessage() {
-        return miniMessage;
-    }
 
     public PluginContainer pluginContainer() {
         return pluginContainer;

@@ -23,13 +23,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.empirewar.orbis.flag.DefaultFlags;
-import org.empirewar.orbis.paper.OrbisPaper;
+import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
 import org.empirewar.orbis.paper.api.event.RegionLeaveEvent;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 
-public record RegionMessagesListener(OrbisPaper orbis) implements Listener {
+public record RegionMessagesListener(OrbisPaperPlatform orbis) implements Listener {
 
     @EventHandler
     public void onEnter(RegionEnterEvent event) {

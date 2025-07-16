@@ -44,9 +44,6 @@ public final class OrbisCaptionKeys {
     /**
      * Variables: {input}
      */
-    public static final Caption ARGUMENT_PARSE_FAILURE_REGION_NOT_FOUND =
-            of("argument.parse.failure.region_not_found");
-
     public static final Caption ARGUMENT_PARSE_FAILURE_REGION_FLAG_NOT_FOUND =
             of("argument.parse.failure.region_flag_not_found");
 

@@ -20,7 +20,12 @@
 package org.empirewar.orbis;
 
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.TranslationStore;
+import net.kyori.adventure.util.UTF8ResourceBundleControl;
 
+import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
@@ -44,9 +49,13 @@ import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,6 +74,12 @@ public abstract class OrbisPlatform implements Orbis {
     // Players currently visualizing regions
     private final Set<UUID> visualisingPlayers = ConcurrentHashMap.newKeySet();
 
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
+
+    public MiniMessage miniMessage() {
+        return miniMessage;
+    }
+
     public OrbisPlatform() {
         OrbisAPI.set(this);
     }
@@ -75,6 +90,27 @@ public abstract class OrbisPlatform implements Orbis {
         } catch (IOException e) {
             logger().error("Error loading configs", e);
         }
+
+        TranslationStore.StringBased<MessageFormat> store =
+                TranslationStore.messageFormat(Key.key("orbis", "translations"));
+        store.defaultLocale(Locale.UK);
+
+        Locale.availableLocales().forEach(locale -> {
+            String resourcePath =
+                    String.format("assets/orbis/translations_%s.properties", locale.toString());
+            if (OrbisPlatform.class.getClassLoader().getResource(resourcePath) != null) {
+                try {
+                    ResourceBundle bundle = ResourceBundle.getBundle(
+                            "assets/orbis/translations", locale, UTF8ResourceBundleControl.get());
+                    store.registerAll(locale, bundle, true);
+                    logger().info("Loaded translations for {}", locale);
+                } catch (MissingResourceException ignored) {
+                }
+            }
+        });
+
+        GlobalTranslator.translator().addSource(store);
+        OrbisCaptionProvider.registerTranslations();
     }
 
     protected abstract InputStream getResourceAsStream(String path);

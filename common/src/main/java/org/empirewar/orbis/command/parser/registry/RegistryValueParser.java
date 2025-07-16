@@ -17,11 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.empirewar.orbis.command.parser;
+package org.empirewar.orbis.command.parser.registry;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.empirewar.orbis.command.caption.OrbisCaptionKeys;
-import org.empirewar.orbis.command.parser.registry.RegistryMapper;
 import org.empirewar.orbis.registry.OrbisRegistry;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;

@@ -38,8 +38,6 @@ import org.incendo.cloud.paper.PaperCommandManager;
 
 public class OrbisPluginBootstrap implements PluginBootstrap {
 
-    private static BukkitCommands<PaperCommandManager<OrbisSession>> commands;
-
     @Override
     public void bootstrap(BootstrapContext bootstrapContext) {
         SenderMapper<CommandSourceStack, OrbisSession> mapper = SenderMapper.create(
@@ -71,6 +69,6 @@ public class OrbisPluginBootstrap implements PluginBootstrap {
                     MessageComponentSerializer.message()
                             .serializeOrNull(componentTooltipSuggestion.tooltip()));
         });
-        commands = new BukkitCommands<>(manager);
+        new BukkitCommands<>(manager);
     }
 }

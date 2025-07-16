@@ -30,7 +30,7 @@ import org.empirewar.orbis.command.CommonCommands;
 import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
-import org.empirewar.orbis.command.parser.RegistryValueParser;
+import org.empirewar.orbis.command.parser.registry.RegistryValueParser;
 import org.empirewar.orbis.fabric.OrbisFabric;
 import org.empirewar.orbis.fabric.session.FabricConsoleSession;
 import org.empirewar.orbis.fabric.session.FabricPlayerSession;
