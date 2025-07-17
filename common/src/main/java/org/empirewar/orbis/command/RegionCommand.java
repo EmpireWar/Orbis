@@ -1,21 +1,25 @@
 /*
- * This file is part of Orbis, licensed under the GNU GPL v3 License.
+ * This file is part of Orbis, licensed under the MIT License.
  *
  * Copyright (C) 2024 Empire War
- * Copyright (C) contributors
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package org.empirewar.orbis.command;
 
@@ -57,8 +61,8 @@ import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.selection.Selection;
-import org.empirewar.orbis.util.OrbisTranslations;
 import org.empirewar.orbis.util.OrbisText;
+import org.empirewar.orbis.util.OrbisTranslations;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.annotation.specifier.Greedy;
 import org.incendo.cloud.annotations.Argument;
@@ -90,7 +94,8 @@ public final class RegionCommand {
             @Argument("area_type") @Nullable AreaType<?> areaType) {
         final Orbis orbis = OrbisAPI.get();
         if (OrbisRegistries.REGIONS.get(regionName).isPresent()) {
-            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_ALREADY_EXISTS.arguments(Component.text(regionName))));
+            session.sendMessage(OrbisText.PREFIX.append(
+                    OrbisTranslations.REGION_ALREADY_EXISTS.arguments(Component.text(regionName))));
             return;
         }
 
@@ -107,29 +112,31 @@ public final class RegionCommand {
             final Selection selection =
                     orbis.selectionManager().get(player.getUuid()).orElse(null);
             if (selection == null) {
-                session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_SELECTION_REQUIRED));
+                session.sendMessage(
+                        OrbisText.PREFIX.append(OrbisTranslations.REGION_SELECTION_REQUIRED));
                 return;
             }
 
             AreaType<?> defaultedType = areaType == null ? AreaType.CUBOID : areaType;
             if (selection.getSelectionType() != defaultedType) {
                 session.sendMessage(OrbisText.PREFIX.append(
-                    OrbisTranslations.REGION_SELECTION_TYPE_MISMATCH.arguments(
-                        Component.text(defaultedType.toString()),
-                        Component.text(selection.getSelectionType().toString())
-                    )));
+                        OrbisTranslations.REGION_SELECTION_TYPE_MISMATCH.arguments(
+                                Component.text(defaultedType.toString()),
+                                Component.text(selection.getSelectionType().toString()))));
                 return;
             }
 
             try {
                 area = selection.build();
             } catch (IncompleteAreaException e) {
-                session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_INCOMPLETE_SELECTION));
+                session.sendMessage(
+                        OrbisText.PREFIX.append(OrbisTranslations.REGION_INCOMPLETE_SELECTION));
                 return;
             }
 
             selection.getPoints().forEach(area::addPoint);
-            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_USED_SELECTION_NOTE));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_USED_SELECTION_NOTE));
         } else if (areaType == null || areaType == AreaType.CUBOID) {
             area = new CuboidArea();
         } else if (areaType == AreaType.POLYGON) {
@@ -147,31 +154,32 @@ public final class RegionCommand {
         if (session instanceof PlayerOrbisSession player && !region.isGlobal()) {
             orbis.getRegionisedWorld(orbis.getPlayerWorld(player.getUuid())).add(region);
         }
-        session.sendMessage(OrbisText.PREFIX.append(
-            OrbisTranslations.REGION_CREATED.arguments(Component.text(regionName), Component.text(global ? "global " : ""))));
+        session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_CREATED.arguments(
+                Component.text(regionName), Component.text(global ? "global " : ""))));
     }
 
     @Command("region|rg setarea <region>")
     @CommandDescription("Set the area a region spans.")
     public void onSetArea(PlayerOrbisSession session, @Argument("region") Region region) {
         if (region.isGlobal()) {
-            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_GLOBAL_AREA_NOT_SUPPORTED));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_GLOBAL_AREA_NOT_SUPPORTED));
             return;
         }
 
         final Selection selection =
                 OrbisAPI.get().selectionManager().get(session.getUuid()).orElse(null);
         if (selection == null) {
-            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_NO_ACTIVE_SELECTION));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_NO_ACTIVE_SELECTION));
             return;
         }
 
         if (selection.getSelectionType() != region.area().getType()) {
             session.sendMessage(OrbisText.PREFIX.append(
-                OrbisTranslations.REGION_SET_AREA_TYPE_MISMATCH.arguments(
-                    Component.text(region.area().getType().toString()),
-                    Component.text(selection.getSelectionType().toString())
-                )));
+                    OrbisTranslations.REGION_SET_AREA_TYPE_MISMATCH.arguments(
+                            Component.text(region.area().getType().toString()),
+                            Component.text(selection.getSelectionType().toString()))));
             return;
         }
 
@@ -181,9 +189,12 @@ public final class RegionCommand {
             for (Vector3ic point : area.points()) {
                 region.area().addPoint(new Vector3i(point.x(), point.y(), point.z()));
             }
-            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_SET_AREA_SUCCESS.arguments(Component.text(region.name()))));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_SET_AREA_SUCCESS.arguments(
+                            Component.text(region.name()))));
         } catch (IncompleteAreaException e) {
-            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_INCOMPLETE_SELECTION));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_INCOMPLETE_SELECTION));
         }
     }
 
@@ -193,11 +204,14 @@ public final class RegionCommand {
     public void onRemove(OrbisSession session, @Argument("region") Region region) {
         final boolean anySucceeded = OrbisAPI.get().removeRegion(region);
         if (anySucceeded) {
-            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_REMOVE_SUCCESS.arguments(Component.text(region.name()))));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_REMOVE_SUCCESS.arguments(
+                            Component.text(region.name()))));
             return;
         }
 
-        session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_REMOVE_FAILED.arguments(Component.text(region.name()))));
+        session.sendMessage(OrbisText.PREFIX.append(
+                OrbisTranslations.REGION_REMOVE_FAILED.arguments(Component.text(region.name()))));
     }
 
     @Command("region|rg flag add <region> <flag> [value]")
@@ -218,7 +232,8 @@ public final class RegionCommand {
                                 .map(FlagMemberGroup::valueOf)
                                 .collect(Collectors.toSet()));
             } catch (IllegalArgumentException e) {
-                session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_INVALID_GROUP));
+                session.sendMessage(
+                        OrbisText.PREFIX.append(OrbisTranslations.REGION_INVALID_GROUP));
                 return;
             }
         }
@@ -227,8 +242,8 @@ public final class RegionCommand {
             RegistryRegionFlag<T> cast = (RegistryRegionFlag<T>) flag;
             region.setFlag(cast, (T) value.instance());
         }
-        session.sendMessage(OrbisText.PREFIX.append(
-            OrbisTranslations.REGION_FLAG_ADDED.arguments(Component.text(flag.key().asString()), Component.text(region.name()))));
+        session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_FLAG_ADDED.arguments(
+                Component.text(flag.key().asString()), Component.text(region.name()))));
     }
 
     @Command("region|rg flag list <region>")
@@ -254,8 +269,8 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("flag") RegistryRegionFlag<?> flag) {
         region.removeFlag(flag);
-        session.sendMessage(OrbisText.PREFIX.append(
-            OrbisTranslations.REGION_FLAG_REMOVED.arguments(Component.text(flag.key().asString()), Component.text(region.name()))));
+        session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_FLAG_REMOVED.arguments(
+                Component.text(flag.key().asString()), Component.text(region.name()))));
     }
 
     @Command("region|rg flag set <region> <flag> <value>")
@@ -279,8 +294,8 @@ public final class RegionCommand {
         // Is there a better way? I'm not sure...
         RegistryRegionFlag<T> cast = (RegistryRegionFlag<T>) flag;
         region.setFlag(cast, (T) value.instance());
-        session.sendMessage(OrbisText.PREFIX.append(
-            OrbisTranslations.REGION_FLAG_SET.arguments(Component.text(flag.key().asString()), Component.text(region.name()))));
+        session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_FLAG_SET.arguments(
+                Component.text(flag.key().asString()), Component.text(region.name()))));
     }
 
     @Command("region|rg setpriority <region> <priority>")
@@ -296,8 +311,8 @@ public final class RegionCommand {
         }
 
         region.priority(priority);
-        session.sendMessage(OrbisText.PREFIX.append(
-            OrbisTranslations.REGION_PRIORITY_SET.arguments(Component.text(region.name()), Component.text(String.valueOf(priority)))));
+        session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_PRIORITY_SET.arguments(
+                Component.text(region.name()), Component.text(String.valueOf(priority)))));
     }
 
     @Command("region|rg parent add <region> <parent>")
@@ -318,15 +333,17 @@ public final class RegionCommand {
         }
 
         if (region.parents().contains(parent)) {
-            session.sendMessage(OrbisText.PREFIX.append(
-                OrbisTranslations.REGION_PARENT_ALREADY.arguments(Component.text(parent.name()), Component.text(region.name()))));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_PARENT_ALREADY.arguments(
+                            Component.text(parent.name()), Component.text(region.name()))));
             return;
         }
 
         try {
             region.addParent(parent);
-            session.sendMessage(OrbisText.PREFIX.append(
-                OrbisTranslations.REGION_PARENT_ADDED.arguments(Component.text(parent.name()), Component.text(region.name()))));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_PARENT_ADDED.arguments(
+                            Component.text(parent.name()), Component.text(region.name()))));
         } catch (IllegalArgumentException e) {
             session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_PARENT_CIRCULAR));
         }
@@ -339,8 +356,9 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("parent") Region parent) {
         region.removeParent(parent);
-        session.sendMessage(OrbisText.PREFIX.append(
-            OrbisTranslations.REGION_PARENT_REMOVED.arguments(Component.text(parent.name()), Component.text(region.name()))));
+        session.sendMessage(
+                OrbisText.PREFIX.append(OrbisTranslations.REGION_PARENT_REMOVED.arguments(
+                        Component.text(parent.name()), Component.text(region.name()))));
     }
 
     @Command("region|rg world add <region> <world>")
@@ -356,19 +374,17 @@ public final class RegionCommand {
         }
 
         if (world.add(region)) {
-            session.sendMessage(OrbisText.PREFIX.append(
-                OrbisTranslations.REGION_WORLD_ADDED.arguments(
-                    Component.text(region.name()),
-                    Component.text(world.worldId().orElseThrow().asString())
-                )));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_ADDED.arguments(
+                            Component.text(region.name()),
+                            Component.text(world.worldId().orElseThrow().asString()))));
             return;
         }
 
-        session.sendMessage(OrbisText.PREFIX.append(
-            OrbisTranslations.REGION_WORLD_ADD_FAILED.arguments(
-                Component.text(region.name()),
-                Component.text(world.worldId().orElseThrow().asString())
-            )));
+        session.sendMessage(
+                OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_ADD_FAILED.arguments(
+                        Component.text(region.name()),
+                        Component.text(world.worldId().orElseThrow().asString()))));
     }
 
     @Command("region|rg world remove <region> <world>")
@@ -383,19 +399,17 @@ public final class RegionCommand {
         }
 
         if (world.remove(region)) {
-            session.sendMessage(OrbisText.PREFIX.append(
-                OrbisTranslations.REGION_WORLD_REMOVED.arguments(
-                    Component.text(region.name()),
-                    Component.text(world.worldId().orElseThrow().asString())
-                )));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_REMOVED.arguments(
+                            Component.text(region.name()),
+                            Component.text(world.worldId().orElseThrow().asString()))));
             return;
         }
 
-        session.sendMessage(OrbisText.PREFIX.append(
-            OrbisTranslations.REGION_WORLD_REMOVE_FAILED.arguments(
-                Component.text(region.name()),
-                Component.text(world.worldId().orElseThrow().asString())
-            )));
+        session.sendMessage(
+                OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_REMOVE_FAILED.arguments(
+                        Component.text(region.name()),
+                        Component.text(world.worldId().orElseThrow().asString()))));
     }
 
     @Command("region|rg points add <region> <x> <y> <z>")
@@ -407,20 +421,18 @@ public final class RegionCommand {
             @Argument("y") int y,
             @Argument("z") int z) {
         if (!region.isGlobal() && region.area().addPoint(new Vector3i(x, y, z))) {
-            session.sendMessage(OrbisText.PREFIX.append(
-                OrbisTranslations.REGION_POINT_ADDED.arguments(
-                    Component.text(x),
-                    Component.text(y),
-                    Component.text(z),
-                    Component.text(region.name())
-                )));
+            session.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_POINT_ADDED.arguments(
+                            Component.text(x),
+                            Component.text(y),
+                            Component.text(z),
+                            Component.text(region.name()))));
             return;
         }
 
-        session.sendMessage(OrbisText.PREFIX.append(
-            OrbisTranslations.REGION_POINT_ADD_FAILED.arguments(
-                Component.text(region.name())
-            )));
+        session.sendMessage(
+                OrbisText.PREFIX.append(OrbisTranslations.REGION_POINT_ADD_FAILED.arguments(
+                        Component.text(region.name()))));
     }
 
     @Command("region|rg points list <region>")
@@ -717,8 +729,7 @@ public final class RegionCommand {
         }
 
         if (regions.isEmpty()) {
-            session.sendMessage(
-                    OrbisText.PREFIX.append(OrbisTranslations.REGION_LIST_EMPTY));
+            session.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.REGION_LIST_EMPTY));
             return;
         }
 

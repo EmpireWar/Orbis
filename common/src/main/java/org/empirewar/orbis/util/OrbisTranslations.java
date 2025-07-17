@@ -1,21 +1,25 @@
 /*
- * This file is part of Orbis, licensed under the GNU GPL v3 License.
+ * This file is part of Orbis, licensed under the MIT License.
  *
  * Copyright (C) 2025 Empire War
- * Copyright (C) contributors
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package org.empirewar.orbis.util;
 
@@ -37,15 +41,17 @@ public final class OrbisTranslations {
     public static final TranslatableComponent REGION_SELECTION_REQUIRED =
             Component.translatable("command.region.selection_required", OrbisText.SECONDARY_RED);
     public static final TranslatableComponent REGION_SELECTION_TYPE_MISMATCH =
-            Component.translatable("command.region.selection_type_mismatch", OrbisText.SECONDARY_RED);
+            Component.translatable(
+                    "command.region.selection_type_mismatch", OrbisText.SECONDARY_RED);
     public static final TranslatableComponent REGION_INCOMPLETE_SELECTION =
             Component.translatable("command.region.incomplete_selection", OrbisText.SECONDARY_RED);
-    public static final TranslatableComponent REGION_USED_SELECTION_NOTE =
-            Component.translatable("command.region.used_selection_note", OrbisText.SECONDARY_ORANGE);
+    public static final TranslatableComponent REGION_USED_SELECTION_NOTE = Component.translatable(
+            "command.region.used_selection_note", OrbisText.SECONDARY_ORANGE);
     public static final TranslatableComponent REGION_CREATED =
             Component.translatable("command.region.created", OrbisText.EREBOR_GREEN);
     public static final TranslatableComponent REGION_GLOBAL_AREA_NOT_SUPPORTED =
-            Component.translatable("command.region.global_area_not_supported", OrbisText.SECONDARY_RED);
+            Component.translatable(
+                    "command.region.global_area_not_supported", OrbisText.SECONDARY_RED);
     public static final TranslatableComponent REGION_NO_ACTIVE_SELECTION =
             Component.translatable("command.region.no_active_selection", OrbisText.SECONDARY_RED);
     public static final TranslatableComponent REGION_SET_AREA_TYPE_MISMATCH =
