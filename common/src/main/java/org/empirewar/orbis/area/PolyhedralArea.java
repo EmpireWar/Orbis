@@ -44,7 +44,7 @@ import java.util.Set;
  */
 public final class PolyhedralArea extends PolygonArea {
 
-    public static MapCodec<PolyhedralArea> CODEC =
+    public static final MapCodec<PolyhedralArea> CODEC =
             RecordCodecBuilder.mapCodec(instance -> instance.group(ExtraCodecs.VEC_3I
                             .listOf()
                             .fieldOf("points")

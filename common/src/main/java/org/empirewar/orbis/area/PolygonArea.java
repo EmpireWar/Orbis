@@ -42,7 +42,7 @@ import java.util.Set;
 
 public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea {
 
-    public static MapCodec<PolygonArea> CODEC =
+    public static final MapCodec<PolygonArea> CODEC =
             RecordCodecBuilder.mapCodec(instance -> instance.group(ExtraCodecs.VEC_3I
                             .listOf()
                             .fieldOf("points")
@@ -74,7 +74,7 @@ public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea 
 
         final Vector3dc blockPosition = new Vector3d(x, y, z);
         final LinkedList<Vector3ic> pointsList = new LinkedList<>(points);
-        for (int i = 0; i < pointsList.size(); i++) {
+        for (int i = 0; i < points.size(); i++) {
             final Vector3ic point = pointsList.get(i);
             final Vector3ic nextPoint = pointsList.get((i + 1) % pointsList.size());
             double xOffset = point.x() - blockPosition.x();

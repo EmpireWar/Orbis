@@ -38,7 +38,7 @@ import java.util.Set;
 
 public final class CuboidArea extends EncompassingArea {
 
-    public static MapCodec<CuboidArea> CODEC =
+    public static final MapCodec<CuboidArea> CODEC =
             RecordCodecBuilder.mapCodec(instance -> instance.group(ExtraCodecs.VEC_3I
                             .listOf()
                             .fieldOf("points")

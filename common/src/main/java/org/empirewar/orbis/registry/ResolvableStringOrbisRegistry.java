@@ -96,7 +96,7 @@ public class ResolvableStringOrbisRegistry<T extends RegistryResolvable<String>>
                             .error(
                                     "Could not resolve '{}' before {} in registry '{}'",
                                     entry.getKey(),
-                                    pr.lifecycle,
+                                    pr.lifecycle.name(),
                                     key().asString());
                     return true;
                 }
