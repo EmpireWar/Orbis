@@ -13,13 +13,12 @@
 > Please report any bugs or issues to the [GitHub](https://github.com/EmpireWar/Orbis/issues).
 > If there is a feature you would like to see, please open an [issue](https://github.com/EmpireWar/Orbis/issues/new/choose).
 
-Orbis is a modern region protection plugin for Minecraft, supporting the latest version.
+Orbis is a modern region protection plugin for Minecraft, supporting the latest version and most platforms: Paper, Fabric, NeoForge, and Sponge.
 
 > [!IMPORTANT]
-> This plugin has been de-spigotified! Please use Paper instead.
-> Spigot is a hostile platform for developers and users.
+> Orbis is not compatible with Spigot. Please use Paper instead.
 
-## 🚀 What makes Orbis different?
+## What makes Orbis different?
 These are the key features that makes Orbis stand out against other region protection plugins:
 - Modern, user-friendly interface/commands.
 - Support for Cuboids, Polygons, Polyhedrons, and Spherical region area types.
@@ -30,7 +29,7 @@ These are the key features that makes Orbis stand out against other region prote
 ### Migrating from WorldGuard?
 Orbis has an inbuilt migration tool that allows you to migrate your WorldGuard regions.
 
-Simply run `/orbis migrate` on a server with Orbis and WorldGuard installed, and your WorldGuard regions will be migrated to Orbis.
+Simply run `/orbis migrate` on a server with Orbis and WorldGuard installed, and your WorldGuard regions will be migrated to Orbis (as well as they can be).
 
 #### Key differences
 - Regions are not "protected by default". Instead, you need to add what flags you want to a region to make it protected.
@@ -53,8 +52,10 @@ Newer or older versions may work, but are not tested.
 
 [![Latest Release](https://img.shields.io/maven-central/v/org.empirewar.orbis/orbis-api?label=Latest%20Release)](https://repo.empirewar.org/releases)
 
-- **[Releases](https://repo.empirewar.org/releases)**
-- **[Snapshots](https://repo.empirewar.org/snapshots)**
+- **[Releases - GitHub](https://github.com/EmpireWar/Orbis/releases)**
+- **[Snapshots - GitHub Actions (nightly.link)](https://nightly.link/EmpireWar/Orbis/workflows/publish/main/Artifacts.zip)**
+
+For snapshot builds, download the `.zip` file, go into the folder of your platform, then find `build/libs/orbis-PLATFORM-VERSION.jar`.
 
 ---
 
@@ -169,6 +170,9 @@ final boolean canBreak = worldSet.query(RegionQuery.Position.builder()
     .orElse(true);
 ```
 
+### Other Examples
+You may be able to find other examples in the [tests](https://github.com/EmpireWar/Orbis/tree/main/common/src/test/java/org/empirewar/orbis).
+
 ---
 
 ## 🎉 Events
@@ -180,7 +184,7 @@ Listen to these to react to players entering or leaving regions!
 
 ## 📖 Javadocs
 Full documentation is available at:
-[Orbis Javadocs](https://repo.empirewar.org/javadoc/snapshots/org/empirewar/orbis/common/1.0.0-SNAPSHOT)
+[Orbis Javadocs](https://repo.empirewar.org/javadoc/snapshots/org/empirewar/orbis/common/latest)
 
 ---
 
