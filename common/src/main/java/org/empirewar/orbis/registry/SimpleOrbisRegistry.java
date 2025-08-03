@@ -50,6 +50,12 @@ public abstract non-sealed class SimpleOrbisRegistry<T, K> implements OrbisRegis
     public T register(K key, T entry) {
         if (lifecycle == RegistryLifecycles.frozen())
             throw new IllegalStateException("Registry is frozen");
+        if (entries.containsKey(key))
+            throw new IllegalArgumentException("Entry already exists");
+        if (key == null)
+            throw new IllegalArgumentException("Key cannot be null");
+        if (entry == null)
+            throw new IllegalArgumentException("Entry cannot be null");
         entries.put(key, entry);
         return entry;
     }
