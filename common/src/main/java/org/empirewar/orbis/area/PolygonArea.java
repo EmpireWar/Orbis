@@ -40,6 +40,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * A 2D polygonal area.
+ */
 public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea {
 
     public static final MapCodec<PolygonArea> CODEC =
@@ -64,7 +67,7 @@ public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea 
 
     @Override
     public boolean contains(double x, double y, double z) {
-        // Quick and dirty check.
+        // Check within cuboid area first
         if (x < min.x() || x > max.x() || z < min.z() || z > max.z()) {
             return false;
         }
@@ -73,7 +76,7 @@ public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea 
         double angle = 0;
 
         final Vector3dc blockPosition = new Vector3d(x, y, z);
-        final LinkedList<Vector3ic> pointsList = new LinkedList<>(points);
+        final List<Vector3ic> pointsList = new ArrayList<>(points);
         for (int i = 0; i < points.size(); i++) {
             final Vector3ic point = pointsList.get(i);
             final Vector3ic nextPoint = pointsList.get((i + 1) % pointsList.size());
@@ -123,7 +126,7 @@ public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea 
     @Override
     public Set<Vector3ic> generateBoundaryPoints() {
         Set<Vector3ic> boundary = new HashSet<>();
-        List<Vector3ic> pts = new ArrayList<>(points());
+        List<Vector3ic> pts = new ArrayList<>(points);
         if (pts.size() < 3) return boundary;
         // Project to 2D (XZ), compute convex hull, then reconstruct 3D points
         List<Vector3ic> hull = convexHullXZ(pts);
@@ -167,18 +170,17 @@ public sealed class PolygonArea extends EncompassingArea permits PolyhedralArea 
     }
 
     private Set<Vector3i> getLinePoints(Vector3ic start, Vector3ic end) {
-        Set<Vector3i> points = new HashSet<>();
-        int x1 = start.x(), y1 = start.y(), z1 = start.z();
-        int x2 = end.x(), y2 = end.y(), z2 = end.z();
-        int dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1), dz = Math.abs(z2 - z1);
-        int xs = x2 > x1 ? 1 : -1, ys = y2 > y1 ? 1 : -1, zs = z2 > z1 ? 1 : -1;
-        int n = Math.max(Math.max(dx, dy), dz);
+        final int x1 = start.x(), y1 = start.y(), z1 = start.z();
+        final int x2 = end.x(), y2 = end.y(), z2 = end.z();
+        final int dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1), dz = Math.abs(z2 - z1);
+        final int n = Math.max(Math.max(dx, dy), dz);
+        final Set<Vector3i> linePoints = new HashSet<>(n);
         for (int i = 0; i <= n; i++) {
             int x = x1 + i * (x2 - x1) / n;
             int y = y1 + i * (y2 - y1) / n;
             int z = z1 + i * (z2 - z1) / n;
-            points.add(new Vector3i(x, y, z));
+            linePoints.add(new Vector3i(x, y, z));
         }
-        return points;
+        return linePoints;
     }
 }

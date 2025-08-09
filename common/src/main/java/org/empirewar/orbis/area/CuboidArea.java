@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * A cuboid area with two points representing the minimum and maximum coordinates.
+ */
 public final class CuboidArea extends EncompassingArea {
 
     public static final MapCodec<CuboidArea> CODEC =

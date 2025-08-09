@@ -37,6 +37,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * A spherical area with a single center point and a radius.
+ */
 public final class SphericalArea extends EncompassingArea {
 
     public static final MapCodec<SphericalArea> CODEC =
@@ -118,10 +121,10 @@ public final class SphericalArea extends EncompassingArea {
 
     @Override
     public Set<Vector3ic> generateBoundaryPoints() {
-        Set<Vector3ic> points = new HashSet<>();
         Vector3ic c = getCenter();
         double r = getRadius();
         int samples = (int) (20 * Math.PI * r);
+        Set<Vector3ic> points = new HashSet<>(samples);
         for (int i = 0; i < samples; i++) {
             double phi = Math.acos(2.0 * i / samples - 1.0);
             double theta = Math.PI * (1 + Math.sqrt(5)) * i;
