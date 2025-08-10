@@ -22,6 +22,7 @@ Orbis is a modern region protection plugin for Minecraft, supporting the latest 
 These are the key features that makes Orbis stand out against other region protection plugins:
 - Modern, user-friendly interface/commands.
 - Support for Cuboids, Polygons, Polyhedrons, and Spherical region area types.
+- Region and selection visualisation using particles for all region types.
 - Multi-platform support for Paper, Fabric, NeoForge and Sponge.
 - Advanced API that lets you perform a set of queries on a world or region.
 - No external dependencies.
@@ -113,7 +114,7 @@ region.addFlag(CAN_FLY);
 region.setFlag(CAN_FLY, true); // Allow flying in this region
 ```
 
-**You must register your flags prior to Orbis being enabled! (i.e. before `onEnable()` on Bukkit platforms)**
+**You must register your flags prior to Orbis being fully enabled! (i.e. before `onEnable()` on Bukkit platforms)**
 
 To query a flag on a region:
 ```java

@@ -15,6 +15,8 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
         maven("https://maven.fabricmc.net/")
+        maven("https://maven.architectury.dev/")
+        maven("https://maven.neoforged.net/releases")
     }
 }
 
@@ -24,4 +26,9 @@ plugins {
 }
 
 rootProject.name = "Orbis"
-include("common", "migrators:worldguard", "bukkitlike", "paper", "api:paper-api", "sponge", "api:sponge-api", "fabric", ":api:fabric-api")
+include("common", "migrators:worldguard",
+    "bukkitlike", "platforms:paper", "api:paper-api",
+    "platforms:sponge", "api:sponge-api",
+    "platforms:modded:modded-common",
+    "platforms:modded:fabric", "api:fabric-api",
+    "platforms:modded:neoforge")

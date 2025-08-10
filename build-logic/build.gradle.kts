@@ -14,6 +14,8 @@ repositories {
     gradlePluginPortal()
     mavenCentral()
     maven("https://maven.fabricmc.net/")
+    maven("https://maven.architectury.dev/")
+    maven("https://maven.neoforged.net/releases")
 }
 
 dependencies {
@@ -21,4 +23,6 @@ dependencies {
     implementation("com.diffplug.spotless:spotless-plugin-gradle:7.0.2")
     implementation("net.kyori:indra-licenser-spotless:3.1.3")
     implementation("net.kyori:blossom:2.1.0")
+    implementation("dev.architectury:architectury-loom:1.10-SNAPSHOT")
+    implementation("architectury-plugin:architectury-plugin.gradle.plugin:3.4-SNAPSHOT")
 }

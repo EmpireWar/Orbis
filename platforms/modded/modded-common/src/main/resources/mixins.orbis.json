@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.empirewar.orbis.modded.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BlockEventMixin",
+    "CoralBlockMixin",
+    "MinecraftServerMixin",
+    "FarmBlockMixin",
+    "FireBlockMixin",
+    "ItemEntityMixin",
+    "LeavesBlockMixin",
+    "LivingEntityMixin",
+    "ServerPlayerEntityMixin",
+    "TurtleEggBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
