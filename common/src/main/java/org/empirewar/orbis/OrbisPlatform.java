@@ -104,9 +104,8 @@ public abstract class OrbisPlatform implements Orbis {
                     String.format("assets/orbis/translations_%s.properties", locale.toString());
             if (OrbisPlatform.class.getClassLoader().getResource(resourcePath) != null) {
                 try {
-                    ResourceBundle bundle = ResourceBundle.getBundle(
-                            "assets/orbis/translations", locale, UTF8ResourceBundleControl.get());
-                    store.registerAll(locale, bundle, true);
+                    store.registerAll(locale,
+                            Path.of("assets", "orbis", "translations", locale.toString()), true);
                     logger().info("Loaded translations for {}", locale);
                 } catch (MissingResourceException ignored) {
                 }
