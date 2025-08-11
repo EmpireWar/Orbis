@@ -28,6 +28,7 @@ import net.kyori.adventure.key.Keyed;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,8 +43,12 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
+import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
+import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
 
 import org.empirewar.orbis.OrbisPlatform;
+import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.neoforge.command.NeoForgeCommands;
 import org.empirewar.orbis.neoforge.listener.BlockActionListener;
 import org.empirewar.orbis.neoforge.listener.ConnectionListener;
@@ -67,7 +72,6 @@ public class OrbisNeoForge extends OrbisPlatform {
 
     private ItemStack wandItem;
     private final Path dataFolder;
-    private BlockActionListener blockActionListener;
 
     public OrbisNeoForge() {
         // You can do simple construction logic here if needed.
@@ -92,12 +96,18 @@ public class OrbisNeoForge extends OrbisPlatform {
         return wandItem.copy();
     }
 
-    public BlockActionListener getBlockActionListener() {
-        return blockActionListener;
-    }
-
     public MinecraftServer server() {
         return server;
+    }
+
+    public static final PermissionNode<Boolean> ORBIS_MANAGE = new PermissionNode<>(
+            ResourceLocation.fromNamespaceAndPath("orbis", Permissions.MANAGE),
+            PermissionTypes.BOOLEAN,
+            (player, playerUUID, context) -> true);
+
+    @SubscribeEvent
+    public void onPermissionNodesRegister(PermissionGatherEvent.Nodes event) {
+        event.addNodes(ORBIS_MANAGE);
     }
 
     @SubscribeEvent
@@ -123,8 +133,6 @@ public class OrbisNeoForge extends OrbisPlatform {
             tag.putBoolean("orbis_is_wand", true);
             compoundTag.merge(tag);
         });
-
-        this.blockActionListener = new BlockActionListener(this);
     }
 
     @SubscribeEvent
@@ -160,6 +168,7 @@ public class OrbisNeoForge extends OrbisPlatform {
         new SelectionListener(this);
         new ConnectionListener(this);
         new InteractEntityListener(this);
+        new BlockActionListener(this);
     }
 
     @Override

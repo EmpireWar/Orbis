@@ -31,18 +31,20 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.AreaType;
+import org.empirewar.orbis.neoforge.OrbisNeoForge;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.joml.Vector3i;
@@ -61,8 +63,8 @@ public final class SelectionListener {
 
     @SubscribeEvent
     public void onRightClick(PlayerInteractEvent.RightClickItem event) {
-        Player player = event.getEntity();
-        if (!player.hasPermissions(3)) return;
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        if (!PermissionAPI.getPermission(player, OrbisNeoForge.ORBIS_MANAGE)) return;
 
         ItemStack item = player.getItemInHand(event.getHand());
         if (item.isEmpty()
@@ -99,18 +101,18 @@ public final class SelectionListener {
     public void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
         if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
 
-        if (handleLeftClick(event.getEntity(), event.getPos(), event.getHand())) {
+        if (handleLeftClick((ServerPlayer) event.getEntity(), event.getPos(), event.getHand())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onLeftClick(PlayerInteractEvent.LeftClickEmpty event) {
-        handleLeftClick(event.getEntity(), event.getPos(), event.getHand());
+        handleLeftClick((ServerPlayer) event.getEntity(), event.getPos(), event.getHand());
     }
 
-    private boolean handleLeftClick(Player player, BlockPos blockPos, InteractionHand hand) {
-        if (!player.hasPermissions(3)) return false;
+    private boolean handleLeftClick(ServerPlayer player, BlockPos blockPos, InteractionHand hand) {
+        if (!PermissionAPI.getPermission(player, OrbisNeoForge.ORBIS_MANAGE)) return false;
 
         ItemStack item = player.getItemInHand(hand);
         if (item.isEmpty()

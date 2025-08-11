@@ -27,6 +27,7 @@ import net.kyori.adventure.audience.Audience;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
 
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.neoforge.OrbisNeoForge;
@@ -55,8 +56,8 @@ public final class NeoForgePlayerSession extends PlayerOrbisSession {
 
     @Override
     public boolean hasPermission(String permission) {
-        return true;
-        //        return Permissions.check(player, permission, 3);
+        // TODO: How do we check permissions dynamically?
+        return PermissionAPI.getPermission(player, OrbisNeoForge.ORBIS_MANAGE);
     }
 
     @Override
