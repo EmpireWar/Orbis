@@ -66,7 +66,7 @@ public class OrbisNeoForge extends OrbisPlatform {
     private volatile MinecraftServer server;
 
     private ItemStack wandItem;
-    private Path dataFolder;
+    private final Path dataFolder;
     private BlockActionListener blockActionListener;
 
     public OrbisNeoForge() {
@@ -102,8 +102,6 @@ public class OrbisNeoForge extends OrbisPlatform {
 
     @SubscribeEvent
     public void onServerStarting(ServerAboutToStartEvent event) {
-        LOGGER.info("Hello NeoForge world!");
-
         this.adventure = MinecraftServerAudiences.of(event.getServer());
         this.server = event.getServer();
 
