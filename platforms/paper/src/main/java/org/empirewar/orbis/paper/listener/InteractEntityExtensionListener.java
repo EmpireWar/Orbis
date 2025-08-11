@@ -34,6 +34,7 @@ import org.bukkit.entity.Painting;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.bukkit.listener.InteractEntityListener;
 import org.empirewar.orbis.flag.DefaultFlags;
@@ -83,9 +84,9 @@ public class InteractEntityExtensionListener extends InteractEntityListener {
 
         if (!attacked.getType().isAlive()) return;
 
-        // Check PvP flag for players
+        // Check PvP flag for players via AttackEntityEvent instead if cancel-pvp-hit-sounds = false
         if (attacked instanceof Player) {
-            if (!orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)
+            if (orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)
                     && shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
                 event.setCancelled(true);
             }
@@ -104,10 +105,10 @@ public class InteractEntityExtensionListener extends InteractEntityListener {
     }
 
     @EventHandler
-    public void onAttack(PrePlayerAttackEntityEvent event) {
-        if (!orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)) return;
+    public void onAttack(EntityDamageByEntityEvent event) {
+        if (orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)) return;
 
-        final Entity attacked = event.getAttacked();
+        final Entity attacked = event.getEntity();
         if (shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
             event.setCancelled(true);
         }
