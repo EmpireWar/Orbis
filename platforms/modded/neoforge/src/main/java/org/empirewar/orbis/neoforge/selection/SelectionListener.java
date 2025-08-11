@@ -31,6 +31,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -66,37 +67,55 @@ public final class SelectionListener {
         ItemStack item = player.getItemInHand(event.getHand());
         if (item.isEmpty()
                 || !item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
-                        .contains("orbis_is_wand")) return;
+                        .contains("orbis_is_wand")) {
+            event.setCancellationResult(InteractionResult.PASS);
+            return;
+        }
 
         Selection selection = api.selectionManager().get(player.getUUID()).orElse(null);
         if (selection == null) {
             ((Audience) player)
                     .sendMessage(OrbisText.PREFIX.append(Component.text(
                             "You don't have an active selection.", OrbisText.SECONDARY_RED)));
+            event.setCancellationResult(InteractionResult.PASS);
             return;
         }
 
         Vector3ic last =
                 selection.getPoints().stream().reduce((first, second) -> second).orElse(null);
-        if (last == null) return;
+        if (last == null) {
+            event.setCancellationResult(InteractionResult.PASS);
+            return;
+        }
 
         selection.removePoint(last);
         ((Audience) player)
                 .sendMessage(OrbisText.PREFIX.append(
                         Component.text("Removed the last added point.", OrbisText.SECONDARY_RED)));
         event.setCancellationResult(InteractionResult.SUCCESS);
-        event.setCanceled(true);
     }
 
     @SubscribeEvent
     public void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
-        Player player = event.getEntity();
-        if (!player.hasPermissions(3)) return;
+        if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
 
-        ItemStack item = player.getItemInHand(event.getHand());
+        if (handleLeftClick(event.getEntity(), event.getPos(), event.getHand())) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onLeftClick(PlayerInteractEvent.LeftClickEmpty event) {
+        handleLeftClick(event.getEntity(), event.getPos(), event.getHand());
+    }
+
+    private boolean handleLeftClick(Player player, BlockPos blockPos, InteractionHand hand) {
+        if (!player.hasPermissions(3)) return false;
+
+        ItemStack item = player.getItemInHand(hand);
         if (item.isEmpty()
                 || !item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
-                        .contains("orbis_is_wand")) return;
+                        .contains("orbis_is_wand")) return false;
 
         Selection selection = api.selectionManager().get(player.getUUID()).orElseGet(() -> {
             Selection newSelection = new Selection(AreaType.CUBOID);
@@ -108,13 +127,12 @@ public final class SelectionListener {
         });
 
         Vector3i point;
-        BlockState block = player.level().getBlockState(event.getPos());
+        BlockState block = player.level().getBlockState(blockPos);
         if (block.isAir()) {
             BlockPos playerPos = player.blockPosition();
             point = new Vector3i(playerPos.getX(), playerPos.getY(), playerPos.getZ());
         } else {
-            point = new Vector3i(
-                    event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
+            point = new Vector3i(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         }
 
         selection.addPoint(point);
@@ -128,10 +146,13 @@ public final class SelectionListener {
                         ClickCallback.Options.builder()
                                 .lifetime(Duration.ofMinutes(3))
                                 .build()));
+
         ((Audience) player)
                 .sendMessage(OrbisText.PREFIX.append(
                         Component.text("Added point ", OrbisText.EREBOR_GREEN)
                                 .append(teleportPart)
                                 .append(Component.text(" to selection.", OrbisText.EREBOR_GREEN))));
+
+        return true;
     }
 }
