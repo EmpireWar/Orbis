@@ -129,8 +129,9 @@ public final class RegionCommand {
             try {
                 area = selection.build();
             } catch (IncompleteAreaException e) {
-                session.sendMessage(
-                        OrbisText.PREFIX.append(OrbisTranslations.REGION_INCOMPLETE_SELECTION));
+                session.sendMessage(OrbisText.PREFIX.append(
+                        OrbisTranslations.REGION_INCOMPLETE_SELECTION.arguments(
+                                text(e.getMessage()))));
                 return;
             }
 
@@ -193,8 +194,8 @@ public final class RegionCommand {
                     OrbisText.PREFIX.append(OrbisTranslations.REGION_SET_AREA_SUCCESS.arguments(
                             Component.text(region.name()))));
         } catch (IncompleteAreaException e) {
-            session.sendMessage(
-                    OrbisText.PREFIX.append(OrbisTranslations.REGION_INCOMPLETE_SELECTION));
+            session.sendMessage(OrbisText.PREFIX.append(
+                    OrbisTranslations.REGION_INCOMPLETE_SELECTION.arguments(text(e.getMessage()))));
         }
     }
 

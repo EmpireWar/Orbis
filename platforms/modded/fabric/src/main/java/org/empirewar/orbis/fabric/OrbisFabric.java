@@ -107,8 +107,6 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
         new FabricCommands(this);
         //        });
 
-        LOGGER.info("Hello Fabric world!");
-
         //        OrbisComponents.initialise();
 
         // Register with the server lifecycle callbacks
