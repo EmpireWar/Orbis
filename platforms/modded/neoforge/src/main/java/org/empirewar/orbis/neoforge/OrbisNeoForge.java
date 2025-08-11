@@ -49,12 +49,17 @@ import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
 
 import org.empirewar.orbis.OrbisPlatform;
 import org.empirewar.orbis.command.Permissions;
-import org.empirewar.orbis.neoforge.command.NeoForgeCommands;
+import org.empirewar.orbis.modded.command.ModdedCommands;
 import org.empirewar.orbis.neoforge.listener.BlockActionListener;
 import org.empirewar.orbis.neoforge.listener.ConnectionListener;
 import org.empirewar.orbis.neoforge.listener.InteractEntityListener;
 import org.empirewar.orbis.neoforge.selection.SelectionListener;
+import org.empirewar.orbis.neoforge.session.NeoForgeConsoleSession;
+import org.empirewar.orbis.neoforge.session.NeoForgePlayerSession;
 import org.empirewar.orbis.selection.Selection;
+import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.neoforge.NeoForgeServerCommandManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +84,22 @@ public class OrbisNeoForge extends OrbisPlatform {
         this.dataFolder = Path.of("config", "orbis");
         load();
 
-        new NeoForgeCommands(this);
+        new ModdedCommands<>(new NeoForgeServerCommandManager<>(
+                ExecutionCoordinator.simpleCoordinator(),
+                SenderMapper.create(
+                        sender -> {
+                            if (sender.getPlayer() instanceof ServerPlayer player) {
+                                return new NeoForgePlayerSession(player, sender);
+                            }
+                            return new NeoForgeConsoleSession(sender);
+                        },
+                        session -> {
+                            if (session instanceof NeoForgePlayerSession playerSession) {
+                                return playerSession.getCause();
+                            }
+
+                            return ((NeoForgeConsoleSession) session).cause();
+                        })));
 
         NeoForge.EVENT_BUS.register(this);
     }

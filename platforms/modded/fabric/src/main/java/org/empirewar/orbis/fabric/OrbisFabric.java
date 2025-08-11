@@ -42,12 +42,17 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 
 import org.empirewar.orbis.OrbisPlatform;
-import org.empirewar.orbis.fabric.command.FabricCommands;
 import org.empirewar.orbis.fabric.listener.BlockActionListener;
 import org.empirewar.orbis.fabric.listener.ConnectionListener;
 import org.empirewar.orbis.fabric.listener.InteractEntityListener;
 import org.empirewar.orbis.fabric.selection.SelectionListener;
+import org.empirewar.orbis.fabric.session.FabricConsoleSession;
+import org.empirewar.orbis.fabric.session.FabricPlayerSession;
+import org.empirewar.orbis.modded.command.ModdedCommands;
 import org.empirewar.orbis.selection.Selection;
+import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.execution.ExecutionCoordinator;
+import org.incendo.cloud.fabric.FabricServerCommandManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +104,22 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
         // Registering commands in the event doesn't seem to work with Cloud
         //        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess,
         // environment) -> {
-        new FabricCommands(this);
+        new ModdedCommands<>(new FabricServerCommandManager<>(
+                ExecutionCoordinator.simpleCoordinator(),
+                SenderMapper.create(
+                        sender -> {
+                            if (sender.getPlayer() instanceof ServerPlayer player) {
+                                return new FabricPlayerSession(player, sender);
+                            }
+                            return new FabricConsoleSession(sender);
+                        },
+                        session -> {
+                            if (session instanceof FabricPlayerSession playerSession) {
+                                return playerSession.getCause();
+                            }
+
+                            return ((FabricConsoleSession) session).cause();
+                        })));
         //        });
 
         //        OrbisComponents.initialise();
