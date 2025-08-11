@@ -81,11 +81,6 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
     }
 
     private volatile MinecraftServer server;
-    private BlockActionListener blockActionListener;
-
-    public BlockActionListener getBlockActionListener() {
-        return blockActionListener;
-    }
 
     public MinecraftServer server() {
         return server;
@@ -136,9 +131,6 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
                 tag.putBoolean("orbis_is_wand", true);
                 compoundTag.merge(tag);
             });
-
-            // Initialize block action listener
-            this.blockActionListener = new BlockActionListener(this);
         });
 
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
@@ -163,6 +155,7 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
         new SelectionListener(this);
         new ConnectionListener(this);
         new InteractEntityListener(this);
+        new BlockActionListener(this);
     }
 
     @Override
