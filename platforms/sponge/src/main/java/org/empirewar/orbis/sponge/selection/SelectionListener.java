@@ -24,7 +24,6 @@
 package org.empirewar.orbis.sponge.selection;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -35,6 +34,7 @@ import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.util.OrbisText;
+import org.empirewar.orbis.util.OrbisTranslations;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -69,8 +69,7 @@ public final class SelectionListener {
         final Selection selection =
                 api.selectionManager().get(player.uniqueId()).orElse(null);
         if (selection == null) {
-            player.sendMessage(OrbisText.PREFIX.append(Component.text(
-                    "You don't have an active selection.", OrbisText.SECONDARY_RED)));
+            player.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.SELECTION_NOT_ACTIVE));
             return;
         }
 
@@ -78,8 +77,7 @@ public final class SelectionListener {
                 selection.getPoints().stream().reduce((first, second) -> second).orElse(null);
         if (last == null) return;
         selection.removePoint(last);
-        player.sendMessage(OrbisText.PREFIX.append(
-                Component.text("Removed the last added point.", OrbisText.SECONDARY_RED)));
+        player.sendMessage(OrbisText.PREFIX.append(OrbisTranslations.SELECTION_POINT_REMOVED));
     }
 
     @Listener
@@ -117,20 +115,15 @@ public final class SelectionListener {
         }
 
         selection.addPoint(point);
-        final TextComponent teleportPart = Component.text(
-                        "[" + point.x + ", " + point.y + ", " + point.z + "]",
-                        OrbisText.EREBOR_GREEN)
-                .hoverEvent(HoverEvent.showText(
-                        Component.text("Click to teleport.", OrbisText.EREBOR_GREEN)))
+        player.sendMessage(OrbisText.PREFIX
+                .append(OrbisTranslations.SELECTION_POINT_ADDED.arguments(
+                        Component.text(point.x), Component.text(point.y), Component.text(point.z)))
+                .hoverEvent(HoverEvent.showText(OrbisTranslations.GENERIC_CLICK_TO_TELEPORT))
                 .clickEvent(ClickEvent.callback(
                         audience -> player.setPosition(new Vector3d(point.x, point.y, point.z)),
                         ClickCallback.Options.builder()
                                 .lifetime(Duration.ofMinutes(3))
-                                .build()));
-        player.sendMessage(
-                OrbisText.PREFIX.append(Component.text("Added point ", OrbisText.EREBOR_GREEN)
-                        .append(teleportPart)
-                        .append(Component.text(" to selection.", OrbisText.EREBOR_GREEN))));
+                                .build())));
 
         event.setCancelled(true);
     }

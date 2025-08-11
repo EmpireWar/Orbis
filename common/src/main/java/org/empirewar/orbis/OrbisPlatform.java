@@ -25,8 +25,8 @@ package org.empirewar.orbis;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
 import net.kyori.adventure.translation.GlobalTranslator;
-import net.kyori.adventure.translation.TranslationStore;
 
 import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
 import org.empirewar.orbis.region.GlobalRegion;
@@ -52,7 +52,6 @@ import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -93,8 +92,8 @@ public abstract class OrbisPlatform implements Orbis {
             logger().error("Error loading configs", e);
         }
 
-        TranslationStore.StringBased<MessageFormat> store =
-                TranslationStore.messageFormat(Key.key("orbis", "translations"));
+        MiniMessageTranslationStore store =
+                MiniMessageTranslationStore.create(Key.key("orbis", "translations"));
         store.defaultLocale(Locale.UK);
 
         final File translationsDirectory = dataFolder().resolve("translations").toFile();

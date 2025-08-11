@@ -462,7 +462,7 @@ public final class RegionCommand {
             String teleportCmd = String.format("/tp %d %d %d", point.x(), point.y(), point.z());
 
             Component pointComponent = text().content("  " + pointStr)
-                    .hoverEvent(HoverEvent.showText(text("Click to teleport to this point")))
+                    .hoverEvent(HoverEvent.showText(OrbisTranslations.GENERIC_CLICK_TO_TELEPORT))
                     .clickEvent(ClickEvent.runCommand(teleportCmd))
                     .append(space())
                     .append(text("["))
@@ -482,9 +482,9 @@ public final class RegionCommand {
     public void onAddPlayer(
             OrbisSession session, @Argument("region") Region region, @Argument("uuid") UUID uuid) {
         region.addMember(new PlayerMember(uuid));
-        session.sendMessage(OrbisText.PREFIX.append(Component.text(
-                "Added '" + uuid + "' as a member to region " + region.name() + ".",
-                OrbisText.EREBOR_GREEN)));
+        session.sendMessage(
+                OrbisText.PREFIX.append(OrbisTranslations.REGION_MEMBER_PLAYER_ADDED.arguments(
+                        text(uuid.toString()), text(region.name()))));
     }
 
     @Command("region|rg member remove <region> player <uuid>")
@@ -496,12 +496,13 @@ public final class RegionCommand {
                     && playerMember.playerId().equals(uuid)) {
                 region.removeMember(member);
                 session.sendMessage(OrbisText.PREFIX.append(
-                        Component.text("Removed member '" + uuid + "'.", OrbisText.EREBOR_GREEN)));
+                        OrbisTranslations.REGION_MEMBER_PLAYER_REMOVED.arguments(
+                                text(uuid.toString()))));
                 return;
             }
         }
-        session.sendMessage(OrbisText.PREFIX.append(
-                Component.text("Couldn't find a member with that UUID.", OrbisText.SECONDARY_RED)));
+        session.sendMessage(
+                OrbisText.PREFIX.append(OrbisTranslations.REGION_MEMBER_PLAYER_NOT_FOUND));
     }
 
     @Command("region|rg member add <region> permission <permission>")
@@ -512,9 +513,9 @@ public final class RegionCommand {
             @Argument("region") Region region,
             @Argument("permission") String permission) {
         region.addMember(new PermissionMember(permission));
-        session.sendMessage(OrbisText.PREFIX.append(Component.text(
-                "Added permission " + permission + " as a member to region " + region.name() + ".",
-                OrbisText.EREBOR_GREEN)));
+        session.sendMessage(
+                OrbisText.PREFIX.append(OrbisTranslations.REGION_MEMBER_PERMISSION_ADDED.arguments(
+                        text(permission), text(region.name()))));
     }
 
     @Command("region|rg member remove <region> permission <permission>")
@@ -528,15 +529,15 @@ public final class RegionCommand {
                     && permissionMember.permission().equals(permission)) {
                 region.removeMember(member);
                 session.getAudience()
-                        .sendMessage(OrbisText.PREFIX.append(Component.text(
-                                "Removed permission member '" + permission + "'.",
-                                OrbisText.EREBOR_GREEN)));
+                        .sendMessage(OrbisText.PREFIX.append(
+                                OrbisTranslations.REGION_MEMBER_PERMISSION_REMOVED.arguments(
+                                        text(permission))));
                 return;
             }
         }
 
-        session.sendMessage(OrbisText.PREFIX.append(Component.text(
-                "Couldn't find a member with that permission.", OrbisText.SECONDARY_RED)));
+        session.sendMessage(
+                OrbisText.PREFIX.append(OrbisTranslations.REGION_MEMBER_PERMISSION_NOT_FOUND));
     }
 
     @Command("region|rg info <region>")

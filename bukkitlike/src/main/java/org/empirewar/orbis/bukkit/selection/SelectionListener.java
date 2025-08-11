@@ -25,7 +25,6 @@ package org.empirewar.orbis.bukkit.selection;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -43,6 +42,7 @@ import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
+import org.empirewar.orbis.util.OrbisTranslations;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
@@ -64,14 +64,19 @@ public record SelectionListener(OrbisBukkitPlatform<?> api) implements Listener 
         if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
             final Selection selection =
                     api.selectionManager().get(player.getUniqueId()).orElse(null);
-            if (selection == null) return;
+            if (selection == null) {
+                audience.sendMessage(
+                        OrbisText.PREFIX.append(OrbisTranslations.SELECTION_NOT_ACTIVE));
+                return;
+            }
+
             final Vector3ic last = selection.getPoints().stream()
                     .reduce((first, second) -> second)
                     .orElse(null);
             if (last == null) return;
             selection.removePoint(last);
-            audience.sendMessage(OrbisText.PREFIX.append(
-                    Component.text("Removed the last added point.", OrbisText.SECONDARY_RED)));
+            audience.sendMessage(
+                    OrbisText.PREFIX.append(OrbisTranslations.SELECTION_POINT_REMOVED));
             return;
         }
 
@@ -97,11 +102,10 @@ public record SelectionListener(OrbisBukkitPlatform<?> api) implements Listener 
         event.setCancelled(true);
 
         selection.addPoint(point);
-        final TextComponent teleportPart = Component.text(
-                        "[" + point.x + ", " + point.y + ", " + point.z + "]",
-                        OrbisText.EREBOR_GREEN)
-                .hoverEvent(HoverEvent.showText(
-                        Component.text("Click to teleport.", OrbisText.EREBOR_GREEN)))
+        player.sendMessage(OrbisText.PREFIX
+                .append(OrbisTranslations.SELECTION_POINT_ADDED.arguments(
+                        Component.text(point.x), Component.text(point.y), Component.text(point.z)))
+                .hoverEvent(HoverEvent.showText(OrbisTranslations.GENERIC_CLICK_TO_TELEPORT))
                 .clickEvent(ClickEvent.callback(
                         u -> player.teleport(new Location(
                                 player.getWorld(),
@@ -112,10 +116,6 @@ public record SelectionListener(OrbisBukkitPlatform<?> api) implements Listener 
                                 player.getLocation().getPitch())),
                         ClickCallback.Options.builder()
                                 .lifetime(Duration.ofMinutes(3))
-                                .build()));
-        audience.sendMessage(
-                OrbisText.PREFIX.append(Component.text("Added point ", OrbisText.EREBOR_GREEN)
-                        .append(teleportPart)
-                        .append(Component.text(" to selection.", OrbisText.EREBOR_GREEN))));
+                                .build())));
     }
 }
