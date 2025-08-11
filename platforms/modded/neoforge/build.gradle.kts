@@ -59,13 +59,13 @@ dependencies {
     // We have to do this hacky mess because neoforge doesn't support transitive dependencies
     // And these are also dependencies from common-conventions that need declaring with "include"
     modImplementation(include("org.incendo:cloud-annotations:2.0.0")!!)
-    modImplementation(include("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")!!)
-    modImplementation(include("org.incendo:cloud-brigadier:2.0.0-beta.10")!!)
+    modImplementation(include("org.incendo:cloud-minecraft-extras:2.0.0-beta.11")!!)
+    modImplementation(include("org.incendo:cloud-brigadier:2.0.0-beta.11")!!)
     modImplementation(include("org.incendo:cloud-processors-confirmation:1.0.0-rc.1")!!)
     modImplementation(include("org.incendo:cloud-processors-common:1.0.0-rc.1")!!)
     modImplementation(include("com.github.ben-manes.caffeine:caffeine:3.1.8")!!)
 
-    modImplementation(include("org.incendo:cloud-neoforge:2.0.0-beta.10")!!)
+    modImplementation(include("org.incendo:cloud-neoforge:2.0.0-beta.12")!!)
     modImplementation(include("net.kyori:adventure-platform-neoforge:6.3.0")!!) // for Minecraft 1.21.4
 }
 

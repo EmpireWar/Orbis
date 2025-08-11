@@ -33,7 +33,7 @@ base {
 }
 
 dependencies {
-    modImplementation("org.incendo:cloud-fabric:2.0.0-beta.10") {
+    modImplementation("org.incendo:cloud-fabric:2.0.0-beta.12") {
         exclude("net.fabricmc.fabric-api")
     }
 

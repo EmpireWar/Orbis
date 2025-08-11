@@ -42,7 +42,7 @@ object Libs {
     const val DATAFIXERUPPER = "8.0.16"
     const val RTREE_MULTI = "0.1"
     const val CLOUD = "2.0.0"
-    const val CLOUD_EXTRAS = "2.0.0-beta.10"
+    const val CLOUD_EXTRAS = "2.0.0-beta.11"
     const val CLOUD_CONFIRMATION = "1.0.0-rc.1"
     const val CAFFEINE = "3.1.8"
     
