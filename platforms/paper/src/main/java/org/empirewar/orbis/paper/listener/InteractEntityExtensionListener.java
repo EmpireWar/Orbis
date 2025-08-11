@@ -87,7 +87,7 @@ public class InteractEntityExtensionListener extends InteractEntityListener {
         // Check PvP flag for players via AttackEntityEvent instead if cancel-pvp-hit-sounds = false
         if (attacked instanceof Player) {
             if (orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)
-                    && shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
+                    && shouldPreventEntityAction(attacked, event.getPlayer(), DefaultFlags.CAN_PVP)) {
                 event.setCancelled(true);
             }
             return;
@@ -109,7 +109,7 @@ public class InteractEntityExtensionListener extends InteractEntityListener {
         if (orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)) return;
 
         final Entity attacked = event.getEntity();
-        if (shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
+        if (shouldPreventEntityAction(attacked, event.getDamager(), DefaultFlags.CAN_PVP)) {
             event.setCancelled(true);
         }
     }
@@ -118,12 +118,12 @@ public class InteractEntityExtensionListener extends InteractEntityListener {
     @EventHandler
     public void onRotate(PlayerItemFrameChangeEvent event) {
         if (event.getAction() == PlayerItemFrameChangeEvent.ItemFrameChangeAction.ROTATE) {
-            if (shouldPreventEntityAction(event.getItemFrame(), DefaultFlags.ITEM_FRAME_ROTATE)) {
+            if (shouldPreventEntityAction(event.getItemFrame(), event.getPlayer(), DefaultFlags.ITEM_FRAME_ROTATE)) {
                 event.setCancelled(true);
             }
         } else if (event.getAction() == PlayerItemFrameChangeEvent.ItemFrameChangeAction.PLACE) {
             if (shouldPreventEntityAction(
-                    event.getItemFrame(), DefaultFlags.ITEM_FRAME_ITEM_PLACE)) {
+                    event.getItemFrame(), event.getPlayer(), DefaultFlags.ITEM_FRAME_ITEM_PLACE)) {
                 event.setCancelled(true);
             }
         }

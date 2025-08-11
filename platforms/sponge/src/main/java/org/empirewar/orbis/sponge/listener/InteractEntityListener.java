@@ -25,6 +25,7 @@ package org.empirewar.orbis.sponge.listener;
 
 import net.kyori.adventure.key.Key;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
@@ -48,6 +49,7 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.math.vector.Vector3d;
 
 import java.util.List;
 
@@ -62,6 +64,8 @@ public final class InteractEntityListener {
     @Listener(order = Order.EARLY)
     public void onAttackDirect(InteractEntityEvent.Primary event) {
         final Entity attacked = event.entity();
+        final ServerPlayer player = event.cause().first(ServerPlayer.class).orElse(null);
+
         final RegionisedWorld world =
                 orbis.getRegionisedWorld(attacked.serverLocation().world().key());
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> query =
@@ -98,7 +102,7 @@ public final class InteractEntityListener {
         // Check PvP flag for players via AttackEntityEvent instead if cancel-pvp-hit-sounds = false
         if (attacked instanceof ServerPlayer) {
             if (orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)
-                    && shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
+                    && shouldPreventEntityAction(attacked, player, DefaultFlags.CAN_PVP)) {
                 event.setCancelled(true);
             }
             return;
@@ -120,7 +124,7 @@ public final class InteractEntityListener {
         if (orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)) return;
 
         final Entity attacked = event.entity();
-        if (shouldPreventEntityAction(attacked, DefaultFlags.CAN_PVP)) {
+        if (shouldPreventEntityAction(attacked, attacker, DefaultFlags.CAN_PVP)) {
             event.setCancelled(true);
         }
     }
@@ -179,13 +183,23 @@ public final class InteractEntityListener {
     }
 
     private boolean shouldPreventEntityAction(Entity entity, RegistryRegionFlag<Boolean> flag) {
-        return !orbis.getRegionisedWorld(entity.serverLocation().world().key())
+        return shouldPreventEntityAction(entity, entity, flag);
+    }
+
+    private boolean shouldPreventEntityAction(Entity entity, @Nullable Entity player, RegistryRegionFlag<Boolean> flag) {
+        final RegionisedWorld world = orbis.getRegionisedWorld(entity.serverLocation().world().key());
+        if (world == null) return false;
+
+        RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);
+        if (player != null) {
+            builder.player(player.uniqueId());
+        }
+
+        final Vector3d location = entity.position();
+        return !world
                 .query(RegionQuery.Position.builder()
-                        .position(
-                                entity.position().x(),
-                                entity.position().y(),
-                                entity.position().z()))
-                .query(RegionQuery.Flag.builder(flag).player(entity.uniqueId()))
+                        .position(location.x(), location.y(), location.z()))
+                .query(builder)
                 .result()
                 .orElse(true);
     }

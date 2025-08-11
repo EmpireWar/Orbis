@@ -32,10 +32,12 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.query.RegionQuery;
+import org.empirewar.orbis.world.RegionisedWorld;
 
 public abstract class InteractEntityListener implements Listener {
 
@@ -83,11 +85,23 @@ public abstract class InteractEntityListener implements Listener {
     }
 
     protected boolean shouldPreventEntityAction(Entity entity, RegistryRegionFlag<Boolean> flag) {
+        return shouldPreventEntityAction(entity, entity, flag);
+    }
+
+    protected boolean shouldPreventEntityAction(Entity entity, @Nullable Entity player, RegistryRegionFlag<Boolean> flag) {
+        final RegionisedWorld world = orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()));
+        if (world == null) return false;
+
+        RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);
+        if (player != null) {
+            builder.player(player.getUniqueId());
+        }
+
         final Location location = entity.getLocation();
-        return !orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()))
+        return !world
                 .query(RegionQuery.Position.builder()
                         .position(location.getX(), location.getY(), location.getZ()))
-                .query(RegionQuery.Flag.builder(flag).player(entity.getUniqueId()))
+                .query(builder)
                 .result()
                 .orElse(true);
     }

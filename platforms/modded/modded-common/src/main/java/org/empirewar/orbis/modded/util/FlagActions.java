@@ -60,13 +60,25 @@ public final class FlagActions {
                 .orElse(true);
     }
 
+    public static boolean shouldPreventEntityAction(Entity entity, RegistryRegionFlag<Boolean> flag) {
+        return shouldPreventEntityAction(entity, entity, flag);
+    }
+
     public static boolean shouldPreventEntityAction(
-            Entity entity, RegistryRegionFlag<Boolean> flag) {
+            Entity entity, @Nullable Entity player, RegistryRegionFlag<Boolean> flag) {
+        final RegionisedWorld world = OrbisAPI.get()
+                .getRegionisedWorld(((Keyed) entity.level().dimension()).key());
+        if (world == null) return false;
+
+        RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);
+        if (player != null) {
+            builder.player(player.getUUID());
+        }
+
         final BlockPos location = entity.blockPosition();
-        return !OrbisAPI.get()
-                .getRegionisedWorld(((Keyed) entity.level().dimension()).key())
+        return !world
                 .query(RegionQuery.Position.at(location.getX(), location.getY(), location.getZ()))
-                .query(RegionQuery.Flag.builder(flag).player(entity.getUUID()))
+                .query(builder)
                 .result()
                 .orElse(true);
     }
