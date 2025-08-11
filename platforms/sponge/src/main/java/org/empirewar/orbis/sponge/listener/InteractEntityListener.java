@@ -68,30 +68,24 @@ public final class InteractEntityListener {
 
         final RegionisedWorld world =
                 orbis.getRegionisedWorld(attacked.serverLocation().world().key());
-        final RegionQuery.FilterableRegionResult<RegionQuery.Position> query =
-                world.query(RegionQuery.Position.builder()
-                        .position(
-                                attacked.position().x(),
-                                attacked.position().y(),
-                                attacked.position().z()));
-        if (attacked instanceof Vehicle) {
-            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_VEHICLE))
-                    .result()
-                    .orElse(true)) {
-                event.setCancelled(true);
-            }
-            return;
-        } else if (attacked instanceof Painting) {
-            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_PAINTING))
-                    .result()
-                    .orElse(true)) {
-                event.setCancelled(true);
-            }
-            return;
-        } else if (attacked instanceof ItemFrame) {
-            if (!query.query(RegionQuery.Flag.builder(DefaultFlags.CAN_DESTROY_ITEM_FRAME))
-                    .result()
-                    .orElse(true)) {
+        final RegionQuery.FilterableRegionResult<RegionQuery.Position> positionQuery =
+                world.query(RegionQuery.Position.at(
+                        attacked.position().x(),
+                        attacked.position().y(),
+                        attacked.position().z()));
+        final RegistryRegionFlag<Boolean> flag =
+                switch (attacked) {
+                    case Vehicle ignored -> DefaultFlags.CAN_DESTROY_VEHICLE;
+                    case Painting ignored -> DefaultFlags.CAN_DESTROY_PAINTING;
+                    case ItemFrame ignored -> DefaultFlags.CAN_DESTROY_ITEM_FRAME;
+                    default -> null;
+                };
+
+        if (flag != null) {
+            final RegionQuery.Flag.Builder<Boolean> flagQueryBuilder =
+                    RegionQuery.Flag.builder(flag);
+            if (player != null) flagQueryBuilder.player(player.uniqueId());
+            if (!positionQuery.query(flagQueryBuilder).result().orElse(true)) {
                 event.setCancelled(true);
             }
             return;
@@ -108,10 +102,11 @@ public final class InteractEntityListener {
             return;
         }
 
-        final List<Key> damageable = query.query(
-                        RegionQuery.Flag.builder(DefaultFlags.DAMAGEABLE_ENTITIES))
-                .result()
-                .orElse(null);
+        final RegionQuery.Flag.Builder<List<Key>> flagQueryBuilder =
+                RegionQuery.Flag.builder(DefaultFlags.DAMAGEABLE_ENTITIES);
+        if (player != null) flagQueryBuilder.player(player.uniqueId());
+        final List<Key> damageable =
+                positionQuery.query(flagQueryBuilder).result().orElse(null);
         if (damageable == null) return;
 
         if (!damageable.contains(attacked.type().key(RegistryTypes.ENTITY_TYPE))) {
@@ -186,8 +181,10 @@ public final class InteractEntityListener {
         return shouldPreventEntityAction(entity, entity, flag);
     }
 
-    private boolean shouldPreventEntityAction(Entity entity, @Nullable Entity player, RegistryRegionFlag<Boolean> flag) {
-        final RegionisedWorld world = orbis.getRegionisedWorld(entity.serverLocation().world().key());
+    private boolean shouldPreventEntityAction(
+            Entity entity, @Nullable Entity player, RegistryRegionFlag<Boolean> flag) {
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(entity.serverLocation().world().key());
         if (world == null) return false;
 
         RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);
@@ -196,8 +193,7 @@ public final class InteractEntityListener {
         }
 
         final Vector3d location = entity.position();
-        return !world
-                .query(RegionQuery.Position.builder()
+        return !world.query(RegionQuery.Position.builder()
                         .position(location.x(), location.y(), location.z()))
                 .query(builder)
                 .result()

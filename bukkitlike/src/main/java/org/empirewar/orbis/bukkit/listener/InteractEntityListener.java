@@ -88,8 +88,10 @@ public abstract class InteractEntityListener implements Listener {
         return shouldPreventEntityAction(entity, entity, flag);
     }
 
-    protected boolean shouldPreventEntityAction(Entity entity, @Nullable Entity player, RegistryRegionFlag<Boolean> flag) {
-        final RegionisedWorld world = orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()));
+    protected boolean shouldPreventEntityAction(
+            Entity entity, @Nullable Entity player, RegistryRegionFlag<Boolean> flag) {
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()));
         if (world == null) return false;
 
         RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);
@@ -98,8 +100,7 @@ public abstract class InteractEntityListener implements Listener {
         }
 
         final Location location = entity.getLocation();
-        return !world
-                .query(RegionQuery.Position.builder()
+        return !world.query(RegionQuery.Position.builder()
                         .position(location.getX(), location.getY(), location.getZ()))
                 .query(builder)
                 .result()
