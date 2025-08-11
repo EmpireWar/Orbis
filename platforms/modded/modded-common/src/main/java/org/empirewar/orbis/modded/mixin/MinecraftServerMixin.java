@@ -45,7 +45,8 @@ public class MinecraftServerMixin {
 
     @Inject(method = "tickServer", at = @At("TAIL"))
     private void onTick(CallbackInfo ci) {
-        if (--this.orbis$ticksUntilVisualise == 0L) {
+        // For some reason the field might not be initialized with 20L (architectury issue perhaps?)
+        if (--this.orbis$ticksUntilVisualise <= 0L) {
             orbis$regionVisualiserTask.run();
             orbis$ticksUntilVisualise = 20L;
         }
