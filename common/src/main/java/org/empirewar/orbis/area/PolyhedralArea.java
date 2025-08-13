@@ -150,8 +150,9 @@ public final class PolyhedralArea extends PolygonArea {
             }
             intersections += faceIntersections;
         }
-        boolean isInside = (intersections % 2) == 1;
-        return isInside;
+
+        // If the number of intersections is odd, the point is inside the polyhedron
+        return (intersections % 2) == 1;
     }
 
     /**
@@ -410,7 +411,6 @@ public final class PolyhedralArea extends PolygonArea {
         int x1 = start.x(), y1 = start.y(), z1 = start.z();
         int x2 = end.x(), y2 = end.y(), z2 = end.z();
         int dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1), dz = Math.abs(z2 - z1);
-        int xs = x2 > x1 ? 1 : -1, ys = y2 > y1 ? 1 : -1, zs = z2 > z1 ? 1 : -1;
         int n = Math.max(Math.max(dx, dy), dz);
         for (int i = 0; i <= n; i++) {
             int x = x1 + i * (x2 - x1) / n;
