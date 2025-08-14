@@ -58,6 +58,8 @@ public final class OrbisTranslations {
             Component.translatable("command.region.setarea_type_mismatch");
     public static final TranslatableComponent REGION_SET_AREA_SUCCESS =
             Component.translatable("command.region.setarea_success");
+    public static final TranslatableComponent REGION_SELECTED_AREA =
+            Component.translatable("command.region.selarea");
     public static final TranslatableComponent REGION_REMOVE_SUCCESS =
             Component.translatable("command.region.remove_success");
     public static final TranslatableComponent REGION_REMOVE_FAILED =

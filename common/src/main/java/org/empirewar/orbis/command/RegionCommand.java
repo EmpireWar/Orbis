@@ -199,6 +199,16 @@ public final class RegionCommand {
         }
     }
 
+    @Command("region|rg selarea <region>")
+    @CommandDescription("Select the area a region spans.")
+    public void onSelectArea(PlayerOrbisSession session, @Argument("region") Region region) {
+        final Selection selection = new Selection(region.area().getType());
+        region.area().points().forEach(selection::addPoint);
+        OrbisAPI.get().selectionManager().add(session.getUuid(), selection);
+        session.sendMessage(OrbisText.PREFIX.append(
+                OrbisTranslations.REGION_SELECTED_AREA.arguments(Component.text(region.name()))));
+    }
+
     @Command("region|rg remove|delete <region>")
     @CommandDescription("Completely remove a region and remove it from any worlds.")
     @Confirmation
@@ -648,12 +658,16 @@ public final class RegionCommand {
                                         OrbisText.EREBOR_GREEN)))
                                 .clickEvent(ClickEvent.suggestCommand("/rg setarea " + regionName)))
                         .append(text(" (select an area first with ", NamedTextColor.GRAY))
-                        .append(text("/sel", NamedTextColor.YELLOW)
-                                .hoverEvent(HoverEvent.showText(text(
-                                        "Click to learn about selection commands",
-                                        OrbisText.EREBOR_GREEN)))
-                                .clickEvent(ClickEvent.suggestCommand("/sel help")))
+                        .append(text("/sel", NamedTextColor.YELLOW))
                         .append(text(")", NamedTextColor.GRAY)));
+
+                session.sendMessage(text("  [▶] ", NamedTextColor.GRAY)
+                        .append(text("Select area", NamedTextColor.YELLOW)
+                                .hoverEvent(HoverEvent.showText(text(
+                                        "Click to select this region's area",
+                                        OrbisText.EREBOR_GREEN)))
+                                .clickEvent(
+                                        ClickEvent.suggestCommand("/rg selarea " + regionName))));
 
                 // Add teleport to center option
                 int centerX = (min.x() + max.x()) / 2;
