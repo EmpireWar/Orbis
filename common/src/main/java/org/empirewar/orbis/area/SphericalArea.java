@@ -50,10 +50,10 @@ public final class SphericalArea extends EncompassingArea {
                             Codec.DOUBLE.fieldOf("radius").forGetter(SphericalArea::getRadius))
                     .apply(instance, SphericalArea::new));
 
-    private final double radius;
+    private double radius;
 
     public SphericalArea() {
-        this.radius = 0.0;
+        this.radius = 5;
     }
 
     SphericalArea(Vector3ic point, double radius) {
@@ -119,18 +119,22 @@ public final class SphericalArea extends EncompassingArea {
         return radius;
     }
 
+    public void setRadius(double radius) {
+        this.radius = radius;
+        calculateEncompassingArea();
+    }
+
     @Override
     public Set<Vector3ic> generateBoundaryPoints() {
         Vector3ic c = getCenter();
-        double r = getRadius();
-        int samples = (int) (20 * Math.PI * r);
+        int samples = (int) (20 * Math.PI * radius);
         Set<Vector3ic> points = new HashSet<>(samples);
         for (int i = 0; i < samples; i++) {
             double phi = Math.acos(2.0 * i / samples - 1.0);
             double theta = Math.PI * (1 + Math.sqrt(5)) * i;
-            double x = c.x() + r * Math.sin(phi) * Math.cos(theta);
-            double y = c.y() + r * Math.sin(phi) * Math.sin(theta);
-            double z = c.z() + r * Math.cos(phi);
+            double x = c.x() + radius * Math.sin(phi) * Math.cos(theta);
+            double y = c.y() + radius * Math.sin(phi) * Math.sin(theta);
+            double z = c.z() + radius * Math.cos(phi);
             points.add(new Vector3i((int) Math.round(x), (int) Math.round(y), (int) Math.round(z)));
         }
         return points;

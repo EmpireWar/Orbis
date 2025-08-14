@@ -55,11 +55,15 @@ public final class OrbisTranslations {
     public static final TranslatableComponent REGION_NO_ACTIVE_SELECTION =
             Component.translatable("command.region.no_active_selection");
     public static final TranslatableComponent REGION_SET_AREA_TYPE_MISMATCH =
-            Component.translatable("command.region.setarea_type_mismatch");
+            Component.translatable("command.region.area.set.type_mismatch");
     public static final TranslatableComponent REGION_SET_AREA_SUCCESS =
-            Component.translatable("command.region.setarea_success");
+            Component.translatable("command.region.area.set.success");
     public static final TranslatableComponent REGION_SELECTED_AREA =
-            Component.translatable("command.region.selarea");
+            Component.translatable("command.region.area.select");
+    public static final TranslatableComponent REGION_SET_AREA_RADIUS_SUCCESS =
+            Component.translatable("command.region.area.set.radius.success");
+    public static final TranslatableComponent REGION_SET_AREA_RADIUS_NOT_SUPPORTED =
+            Component.translatable("command.region.area.set.radius.not_supported");
     public static final TranslatableComponent REGION_REMOVE_SUCCESS =
             Component.translatable("command.region.remove_success");
     public static final TranslatableComponent REGION_REMOVE_FAILED =

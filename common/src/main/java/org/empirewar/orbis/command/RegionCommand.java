@@ -159,7 +159,7 @@ public final class RegionCommand {
                 Component.text(regionName), Component.text(global ? "global " : ""))));
     }
 
-    @Command("region|rg setarea <region>")
+    @Command("region|rg area set <region>")
     @CommandDescription("Set the area a region spans.")
     public void onSetArea(PlayerOrbisSession session, @Argument("region") Region region) {
         if (region.isGlobal()) {
@@ -199,7 +199,7 @@ public final class RegionCommand {
         }
     }
 
-    @Command("region|rg selarea <region>")
+    @Command("region|rg area select|sel <region>")
     @CommandDescription("Select the area a region spans.")
     public void onSelectArea(PlayerOrbisSession session, @Argument("region") Region region) {
         final Selection selection = new Selection(region.area().getType());
@@ -207,6 +207,25 @@ public final class RegionCommand {
         OrbisAPI.get().selectionManager().add(session.getUuid(), selection);
         session.sendMessage(OrbisText.PREFIX.append(
                 OrbisTranslations.REGION_SELECTED_AREA.arguments(Component.text(region.name()))));
+    }
+
+    @Command("region|rg area radius <region> <radius>")
+    @CommandDescription("Set the radius of a spherical area of a region.")
+    public void onSetAreaRadius(
+            PlayerOrbisSession session,
+            @Argument("region") Region region,
+            @Argument("radius") double radius) {
+        final Area area = region.area();
+        if (!(area instanceof SphericalArea sphere)) {
+            session.sendMessage(OrbisText.PREFIX.append(
+                    OrbisTranslations.REGION_SET_AREA_RADIUS_NOT_SUPPORTED));
+            return;
+        }
+
+        sphere.setRadius(radius);
+        session.sendMessage(
+                OrbisText.PREFIX.append(OrbisTranslations.REGION_SET_AREA_RADIUS_SUCCESS.arguments(
+                        Component.text(region.name()))));
     }
 
     @Command("region|rg remove|delete <region>")
