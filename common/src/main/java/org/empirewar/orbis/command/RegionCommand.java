@@ -117,7 +117,7 @@ public final class RegionCommand {
                 return;
             }
 
-            AreaType<?> defaultedType = areaType == null ? AreaType.CUBOID : areaType;
+            AreaType<?> defaultedType = areaType == null ? selection.getSelectionType() : areaType;
             if (selection.getSelectionType() != defaultedType) {
                 session.sendMessage(OrbisText.PREFIX.append(
                         OrbisTranslations.REGION_SELECTION_TYPE_MISMATCH.arguments(
