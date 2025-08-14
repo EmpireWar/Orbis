@@ -46,7 +46,7 @@ Meaning, you can pick *only the entities you want to allow to take damage*. This
 - Plugins that use WorldGuard's API: Orbis does not support WorldGuard's API. Plugin developers will have to add support for Orbis' API.
 
 ## 📆 Supported versions
-Orbis aims to always support the latest version of Minecraft. It currently targets **1.21.4**. 
+Orbis aims to always support the latest version of Minecraft. It currently targets **1.21.4-1.21.8**. 
 Newer or older versions may work, but are not tested.
 
 ## 📦 Downloads
