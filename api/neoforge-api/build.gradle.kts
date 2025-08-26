@@ -8,7 +8,7 @@ architectury {
     neoForge()
 }
 
-val neoVersion = "21.4.149"
+val neoVersion = "21.8.38"
 
 dependencies {
     api(project(":common"))

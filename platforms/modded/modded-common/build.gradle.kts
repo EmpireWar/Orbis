@@ -12,7 +12,7 @@ dependencies {
     // Do NOT use other classes from Fabric Loader.
     modImplementation("net.fabricmc:fabric-loader:0.17.2")
 
-    modCompileOnly("net.kyori:adventure-platform-mod-shared-fabric-repack:6.3.0") // for Minecraft 1.21.4
+    modCompileOnly("net.kyori:adventure-platform-mod-shared-fabric-repack:6.6.0") // for Minecraft 1.21.4
 
     // Architectury API. This is optional, and you can comment it out if you don't need it.
 //    modImplementation("dev.architectury:architectury:${rootProject.extra["architectury_api_version"]}")

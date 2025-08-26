@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class LivingEntityMixin {
 
     @Inject(method = "calculateFallDamage", at = @At(value = "HEAD"), cancellable = true)
-    private void calculateFallDamage(float f, float g, CallbackInfoReturnable<Integer> cir) {
+    private void calculateFallDamage(double d, float f, CallbackInfoReturnable<Integer> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         if (FlagActions.shouldPreventEntityAction(entity, DefaultFlags.FALL_DAMAGE)) {
             cir.setReturnValue(0); // No fall damage

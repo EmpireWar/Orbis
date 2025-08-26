@@ -1,4 +1,3 @@
-
 plugins {
     id("buildlogic.java-common-conventions")
     id("com.gradleup.shadow")
@@ -7,7 +6,7 @@ plugins {
 }
 
 architectury {
-    minecraft = "1.21.4"
+    minecraft = "1.21.8"
 }
 
 loom {
@@ -15,6 +14,6 @@ loom {
 }
 
 dependencies {
-    minecraft("net.minecraft:minecraft:1.21.4")
+    minecraft("net.minecraft:minecraft:1.21.8")
     mappings(loom.officialMojangMappings())
 }

@@ -10,8 +10,8 @@ architectury {
 
 dependencies {
     api(project(":common"))
-    modImplementation("net.fabricmc:fabric-loader:0.16.14")
+    modImplementation("net.fabricmc:fabric-loader:0.17.2")
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.119.3+1.21.4")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.132.0+1.21.8")
 }

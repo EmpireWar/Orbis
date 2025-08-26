@@ -202,7 +202,7 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
 
     @Override
     public Key getPlayerWorld(UUID player) {
-        return ((Keyed) server.getPlayerList().getPlayer(player).serverLevel().dimension()).key();
+        return ((Keyed) server.getPlayerList().getPlayer(player).level().dimension()).key();
     }
 
     @Override
