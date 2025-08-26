@@ -44,7 +44,7 @@ repositories {
 dependencies {
     neoForge("net.neoforged:neoforge:$neoVersion")
 
-// Add :common as a dependency
+    // Add :common as a dependency
     shadowBundle(project(":common")) {
         isTransitive = false
     }
