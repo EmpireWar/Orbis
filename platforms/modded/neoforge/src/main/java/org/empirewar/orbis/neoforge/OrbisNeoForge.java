@@ -53,6 +53,7 @@ import org.empirewar.orbis.modded.command.ModdedCommands;
 import org.empirewar.orbis.neoforge.listener.BlockActionListener;
 import org.empirewar.orbis.neoforge.listener.ConnectionListener;
 import org.empirewar.orbis.neoforge.listener.InteractEntityListener;
+import org.empirewar.orbis.neoforge.listener.MovementListener;
 import org.empirewar.orbis.neoforge.selection.SelectionListener;
 import org.empirewar.orbis.neoforge.session.NeoForgeConsoleSession;
 import org.empirewar.orbis.neoforge.session.NeoForgePlayerSession;
@@ -189,6 +190,7 @@ public class OrbisNeoForge extends OrbisPlatform {
         new ConnectionListener(this);
         new InteractEntityListener(this);
         new BlockActionListener(this);
+        new MovementListener(this);
     }
 
     @Override

@@ -121,8 +121,14 @@ public final class RegionCommand {
             if (selection.getSelectionType() != defaultedType) {
                 session.sendMessage(OrbisText.PREFIX.append(
                         OrbisTranslations.REGION_SELECTION_TYPE_MISMATCH.arguments(
-                                Component.text(OrbisRegistries.AREA_TYPE.getKey(defaultedType).orElseThrow().asString()),
-                                Component.text(OrbisRegistries.AREA_TYPE.getKey(selection.getSelectionType()).orElseThrow().asString()))));
+                                Component.text(OrbisRegistries.AREA_TYPE
+                                        .getKey(defaultedType)
+                                        .orElseThrow()
+                                        .asString()),
+                                Component.text(OrbisRegistries.AREA_TYPE
+                                        .getKey(selection.getSelectionType())
+                                        .orElseThrow()
+                                        .asString()))));
                 return;
             }
 

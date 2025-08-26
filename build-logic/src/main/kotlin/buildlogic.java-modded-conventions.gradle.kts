@@ -10,7 +10,6 @@ architectury {
     minecraft = "1.21.4"
 }
 
-
 loom {
     silentMojangMappingsLicense()
 }

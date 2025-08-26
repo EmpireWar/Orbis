@@ -3,10 +3,6 @@ plugins {
     id("buildlogic.java-modded-conventions")
 }
 
-repositories {
-    maven("https://maven.neoforged.net/releases")
-}
-
 architectury {
     platformSetupLoomIde()
     neoForge()
@@ -40,11 +36,19 @@ base {
 
 val neoVersion = "21.4.149"
 
+repositories {
+    maven("https://maven.neoforged.net/releases")
+    maven("https://www.jitpack.io")
+}
+
 dependencies {
     neoForge("net.neoforged:neoforge:$neoVersion")
 
     shadowBundle(project(":common"))
     implementation(project(":common"))
+
+    shadowBundle(project(":api:neoforge-api", "namedElements"))
+    implementation(project(":api:neoforge-api"))
 
     common(project(":platforms:modded:modded-common", "namedElements")) {
         isTransitive = false
@@ -55,9 +59,10 @@ dependencies {
         exclude("io.leangen.geantyref")
     }
 
-    // Words cannot express how terrible neoforge's jar-in-jar system is
-    // We have to do this hacky mess because neoforge doesn't support transitive dependencies
+    // Words cannot express how terrible the jar-in-jar system is
+    // We have to do this hacky mess because it doesn't support transitive dependencies
     // And these are also dependencies from common-conventions that need declaring with "include"
+    // I tried everything but this is the only way, all other ways would result in remapping issues or missing classes
     modImplementation(include("org.incendo:cloud-annotations:2.0.0")!!)
     modImplementation(include("org.incendo:cloud-minecraft-extras:2.0.0-beta.11")!!)
     modImplementation(include("org.incendo:cloud-brigadier:2.0.0-beta.11")!!)
@@ -65,7 +70,7 @@ dependencies {
     modImplementation(include("org.incendo:cloud-processors-common:1.0.0-rc.1")!!)
     modImplementation(include("com.github.ben-manes.caffeine:caffeine:3.1.8")!!)
 
-    modImplementation(include("org.incendo:cloud-neoforge:2.0.0-beta.12")!!)
+    modImplementation(include("com.github.Incendo.cloud-minecraft-modded:cloud-neoforge:3ac0d7cd94")!!)
     modImplementation(include("net.kyori:adventure-platform-neoforge:6.3.0")!!) // for Minecraft 1.21.4
 }
 

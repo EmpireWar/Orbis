@@ -12,7 +12,7 @@
     "sources": "https://github.com/EmpireWar/Orbis"
   },
   "license": "GPL-3",
-  "icon": "assets/orbis/icon.png",
+  "icon": "assets/orbis/orbis-logo-small.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -20,7 +20,8 @@
     ]
   },
   "mixins": [
-    "mixins.orbis.json"
+    "mixins.orbis.json",
+    "fabric.mixins.orbis.json"
   ],
   "depends": {
     "fabricloader": ">=0.16.14",

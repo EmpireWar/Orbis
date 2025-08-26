@@ -31,4 +31,4 @@ include("common", "migrators:worldguard",
     "platforms:sponge", "api:sponge-api",
     "platforms:modded:modded-common",
     "platforms:modded:fabric", "api:fabric-api",
-    "platforms:modded:neoforge")
+    "platforms:modded:neoforge", "api:neoforge-api")

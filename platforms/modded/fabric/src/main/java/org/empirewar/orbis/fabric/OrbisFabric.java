@@ -29,11 +29,13 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -42,13 +44,17 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 
 import org.empirewar.orbis.OrbisPlatform;
+import org.empirewar.orbis.fabric.api.event.RegionEnterEvent;
+import org.empirewar.orbis.fabric.api.event.RegionLeaveEvent;
 import org.empirewar.orbis.fabric.listener.BlockActionListener;
 import org.empirewar.orbis.fabric.listener.ConnectionListener;
 import org.empirewar.orbis.fabric.listener.InteractEntityListener;
 import org.empirewar.orbis.fabric.selection.SelectionListener;
 import org.empirewar.orbis.fabric.session.FabricConsoleSession;
 import org.empirewar.orbis.fabric.session.FabricPlayerSession;
+import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.modded.command.ModdedCommands;
+import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.selection.Selection;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
@@ -172,6 +178,22 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
                 (s, world) -> this.saveWorld(((Keyed) world.dimension()).key(), UUID.randomUUID()));
         ServerWorldEvents.LOAD.register(
                 (s, world) -> this.loadWorld(((Keyed) world.dimension()).key(), UUID.randomUUID()));
+        RegionEnterEvent.EVENT.register((player, level, pos, world, region) -> {
+            player.displayClientMessage(
+                    Component.literal("Entered region: " + region.name()), true);
+            region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
+                    .result()
+                    .ifPresent(message ->
+                            ((Audience) player).sendMessage(miniMessage().deserialize(message)));
+        });
+
+        RegionLeaveEvent.EVENT.register((player, level, pos, world, region) -> {
+            player.displayClientMessage(Component.literal("Left region: " + region.name()), true);
+            region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
+                    .result()
+                    .ifPresent(message ->
+                            ((Audience) player).sendMessage(miniMessage().deserialize(message)));
+        });
         new SelectionListener(this);
         new ConnectionListener(this);
         new InteractEntityListener(this);
