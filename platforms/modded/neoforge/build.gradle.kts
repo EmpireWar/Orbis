@@ -34,7 +34,7 @@ base {
     archivesName.set("orbis-${project.name}")
 }
 
-val neoVersion = "21.8.38"
+val neoVersion = "21.8.9"
 
 repositories {
     maven("https://maven.neoforged.net/releases")
