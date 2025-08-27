@@ -1,6 +1,5 @@
 plugins {
     id("buildlogic.java-common-conventions")
-    id("com.gradleup.shadow")
     id("dev.architectury.loom")
     id("architectury-plugin")
 }
