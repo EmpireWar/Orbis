@@ -15,3 +15,20 @@ dependencies {
 
     neoForge("net.neoforged:neoforge:$neoVersion")
 }
+
+val shadowBundle by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+}
+
+tasks {
+    remapJar {
+        inputs.file(shadowJar.get().archiveFile)
+        inputFile = shadowJar.get().archiveFile
+    }
+
+    shadowJar {
+        configurations = listOf(shadowBundle)
+        archiveClassifier.set("dev-shadow")
+    }
+}

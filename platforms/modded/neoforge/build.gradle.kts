@@ -1,7 +1,6 @@
 
 plugins {
     id("buildlogic.java-modded-conventions")
-    id("com.gradleup.shadow")
 }
 
 architectury {
