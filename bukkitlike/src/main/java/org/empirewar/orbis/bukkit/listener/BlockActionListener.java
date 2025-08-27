@@ -36,6 +36,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.block.BlockPistonEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
@@ -50,6 +52,7 @@ import org.empirewar.orbis.world.RegionisedWorld;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
+import java.util.Collection;
 import java.util.List;
 
 public record BlockActionListener(OrbisBukkitPlatform<?> orbis) implements Listener {
@@ -156,6 +159,25 @@ public record BlockActionListener(OrbisBukkitPlatform<?> orbis) implements Liste
 
         if (!growable.contains(orbis.adventureKey(block.getType()))) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPush(BlockPistonExtendEvent event) {
+        this.handlePistonEvent(event, event.getBlocks());
+    }
+
+    @EventHandler
+    public void onPull(BlockPistonExtendEvent event) {
+        this.handlePistonEvent(event, event.getBlocks());
+    }
+
+    private void handlePistonEvent(BlockPistonEvent event, Collection<Block> blocks) {
+        for (Block block : blocks) {
+            if (shouldPreventBlockAction(block, DefaultFlags.ACTIVATE_PISTONS)) {
+                event.setCancelled(true);
+                return;
+            }
         }
     }
 

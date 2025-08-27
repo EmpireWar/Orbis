@@ -160,6 +160,21 @@ public final class BlockActionListener {
         }
     }
 
+    @Listener(order = Order.EARLY)
+    public void onPistonPushPull(ChangeBlockEvent.Pre event) {
+        if (!event.context().containsKey(EventContextKeys.PISTON_EXTEND)
+                && !event.context().containsKey(EventContextKeys.PISTON_RETRACT)) {
+            return;
+        }
+
+        event.locations().forEach(location -> {
+            if (shouldPreventBlockAction(
+                    location.createSnapshot(), DefaultFlags.ACTIVATE_PISTONS)) {
+                event.setCancelled(true);
+            }
+        });
+    }
+
     private boolean shouldPreventBlockAction(
             @Nullable BlockSnapshot block, RegistryRegionFlag<Boolean> flag) {
         return shouldPreventBlockAction(block, null, flag);

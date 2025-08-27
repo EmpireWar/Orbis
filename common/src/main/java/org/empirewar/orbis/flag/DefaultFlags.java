@@ -66,6 +66,8 @@ public final class DefaultFlags {
             "Whether players can access block inventories (such as barrels)", () -> true, Codec.BOOL);
     public static final RegistryRegionFlag<Boolean> TRIGGER_REDSTONE = register("trigger_redstone",
             "Whether players can trigger redstone", () -> true, Codec.BOOL);
+    public static final RegistryRegionFlag<Boolean> ACTIVATE_PISTONS = register("activate_pistons",
+            "Whether pistons can push and pull when activated (also prevents blocks being pushed from/into outside the region)", () -> true, Codec.BOOL);
     public static final RegistryRegionFlag<Boolean> CORAL_DECAY = register("coral_decay",
             "Whether coral should bleach naturally", () -> true, Codec.BOOL);
     public static final RegistryRegionFlag<Boolean> LEAF_DECAY = register("leaf_decay",

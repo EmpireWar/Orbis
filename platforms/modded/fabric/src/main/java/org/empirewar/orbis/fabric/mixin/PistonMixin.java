@@ -21,72 +21,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.empirewar.orbis.neoforge.listener;
+package org.empirewar.orbis.fabric.mixin;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.piston.PistonStructureResolver;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.level.PistonEvent;
 
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
-import org.empirewar.orbis.neoforge.OrbisNeoForge;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-public final class BlockActionListener {
+@Mixin(PistonBaseBlock.class)
+public class PistonMixin {
 
-    private final OrbisNeoForge orbis;
-
-    public BlockActionListener(OrbisNeoForge orbis) {
-        this.orbis = orbis;
-        NeoForge.EVENT_BUS.register(this);
-    }
-
-    @SubscribeEvent
-    public void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (FlagActions.shouldPreventBlockAction(
-                (Level) event.getLevel(),
-                event.getPos(),
-                event.getPlayer(),
-                DefaultFlags.CAN_BREAK)) {
-            event.setCanceled(true);
-        }
-    }
-
-    @SubscribeEvent
-    public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            if (FlagActions.shouldPreventBlockAction(
-                    (Level) event.getLevel(), event.getPos(), player, DefaultFlags.CAN_PLACE)) {
-                event.setCanceled(true);
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void onPistonPushPull(PistonEvent.Pre event) {
-        final PistonStructureResolver structureHelper = event.getStructureHelper();
-        if (structureHelper == null) return;
-
+    @Inject(method = "moveBlocks", at = @At("HEAD"), cancellable = true)
+    private void onPistonPushPull(
+            Level level,
+            BlockPos blockPos,
+            Direction direction,
+            boolean bl,
+            CallbackInfoReturnable<Boolean> cir) {
+        PistonStructureResolver structureHelper =
+                new PistonStructureResolver(level, blockPos, direction, bl);
         if (!structureHelper.resolve()) {
             return;
         }
 
         for (BlockPos toPush : structureHelper.getToPush()) {
             if (FlagActions.shouldPreventBlockAction(
-                    (Level) event.getLevel(), toPush, null, DefaultFlags.ACTIVATE_PISTONS)) {
-                event.setCanceled(true);
+                    level, toPush, null, DefaultFlags.ACTIVATE_PISTONS)) {
+                cir.setReturnValue(false);
                 return;
             }
         }
 
         for (BlockPos toDestroy : structureHelper.getToDestroy()) {
             if (FlagActions.shouldPreventBlockAction(
-                    (Level) event.getLevel(), toDestroy, null, DefaultFlags.ACTIVATE_PISTONS)) {
-                event.setCanceled(true);
+                    level, toDestroy, null, DefaultFlags.ACTIVATE_PISTONS)) {
+                cir.setReturnValue(false);
                 return;
             }
         }
