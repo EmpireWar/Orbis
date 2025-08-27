@@ -105,7 +105,7 @@ dependencies {
         exclude("net.fabricmc.fabric-api")
     })
     modImplementation(include("net.kyori:adventure-platform-fabric:6.6.0")!!) // for Minecraft 1.21.4
-    modImplementation(include("me.lucko:fabric-permissions-api:0.3.3")!!)
+    modImplementation(include("me.lucko:fabric-permissions-api:0.4.1")!!)
 
     compileOnly("org.slf4j:slf4j-api:2.0.12")
 }
