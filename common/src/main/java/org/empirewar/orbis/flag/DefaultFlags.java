@@ -50,9 +50,12 @@ public final class DefaultFlags {
             "Whether players can take damage from mobs", () -> true, Codec.BOOL);
     public static final RegistryRegionFlag<List<Key>> DAMAGEABLE_ENTITIES = register("damageable_entities",
             "An array of entity keys that can be attacked", ArrayList::new, ExtraCodecs.KEY.listOf());
-    public static final RegistryRegionFlag<Boolean> CAN_DESTROY_ITEM_FRAME = register("can_destroy_item_frame", () -> true, Codec.BOOL);
-    public static final RegistryRegionFlag<Boolean> CAN_DESTROY_PAINTING = register("can_destroy_painting", () -> true, Codec.BOOL);
-    public static final RegistryRegionFlag<Boolean> CAN_DESTROY_VEHICLE = register("can_destroy_vehicle", () -> true, Codec.BOOL);
+    public static final RegistryRegionFlag<Boolean> CAN_DESTROY_ITEM_FRAME = register("can_destroy_item_frame",
+            "Whether item frames can be destroyed", () -> true, Codec.BOOL);
+    public static final RegistryRegionFlag<Boolean> CAN_DESTROY_PAINTING = register("can_destroy_painting",
+            "Whether paintings can be destroyed", () -> true, Codec.BOOL);
+    public static final RegistryRegionFlag<Boolean> CAN_DESTROY_VEHICLE = register("can_destroy_vehicle",
+            "Whether vehicles can be destroyed", () -> true, Codec.BOOL);
     public static final RegistryRegionFlag<Boolean> FALL_DAMAGE = register("fall_damage",
             "Whether players take fall damage", () -> true, Codec.BOOL);
     public static final RegistryRegionFlag<Boolean> CAN_DROP_ITEM = register("can_drop_item",
@@ -71,8 +74,10 @@ public final class DefaultFlags {
             "An array of block keys that can grow with age (e.g. wheat, sugarcane, but not grass)", ArrayList::new, ExtraCodecs.KEY.listOf());
     public static final RegistryRegionFlag<Boolean> BLOCK_TRAMPLE = register("block_trample",
             "Whether blocks such as farmland can be trampled (turned to dirt)", () -> true, Codec.BOOL);
-    public static final RegistryRegionFlag<Boolean> ITEM_FRAME_ROTATE = register("item_frame_rotate", () -> true, Codec.BOOL);
-    public static final RegistryRegionFlag<Boolean> ITEM_FRAME_ITEM_PLACE = register("item_frame_item_place", () -> true, Codec.BOOL);
+    public static final RegistryRegionFlag<Boolean> ITEM_FRAME_ROTATE = register("item_frame_rotate",
+            "Whether item frames can be rotated", () -> true, Codec.BOOL);
+    public static final RegistryRegionFlag<Boolean> ITEM_FRAME_ITEM_PLACE = register("item_frame_item_place",
+            "Whether items can be placed into item frames", () -> true, Codec.BOOL);
     public static final RegistryRegionFlag<Boolean> CAN_ENTER = register("can_enter",
             "Whether players can enter this region. Useful when combined with flag groups.", () -> true, Codec.BOOL);
     public static final RegistryRegionFlag<Boolean> DRAIN_HUNGER = register("drain_hunger",
