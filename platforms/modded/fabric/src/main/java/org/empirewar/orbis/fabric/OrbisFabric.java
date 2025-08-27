@@ -35,7 +35,6 @@ import net.kyori.adventure.key.Keyed;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -43,9 +42,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.OrbisPlatform;
 import org.empirewar.orbis.fabric.api.event.RegionEnterEvent;
 import org.empirewar.orbis.fabric.api.event.RegionLeaveEvent;
+import org.empirewar.orbis.fabric.event.PlayerMoveEvent;
+import org.empirewar.orbis.fabric.event.PlayerTeleportEvent;
 import org.empirewar.orbis.fabric.listener.BlockActionListener;
 import org.empirewar.orbis.fabric.listener.ConnectionListener;
 import org.empirewar.orbis.fabric.listener.InteractEntityListener;
@@ -55,7 +57,9 @@ import org.empirewar.orbis.fabric.session.FabricPlayerSession;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.modded.command.ModdedCommands;
 import org.empirewar.orbis.query.RegionQuery;
+import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.selection.Selection;
+import org.empirewar.orbis.world.RegionisedWorld;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.fabric.FabricServerCommandManager;
@@ -65,6 +69,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.UUID;
 
 public class OrbisFabric extends OrbisPlatform implements ModInitializer {
@@ -178,9 +183,8 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
                 (s, world) -> this.saveWorld(((Keyed) world.dimension()).key(), UUID.randomUUID()));
         ServerWorldEvents.LOAD.register(
                 (s, world) -> this.loadWorld(((Keyed) world.dimension()).key(), UUID.randomUUID()));
+
         RegionEnterEvent.EVENT.register((player, level, pos, world, region) -> {
-            player.displayClientMessage(
-                    Component.literal("Entered region: " + region.name()), true);
             region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
                     .result()
                     .ifPresent(message ->
@@ -188,12 +192,60 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
         });
 
         RegionLeaveEvent.EVENT.register((player, level, pos, world, region) -> {
-            player.displayClientMessage(Component.literal("Left region: " + region.name()), true);
             region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
                     .result()
                     .ifPresent(message ->
                             ((Audience) player).sendMessage(miniMessage().deserialize(message)));
         });
+
+        PlayerMoveEvent.EVENT.register((player, level, from, to) -> {
+            final RegionisedWorld world =
+                    OrbisAPI.get().getRegionisedWorld(((Keyed) player.level().dimension()).key());
+
+            final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery =
+                    world.query(RegionQuery.Position.builder().position(to.x(), to.y(), to.z()));
+            final boolean canMove = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
+                            .player(player.getUUID()))
+                    .result()
+                    .orElse(true);
+
+            if (!canMove) {
+                return true;
+            }
+
+            final RegionQuery.FilterableRegionResult<RegionQuery.Position> fromQuery = world.query(
+                    RegionQuery.Position.builder().position(from.x(), from.y(), from.z()));
+            final Set<Region> toRegions = toQuery.result();
+            final Set<Region> fromRegions = fromQuery.result();
+            for (Region possiblyEntered : toRegions) {
+                if (fromRegions.contains(possiblyEntered)) continue;
+                RegionEnterEvent.EVENT
+                        .invoker()
+                        .enter(player, player.level(), to, world, possiblyEntered);
+            }
+
+            for (Region possiblyLeft : fromRegions) {
+                if (toRegions.contains(possiblyLeft)) continue;
+                RegionLeaveEvent.EVENT
+                        .invoker()
+                        .leave(player, player.level(), to, world, possiblyLeft);
+            }
+
+            return false;
+        });
+
+        PlayerTeleportEvent.EVENT.register((player, level, pos) -> {
+            final RegionisedWorld world =
+                    this.getRegionisedWorld(((Keyed) player.level().dimension()).key());
+            final boolean canMove = world.query(
+                            RegionQuery.Position.builder().position(pos.x(), pos.y(), pos.z()))
+                    .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
+                            .player(player.getUUID()))
+                    .result()
+                    .orElse(true);
+            return !canMove;
+        });
+
         new SelectionListener(this);
         new ConnectionListener(this);
         new InteractEntityListener(this);

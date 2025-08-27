@@ -34,6 +34,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.neoforge.access.ServerPlayerDuck;
 import org.empirewar.orbis.neoforge.api.event.RegionEnterEvent;
 import org.empirewar.orbis.neoforge.api.event.RegionLeaveEvent;
 import org.empirewar.orbis.query.RegionQuery;
@@ -63,6 +64,8 @@ public final class MovementListener {
                 .orElse(true);
         if (!canMove) {
             event.setCanceled(true);
+        } else if (!event.isCanceled()) {
+            ((ServerPlayerDuck) player).orbis$setLastTickPosition(event.getTarget());
         }
     }
 
@@ -70,7 +73,10 @@ public final class MovementListener {
     public void onMove(PlayerTickEvent.Post event) {
         final Player player = event.getEntity();
         final Vec3 to = player.position();
-        final Vec3 from = player.oldPosition();
+        final ServerPlayerDuck duck = (ServerPlayerDuck) player;
+        final Vec3 from = duck.orbis$getLastTickPosition() == null
+                ? player.oldPosition()
+                : duck.orbis$getLastTickPosition();
         final RegionisedWorld world =
                 orbis.getRegionisedWorld(((Keyed) player.level().dimension()).key());
 

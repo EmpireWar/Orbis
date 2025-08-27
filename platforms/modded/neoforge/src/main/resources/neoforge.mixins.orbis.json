@@ -1,11 +1,10 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "org.empirewar.orbis.fabric.mixin",
+  "package": "org.empirewar.orbis.neoforge.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "PlayerTickEventMixin",
-    "PlayerConnectionMixin"
+    "PlayerTickEventMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -21,13 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.empirewar.orbis.fabric.mixin;
+package org.empirewar.orbis.neoforge.mixin;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
-import org.empirewar.orbis.fabric.access.ServerPlayerDuck;
-import org.empirewar.orbis.fabric.event.PlayerMoveEvent;
+import org.empirewar.orbis.neoforge.access.ServerPlayerDuck;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -52,12 +51,6 @@ public abstract class PlayerTickEventMixin implements ServerPlayerDuck {
     @Inject(method = "doTick", at = @At("TAIL"))
     private void onPlayerTickPost(CallbackInfo info) {
         ServerPlayer player = (ServerPlayer) (Object) this;
-        final Vec3 from =
-                orbis$lastTickPosition == null ? player.position() : orbis$lastTickPosition;
-        final Vec3 to = player.position();
-        this.orbis$lastTickPosition = to;
-        if (PlayerMoveEvent.EVENT.invoker().move(player, player.level(), from, to)) {
-            player.teleportTo(from.x(), from.y(), from.z());
-        }
+        this.orbis$lastTickPosition = player.position();
     }
 }
