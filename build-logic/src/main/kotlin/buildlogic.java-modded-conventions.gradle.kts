@@ -1,8 +1,3 @@
-import gradle.kotlin.dsl.accessors._91768c27ec96c45229685dfdd2df225b.architectury
-import gradle.kotlin.dsl.accessors._91768c27ec96c45229685dfdd2df225b.loom
-import gradle.kotlin.dsl.accessors._91768c27ec96c45229685dfdd2df225b.mappings
-import gradle.kotlin.dsl.accessors._91768c27ec96c45229685dfdd2df225b.minecraft
-
 plugins {
     id("buildlogic.java-common-conventions")
     id("com.gradleup.shadow")
