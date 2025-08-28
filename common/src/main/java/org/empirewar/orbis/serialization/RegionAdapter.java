@@ -31,10 +31,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 
 import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.datafixer.OrbisDataFixes;
+import org.empirewar.orbis.datafixer.TypeReferences;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.region.RegionType;
 import org.empirewar.orbis.registry.OrbisRegistries;
@@ -51,17 +52,14 @@ public final class RegionAdapter implements JsonSerializer<Region>, JsonDeserial
         final Optional<JsonElement> result = dispatch.encodeStart(JsonOps.INSTANCE, region)
                 .resultOrPartial(
                         msg -> OrbisAPI.get().logger().error("Error saving region: {}", msg));
-        return result.orElse(null);
+        return result.map(OrbisDataFixes::updateFixerVersion).orElse(null);
     }
 
     @Override
     public Region deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
         final JsonObject object = json.getAsJsonObject();
-        Dynamic<JsonElement> dynamic = new Dynamic<>(JsonOps.INSTANCE, object);
-        JsonElement fixed;
-        // TODO datafixer
-        fixed = dynamic.getValue();
+        final JsonElement fixed = OrbisDataFixes.fix(TypeReferences.REGION, object);
 
         final Codec<Region> dispatch =
                 OrbisRegistries.REGION_TYPE.getCodec().dispatch(Region::getType, RegionType::codec);
