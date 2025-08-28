@@ -128,6 +128,9 @@ public final class WorldGuardMigrator {
                 DefaultFlags.ENTRY_MESSAGE,
                 "farewell",
                 DefaultFlags.EXIT_MESSAGE));
+        FLAG_MAPPINGS.putAll(Map.of(
+                "pistons",
+                DefaultFlags.ACTIVATE_PISTONS));
     }
 
     private static final Map<RegionFlag<?>, FlagTransformer> TRANSFORMERS = Map.of(
