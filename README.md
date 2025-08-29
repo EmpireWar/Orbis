@@ -30,7 +30,9 @@ These are the key features that makes Orbis stand out against other region prote
 ### Migrating from WorldGuard?
 Orbis has an inbuilt migration tool that allows you to migrate your WorldGuard regions.
 
-Simply run `/orbis migrate` on a server with Orbis and WorldGuard installed, and your WorldGuard regions will be migrated to Orbis (as well as they can be).
+Simply run `/orbis migrate worldguard` on a server with Orbis and WorldGuard installed, and your WorldGuard regions will be migrated to Orbis (as well as they can be).
+
+[Take a look at the migration wiki page for more information.](https://github.com/EmpireWar/Orbis/wiki/Migration-from-another-plugin)
 
 #### Key differences
 - Regions are not "protected by default". Instead, you need to add what flags you want to a region to make it protected.
