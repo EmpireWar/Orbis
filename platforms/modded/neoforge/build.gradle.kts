@@ -151,9 +151,11 @@ tasks {
     processResources {
         inputs.property("version", project.version)
 
+        val minecraftVersion = loom.minecraftVersion.get()
+
         val replaceProperties = mapOf(
-            "minecraft_version" to "1.21.4",
-            "minecraft_version_range" to "[1.21.4]",
+            "minecraft_version" to minecraftVersion,
+            "minecraft_version_range" to "[$minecraftVersion]",
             "neo_version" to neoVersion,
             "loader_version_range" to "[1,)",
             "mod_id" to rootProject.name.lowercase(),
