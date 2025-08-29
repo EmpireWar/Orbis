@@ -80,7 +80,7 @@ public final class ModdedRegionVisualiserTask extends RegionVisualiserTaskBase i
 
         // Create dust particle options
         DustParticleOptions particleOptions =
-                new DustParticleOptions(ARGB.colorFromFloat(r, g, b, 1f), size);
+                new DustParticleOptions(ARGB.colorFromFloat(255, r, g, b), size);
 
         ClientboundLevelParticlesPacket packet = new ClientboundLevelParticlesPacket(
                 particleOptions,
