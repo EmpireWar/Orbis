@@ -34,6 +34,9 @@ jobs:
             platforms/paper/build/libs/orbis-paper-!(*-dev|-sources|-javadoc).jar
           game-versions: |
             >=1.21.4
+          loaders: |
+            paper
+            purpur
           version-type: release
 
       - name: Publish Orbis for Sponge
@@ -46,6 +49,7 @@ jobs:
             platforms/sponge/build/libs/orbis-sponge-!(*-dev|-sources|-javadoc).jar
           game-versions: |
             >=1.21.4
+          loaders: 'sponge'
           version-type: release
 
       - name: Publish Orbis for Fabric
@@ -56,6 +60,7 @@ jobs:
           modrinth-id: O785bSfs
           files: |
             platforms/modded/fabric/build/libs/orbis-fabric-!(*-dev|-sources|-javadoc).jar
+          loaders: 'fabric'
           version-type: release
 
       - name: Publish Orbis for NeoForge
@@ -66,4 +71,5 @@ jobs:
           modrinth-id: O785bSfs
           files: |
             platforms/modded/neoforge/build/libs/orbis-neoforge-!(*-dev|-sources|-javadoc).jar
+          loaders: 'neoforge'
           version-type: release
