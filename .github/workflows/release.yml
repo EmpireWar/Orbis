@@ -24,14 +24,24 @@ jobs:
       - name: Build all variants
         run: ./gradlew build
 
+      - name: Collect release jars (exclude -dev, -sources, -javadoc, -shadow)
+        run: |
+          mkdir release-jars
+          for f in platforms/*/build/libs/*.jar; do
+            case "$f" in
+              *-dev.jar|*-dev-shadow.jar|*-sources.jar|*-javadoc.jar) ;; # skip
+              *) cp "$f" release-jars/ ;;
+            esac
+          done
+          ls -lh release-jars
+
       - name: Publish Orbis for Paper
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           github-token: ${{ secrets.RELEASES_TOKEN }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
-          files: |
-            platforms/paper/build/libs/orbis-paper-[0-9]*.[0-9]*.[0-9].jar
+          files: release-jars/orbis-paper-*.jar
           game-versions: |
             >=1.21.4
           loaders: |
@@ -45,11 +55,10 @@ jobs:
           github-token: ${{ secrets.RELEASES_TOKEN }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
-          files: |
-            platforms/sponge/build/libs/orbis-sponge-[0-9]*.[0-9]*.[0-9].jar
+          files: release-jars/orbis-sponge-*.jar
           game-versions: |
             >=1.21.4
-          loaders: 'sponge'
+          loaders: sponge
           version-type: release
 
       - name: Publish Orbis for Fabric
@@ -58,9 +67,8 @@ jobs:
           github-token: ${{ secrets.RELEASES_TOKEN }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
-          files: |
-            platforms/modded/fabric/build/libs/orbis-fabric-[0-9]*.[0-9]*.[0-9].jar
-          loaders: 'fabric'
+          files: release-jars/orbis-fabric-*.jar
+          loaders: fabric
           version-type: release
 
       - name: Publish Orbis for NeoForge
@@ -69,7 +77,6 @@ jobs:
           github-token: ${{ secrets.RELEASES_TOKEN }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
-          files: |
-            platforms/modded/neoforge/build/libs/orbis-neoforge-[0-9]*.[0-9]*.[0-9].jar
-          loaders: 'neoforge'
+          files: release-jars/orbis-neoforge-*.jar
+          loaders: neoforge
           version-type: release
