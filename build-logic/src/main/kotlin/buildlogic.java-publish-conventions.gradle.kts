@@ -47,8 +47,7 @@ publishing {
                 uri(releaseUrl)
             }
 
-            name = "snapshots"
-            url = uri("https://repo.empirewar.org/snapshots/")
+            name = "empirewar"
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_PASSWORD")
