@@ -32,9 +32,6 @@ repositories {
 }
 
 object Libs {
-    // Project
-    const val PROJECT_VERSION = "1.0.0-SNAPSHOT"
-    
     // Dependencies
     const val JOML = "1.10.5"
     const val ADVENTURE = "4.22.0"
@@ -50,7 +47,7 @@ object Libs {
     const val JUNIT_JUPITER = "5.10.1"
 }
 
-project.version = Libs.PROJECT_VERSION
+project.version = "1.0.0"
 
 dependencies {
     constraints {
