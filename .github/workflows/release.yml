@@ -31,7 +31,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
           files: |
-            platforms/paper/build/libs/orbis-paper-!(*-dev|-dev-shadow|-sources|-javadoc).jar
+            platforms/paper/build/libs/orbis-paper-[0-9]*.[0-9]*.[0-9]*.jar
           game-versions: |
             >=1.21.4
           loaders: |
@@ -46,7 +46,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
           files: |
-            platforms/sponge/build/libs/orbis-sponge-!(*-dev|-dev-shadow|-sources|-javadoc).jar
+            platforms/sponge/build/libs/orbis-sponge-[0-9]*.[0-9]*.[0-9]*.jar
           game-versions: |
             >=1.21.4
           loaders: 'sponge'
@@ -59,7 +59,7 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
           files: |
-            platforms/modded/fabric/build/libs/orbis-fabric-!(*-dev|-dev-shadow|-sources|-javadoc).jar
+            platforms/modded/fabric/build/libs/orbis-fabric-[0-9]*.[0-9]*.[0-9]*.jar
           loaders: 'fabric'
           version-type: release
 
@@ -70,6 +70,6 @@ jobs:
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
           files: |
-            platforms/modded/neoforge/build/libs/orbis-neoforge-!(*-dev|-dev-shadow|-sources|-javadoc).jar
+            platforms/modded/neoforge/build/libs/orbis-neoforge-[0-9]*.[0-9]*.[0-9]*.jar
           loaders: 'neoforge'
           version-type: release
