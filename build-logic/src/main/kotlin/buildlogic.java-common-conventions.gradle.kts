@@ -47,7 +47,7 @@ object Libs {
     const val JUNIT_JUPITER = "5.10.1"
 }
 
-project.version = "1.0.1-SNAPSHOT"
+project.version = providers.gradleProperty("version").get()
 
 dependencies {
     constraints {

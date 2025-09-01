@@ -16,4 +16,5 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":api:paper-api"))
     implementation(project(":migrators:worldguard"))
+    implementation(project(":migrators:rpgregions"))
 }

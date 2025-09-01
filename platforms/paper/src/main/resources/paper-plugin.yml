@@ -11,3 +11,6 @@ dependencies:
     WorldGuard:
       load: AFTER
       required: false
+    RPGRegions:
+      load: OMIT
+      required: false

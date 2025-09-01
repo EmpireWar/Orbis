@@ -36,6 +36,7 @@ import org.empirewar.orbis.command.parser.FlagValueParser;
 import org.empirewar.orbis.command.parser.RegionFlagParser;
 import org.empirewar.orbis.command.parser.RegionisedWorldParser;
 import org.empirewar.orbis.command.parser.registry.RegistryValueParser;
+import org.empirewar.orbis.migrations.rpgregions.RPGRegionsMigrator;
 import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
 import org.empirewar.orbis.player.OrbisSession;
 import org.incendo.cloud.CommandManager;
@@ -90,6 +91,22 @@ public class BukkitCommands<
                         return;
                     }
                     new WorldGuardMigrator(sender);
+                }));
+
+        manager.command(manager.commandBuilder("orbis")
+                .permission(Permissions.MANAGE)
+                .literal("migrate")
+                .literal("rpgregions")
+                .handler(context -> {
+                    final OrbisSession sender = context.sender();
+                    final Plugin rpgregions = Bukkit.getPluginManager().getPlugin("RPGRegions");
+                    if (rpgregions == null || !rpgregions.isEnabled()) {
+                        sender.sendMessage(Component.text(
+                                "RPGRegions is not installed. RPGRegions must be installed for migration to work.",
+                                NamedTextColor.RED));
+                        return;
+                    }
+                    new RPGRegionsMigrator(sender);
                 }));
     }
 
