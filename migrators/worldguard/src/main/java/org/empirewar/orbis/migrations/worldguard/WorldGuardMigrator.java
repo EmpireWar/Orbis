@@ -243,6 +243,8 @@ public final class WorldGuardMigrator {
                                 .area()
                                 .addPoint(new Vector3i(max.getX(), max.getY(), max.getZ()));
                     }
+
+                    orbisRegion.priority(region.getPriority());
                 }
 
                 for (Flag<?> flag : region.getFlags().keySet()) {
