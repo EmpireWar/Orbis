@@ -61,10 +61,7 @@ For Paper and Sponge we target **1.21.4-1.21.8** (Sponge API 14-16).
 [![Latest Release](https://img.shields.io/maven-central/v/org.empirewar.orbis/orbis-api?label=Latest%20Release)](https://repo.empirewar.org/releases)
 
 - **[Releases & Snapshots - Modrinth](https://modrinth.com/project/orbis)**
-- **[Releases - GitHub](https://github.com/EmpireWar/Orbis/releases)**
-- **[Snapshots - GitHub Actions (nightly.link)](https://nightly.link/EmpireWar/Orbis/workflows/publish/main/Artifacts.zip)**
-
-For GitHub snapshot builds, download the `.zip` file, go into the folder of your platform, then find `build/libs/orbis-PLATFORM-VERSION.jar`.
+- **[Releases & Snapshots - GitHub](https://github.com/EmpireWar/Orbis/releases)**
 
 ---
 
