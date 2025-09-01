@@ -41,8 +41,9 @@ jobs:
 
       - name: Collect snapshot jars (exclude -dev, -sources, -javadoc, -shadow)
         run: |
+          shopt -s globstar
           mkdir snapshot-jars
-          for f in platforms/*/build/libs/*.jar; do
+          for f in platforms/**/build/libs/*.jar; do
             case "$f" in
               *-dev.jar|*-dev-shadow.jar|*-sources.jar|*-javadoc.jar) ;; # skip
               *) cp "$f" snapshot-jars/ ;;
