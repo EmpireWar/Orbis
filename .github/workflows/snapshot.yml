@@ -1,0 +1,109 @@
+name: Publish Orbis Snapshot
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish-snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Extract project version
+        id: version
+        run: |
+          BASE_VERSION=$(grep '^version=' gradle.properties | cut -d'=' -f2)
+          echo "BASE_VERSION=$BASE_VERSION" >> $GITHUB_ENV
+          echo "VERSION=$BASE_VERSION+${GITHUB_SHA::7}" >> $GITHUB_ENV
+          echo "version=$BASE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Stop if not a SNAPSHOT version
+        if: "!endsWith(steps.version.outputs.version, '-SNAPSHOT')"
+        run: |
+          echo "Version is ${{ steps.version.outputs.version }}, not a SNAPSHOT. Skipping workflow."
+          exit 0
+
+      - name: Build all variants
+        run: ./gradlew build
+
+      - name: Collect snapshot jars (exclude -dev, -sources, -javadoc, -shadow)
+        run: |
+          mkdir snapshot-jars
+          for f in platforms/*/build/libs/*.jar; do
+            case "$f" in
+              *-dev.jar|*-dev-shadow.jar|*-sources.jar|*-javadoc.jar) ;; # skip
+              *) cp "$f" snapshot-jars/ ;;
+            esac
+          done
+          ls -lh snapshot-jars
+
+      - name: Publish Orbis Snapshot (Paper)
+        if: endsWith(env.BASE_VERSION, '-SNAPSHOT')
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          github-token: ${{ secrets.RELEASES_TOKEN }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-id: O785bSfs
+          name: Snapshot ${{ github.sha }}
+          version: ${{ env.VERSION }}
+          files: snapshot-jars/orbis-paper-*.jar
+          game-versions: |
+            >=1.21.4
+          loaders: |
+            paper
+            purpur
+          version-type: alpha
+
+      - name: Publish Orbis Snapshot (Sponge)
+        if: endsWith(env.BASE_VERSION, '-SNAPSHOT')
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          github-token: ${{ secrets.RELEASES_TOKEN }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-id: O785bSfs
+          name: Snapshot ${{ github.sha }}
+          version: ${{ env.VERSION }}
+          files: snapshot-jars/orbis-sponge-*.jar
+          game-versions: |
+            >=1.21.4
+          loaders: sponge
+          version-type: alpha
+
+      - name: Publish Orbis Snapshot (Fabric)
+        if: endsWith(env.BASE_VERSION, '-SNAPSHOT')
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          github-token: ${{ secrets.RELEASES_TOKEN }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-id: O785bSfs
+          name: Snapshot ${{ github.sha }}
+          version: ${{ env.VERSION }}
+          files: snapshot-jars/orbis-fabric-*.jar
+          loaders: fabric
+          version-type: alpha
+
+      - name: Publish Orbis Snapshot (NeoForge)
+        if: endsWith(env.BASE_VERSION, '-SNAPSHOT')
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          github-token: ${{ secrets.RELEASES_TOKEN }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-id: O785bSfs
+          name: Snapshot ${{ github.sha }}
+          version: ${{ env.VERSION }}
+          files: snapshot-jars/orbis-neoforge-*.jar
+          loaders: neoforge
+          version-type: alpha
