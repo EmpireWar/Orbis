@@ -11,7 +11,7 @@
     "homepage": "https://www.empirewar.org",
     "sources": "https://github.com/EmpireWar/Orbis"
   },
-  "license": "GPL-3",
+  "license": "MIT",
   "icon": "assets/orbis/orbis-logo-small.png",
   "environment": "*",
   "entrypoints": {

@@ -1,9 +1,10 @@
+
 import org.spongepowered.gradle.plugin.config.PluginLoaders
 import org.spongepowered.plugin.metadata.model.PluginDependency
 
 plugins {
     id("buildlogic.java-platform-conventions")
-    id("org.spongepowered.gradle.plugin") version("2.2.0")
+    id("org.spongepowered.gradle.plugin") version ("2.3.0")
 }
 
 dependencies {
@@ -25,7 +26,7 @@ sponge {
         displayName("Orbis")
         entrypoint("org.empirewar.orbis.sponge.OrbisSponge")
         description("A modern, multi-platform region protection plugin for Minecraft: Java Edition.")
-        license("GPL-3.0")
+        license("MIT")
         version(project.version.toString())
         dependency("spongeapi") {
             loadOrder(PluginDependency.LoadOrder.AFTER)
