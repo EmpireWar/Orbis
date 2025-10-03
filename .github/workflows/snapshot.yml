@@ -79,7 +79,7 @@ jobs:
           version: ${{ env.VERSION }}
           files: snapshot-jars/orbis-sponge-*.jar
           game-versions: |
-            >=1.21.4
+            >=1.21.9
           loaders: sponge
           version-type: alpha
 

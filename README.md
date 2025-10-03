@@ -50,9 +50,11 @@ Meaning, you can pick *only the entities you want to allow to take damage*. This
 ## 📆 Supported versions
 Orbis aims to always support the latest version of Minecraft. 
 
-For modded versions, we always target the latest version which is currently **1.21.8**.
+For modded versions, we always target the latest version which is currently **1.21.8-1.21.9**.
 
-For Paper and Sponge we target **1.21.4-1.21.8** (Sponge API 14-16).
+For Sponge, we currently target **API 17+ (1.21.8+)**.
+
+For Paper we target **1.21.4-1.21.8**.
 
 *Newer or older versions may work, but are not tested.*
 
@@ -75,7 +77,7 @@ For Paper and Sponge we target **1.21.4-1.21.8** (Sponge API 14-16).
 
 ## 📚 API & Integration
 
-Replace `PLATFORM` with your server type (e.g., `paper`, `fabric`, `sponge`). For Bukkit-compatible servers, use `paper`.
+Replace `PLATFORM` with your server type (e.g., `paper`, `fabric`, `neoforge`, `sponge`). For Bukkit-compatible servers, use `paper`.
 
 Replace `VERSION` with the latest Orbis version. For snapshots, use the `/snapshots` repo and append `-SNAPSHOT`.
 
