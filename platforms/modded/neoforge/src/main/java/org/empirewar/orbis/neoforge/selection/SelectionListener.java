@@ -69,6 +69,7 @@ public final class SelectionListener {
         ItemStack item = player.getItemInHand(event.getHand());
         if (item.isEmpty()
                 || !item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+                        .copyTag()
                         .contains("orbis_is_wand")) {
             event.setCancellationResult(InteractionResult.PASS);
             return;
@@ -115,6 +116,7 @@ public final class SelectionListener {
         ItemStack item = player.getItemInHand(hand);
         if (item.isEmpty()
                 || !item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+                        .copyTag()
                         .contains("orbis_is_wand")) return false;
 
         Selection selection = api.selectionManager().get(player.getUUID()).orElseGet(() -> {
