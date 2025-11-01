@@ -1,3 +1,4 @@
+
 plugins {
     id("buildlogic.java-common-conventions")
     id("com.gradleup.shadow")
@@ -5,7 +6,7 @@ plugins {
     id("architectury-plugin")
 }
 
-val minecraftVersion = "1.21.8"
+val minecraftVersion = "1.21.10"
 
 architectury {
     minecraft = minecraftVersion
