@@ -23,10 +23,12 @@
  */
 package org.empirewar.orbis.command.parser;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 
 import io.leangen.geantyref.TypeToken;
 
@@ -34,8 +36,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.empirewar.orbis.command.caption.OrbisCaptionKeys;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
-import org.empirewar.orbis.flag.value.FlagValueParseResult;
-import org.empirewar.orbis.serialization.FlagValueAdapter;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
@@ -65,26 +65,34 @@ public record FlagValueParser<C>(CommandManager<C> manager)
             @NonNull CommandInput commandInput) {
         final String input = this.parseGreedy(commandInput).parsedValue().orElseThrow();
         final RegistryRegionFlag<?> flag = commandContext.get("flag");
-        // spotless:off
-        // Take in the string as a JSON representation, parse it for primitives, then pass it into the codec
-        // TODO: probably wise to protect against bad input, although this should only ever run with admins
-        // spotless:on
-        final Gson gson = new GsonBuilder()
-                .registerTypeAdapter(FlagValueParseResult.class, new FlagValueAdapter<>(flag))
-                .create();
 
         try {
-            final FlagValueParseResult parsed = gson.fromJson(input, FlagValueParseResult.class);
+            // spotless:off
+            // Take in the string as a JSON representation, parse it for primitives, then pass it into the codec
+            // TODO: probably wise to protect against bad input, although this should only ever run with admins
+            // spotless:on
+            JsonElement element;
+            try {
+                element = JsonParser.parseString(input);
 
-            final DataResult<?> get = parsed.result();
-            if (get.isError()) {
+                // Gson sometimes returns null instead of throwing.
+                if (element == null || element.isJsonNull()) {
+                    element = new JsonPrimitive(input);
+                }
+            } catch (Exception e) {
+                element = new JsonPrimitive(input);
+            }
+
+            final Codec<?> codec = flag.typeCodec();
+            final DataResult<?> result = codec.parse(JsonOps.INSTANCE, element);
+            if (result.isError()) {
                 return ArgumentParseResult.failureFuture(new FlagValueParserException(
-                        input, get.error().orElseThrow().message(), commandContext));
+                        input, result.error().orElseThrow().message(), commandContext));
             }
 
             return ArgumentParseResult.successFuture(
-                    new FlagValue<>(get.result().orElseThrow()));
-        } catch (JsonSyntaxException e) {
+                    new FlagValue<>(result.result().orElseThrow()));
+        } catch (Exception e) {
             return ArgumentParseResult.failureFuture(
                     new FlagValueParserException(input, e.getMessage(), commandContext));
         }
