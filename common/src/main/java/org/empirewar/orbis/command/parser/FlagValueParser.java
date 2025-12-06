@@ -48,13 +48,15 @@ import org.incendo.cloud.parser.ParserRegistry;
 import org.incendo.cloud.suggestion.Suggestion;
 import org.incendo.cloud.suggestion.SuggestionProvider;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
-public record FlagValueParser<C>(CommandManager<?> manager)
+public record FlagValueParser<C>(CommandManager<C> manager)
         implements ArgumentParser.FutureArgumentParser<C, FlagValue<?>>, SuggestionProvider<C> {
 
     @Override
@@ -93,13 +95,58 @@ public record FlagValueParser<C>(CommandManager<?> manager)
             suggestionsFuture(@NonNull CommandContext<C> context, @NonNull CommandInput input) {
         final RegistryRegionFlag<?> flag = context.get("flag");
         // Try to find a valid parser for this. Very cursed but works epic.
-        final ParserRegistry<C> parserRegistry = (ParserRegistry<C>) manager.parserRegistry();
-        final Optional<? extends ArgumentParser<C, ?>> parser = parserRegistry.createParser(
-                TypeToken.get(flag.defaultValueType()), ParserParameters.empty());
+        final ParserRegistry<C> parserRegistry = manager.parserRegistry();
+        final Class<?> valueType = flag.defaultValueType();
+        final Optional<? extends ArgumentParser<C, ?>> parser =
+                findParserForType(parserRegistry, valueType);
         if (parser.isPresent()) {
             return parser.get().suggestionProvider().suggestionsFuture(context, input);
         }
         return CompletableFuture.completedFuture(List.of());
+    }
+
+    private Optional<? extends ArgumentParser<C, ?>> findParserForType(
+            ParserRegistry<C> registry, Class<?> type) {
+        // Try exact type
+        Optional<? extends ArgumentParser<C, ?>> exact =
+                registry.createParser(TypeToken.get(type), ParserParameters.empty());
+        if (exact.isPresent()) return exact;
+
+        // Try all superclasses
+        Class<?> superClass = type.getSuperclass();
+        while (superClass != null && superClass != Object.class) {
+            Optional<? extends ArgumentParser<C, ?>> superParser =
+                    registry.createParser(TypeToken.get(superClass), ParserParameters.empty());
+            if (superParser.isPresent()) return superParser;
+
+            superClass = superClass.getSuperclass();
+        }
+
+        // Try all interfaces recursively
+        for (Class<?> iface : getAllInterfaces(type)) {
+            Optional<? extends ArgumentParser<C, ?>> ifaceParser =
+                    registry.createParser(TypeToken.get(iface), ParserParameters.empty());
+            if (ifaceParser.isPresent()) return ifaceParser;
+        }
+
+        return Optional.empty();
+    }
+
+    private Set<Class<?>> getAllInterfaces(Class<?> type) {
+        Set<Class<?>> interfaces = new LinkedHashSet<>();
+        collectInterfaces(type, interfaces);
+        return interfaces;
+    }
+
+    private void collectInterfaces(Class<?> type, Set<Class<?>> out) {
+        for (Class<?> iface : type.getInterfaces()) {
+            if (out.add(iface)) {
+                collectInterfaces(iface, out); // recursive
+            }
+        }
+        if (type.getSuperclass() != null) {
+            collectInterfaces(type.getSuperclass(), out);
+        }
     }
 
     private static final Pattern FLAG_PATTERN =

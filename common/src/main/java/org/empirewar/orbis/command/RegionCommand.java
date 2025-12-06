@@ -691,8 +691,8 @@ public final class RegionCommand {
                                 .hoverEvent(HoverEvent.showText(text(
                                         "Click to select this region's area",
                                         OrbisText.EREBOR_GREEN)))
-                                .clickEvent(
-                                        ClickEvent.suggestCommand("/rg area select " + regionName))));
+                                .clickEvent(ClickEvent.suggestCommand(
+                                        "/rg area select " + regionName))));
 
                 // Add teleport to center option
                 int centerX = (min.x() + max.x()) / 2;
