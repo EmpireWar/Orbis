@@ -692,7 +692,7 @@ public final class RegionCommand {
                                         "Click to select this region's area",
                                         OrbisText.EREBOR_GREEN)))
                                 .clickEvent(
-                                        ClickEvent.suggestCommand("/rg selarea " + regionName))));
+                                        ClickEvent.suggestCommand("/rg area select " + regionName))));
 
                 // Add teleport to center option
                 int centerX = (min.x() + max.x()) / 2;
