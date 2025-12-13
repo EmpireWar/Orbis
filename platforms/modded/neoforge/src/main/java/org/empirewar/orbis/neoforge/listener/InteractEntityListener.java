@@ -42,7 +42,7 @@ public final class InteractEntityListener {
     @SubscribeEvent
     public void onLivingAttack(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            if (FlagActions.shouldPreventEntityAction(player, DefaultFlags.INVULNERABILITY)) {
+            if (!FlagActions.shouldPreventEntityAction(player, DefaultFlags.INVULNERABILITY)) {
                 event.setCanceled(true);
                 return;
             }

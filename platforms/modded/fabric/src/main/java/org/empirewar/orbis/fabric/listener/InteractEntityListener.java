@@ -35,7 +35,7 @@ public final class InteractEntityListener {
     public InteractEntityListener(Orbis orbis) {
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (entity instanceof ServerPlayer) {
-                if (FlagActions.shouldPreventEntityAction(entity, DefaultFlags.INVULNERABILITY)) {
+                if (!FlagActions.shouldPreventEntityAction(entity, DefaultFlags.INVULNERABILITY)) {
                     return false;
                 }
 

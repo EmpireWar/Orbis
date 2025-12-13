@@ -53,7 +53,7 @@ public record EntityDamageListener(OrbisBukkitPlatform<?> orbis) implements List
                 .result()
                 .orElse(false);
 
-        if (!canAct) {
+        if (canAct) {
             event.setCancelled(true);
         }
     }
