@@ -24,3 +24,7 @@ dependencies {
 
     compileOnly(project(":common"))
 }
+
+tasks.shadowJar {
+    isZip64 = true
+}
