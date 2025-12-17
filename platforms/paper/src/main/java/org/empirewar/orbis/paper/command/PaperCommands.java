@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the MIT License.
  *
- * Copyright (C) 2024 Empire War
+ * Copyright (C) 2025 Empire War
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
