@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the MIT License.
  *
- * Copyright (C) 2025 Empire War
+ * Copyright (C) 2024 Empire War
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,33 +23,18 @@
  */
 package org.empirewar.orbis.paper.listener;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.empirewar.orbis.flag.DefaultFlags;
-import org.empirewar.orbis.paper.OrbisPaperPlatform;
-import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
-import org.empirewar.orbis.paper.api.event.RegionLeaveEvent;
-import org.empirewar.orbis.query.RegionQuery;
-import org.empirewar.orbis.region.Region;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.empirewar.orbis.OrbisPlatform;
 
-public record RegionMessagesListener(OrbisPaperPlatform orbis) implements Listener {
+import java.util.UUID;
 
+public record ConnectionListener(OrbisPlatform api) implements Listener {
     @EventHandler
-    public void onEnter(RegionEnterEvent event) {
-        final Player player = event.getPlayer();
-        final Region region = event.getRegion();
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
-                .result()
-                .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
-    }
-
-    @EventHandler
-    public void onLeave(RegionLeaveEvent event) {
-        final Player player = event.getPlayer();
-        final Region region = event.getRegion();
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
-                .result()
-                .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
+    public void onQuit(PlayerQuitEvent event) {
+        final UUID uuid = event.getPlayer().getUniqueId();
+        api.selectionManager().remove(uuid);
+        api.setVisualising(uuid, false);
     }
 }

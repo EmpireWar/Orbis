@@ -29,17 +29,64 @@ import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.empirewar.orbis.OrbisPlatform;
+import org.empirewar.orbis.paper.task.PaperRegionVisualiserTask;
 import org.empirewar.orbis.selection.Selection;
 import org.slf4j.Logger;
 
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.UUID;
 
-public final class OrbisPaperPlatform extends OrbisBukkitPlatform<OrbisPaper> {
+public class OrbisPaperPlatform<P extends JavaPlugin> extends OrbisPlatform {
+
+    protected static final NamespacedKey WAND_KEY = NamespacedKey.fromString("orbis:wand");
+
+    protected final P plugin;
+
+    public OrbisPaperPlatform(P plugin) {
+        this.plugin = plugin;
+        load();
+    }
+
+    public void onEnable() {
+        // Start region visualizer
+        Bukkit.getScheduler()
+                .scheduleSyncRepeatingTask(plugin, new PaperRegionVisualiserTask(this), 20L, 20L);
+    }
+
+    public boolean isWand(ItemStack stack) {
+        return stack.getItemMeta() != null
+                && stack.getItemMeta().getPersistentDataContainer().has(WAND_KEY);
+    }
+
+    @Override
+    public boolean hasPermission(UUID player, String permission) {
+        final Player bukkit = Bukkit.getPlayer(player);
+        if (bukkit == null) return false;
+        return bukkit.hasPermission(permission);
+    }
+
+    @Override
+    protected InputStream getResourceAsStream(String path) {
+        // Bukkit doesn't like leading slashes
+        if (path.charAt(0) == '/') {
+            path = path.substring(1);
+        }
+        return plugin.getResource(path);
+    }
+
+    @Override
+    public Path dataFolder() {
+        return plugin.getDataFolder().toPath();
+    }
 
     public static final ItemStack WAND_ITEM;
 
@@ -52,21 +99,14 @@ public final class OrbisPaperPlatform extends OrbisBukkitPlatform<OrbisPaper> {
         WAND_ITEM.setItemMeta(meta);
     }
 
-    OrbisPaperPlatform(OrbisPaper plugin) {
-        super(plugin);
-    }
-
-    @Override
     public ItemStack wandItem() {
         return WAND_ITEM;
     }
 
-    @Override
     public Audience senderAsAudience(CommandSender player) {
         return player;
     }
 
-    @Override
     public Key adventureKey(Keyed keyed) {
         return keyed.key();
     }

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.empirewar.orbis.bukkit.listener;
+package org.empirewar.orbis.paper.listener;
 
 import net.kyori.adventure.key.Key;
 
@@ -44,9 +44,9 @@ import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
-import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.jetbrains.annotations.Nullable;
@@ -55,7 +55,7 @@ import org.joml.Vector3d;
 import java.util.Collection;
 import java.util.List;
 
-public record BlockActionListener(OrbisBukkitPlatform<?> orbis) implements Listener {
+public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {

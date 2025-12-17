@@ -28,26 +28,116 @@ import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 
 import net.kyori.adventure.key.Key;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Painting;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
-import org.empirewar.orbis.bukkit.listener.InteractEntityListener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
+import org.joml.Vector3d;
 
 import java.util.List;
 
-public class InteractEntityExtensionListener extends InteractEntityListener {
+public class EntityListener implements Listener {
 
-    public InteractEntityExtensionListener(OrbisBukkitPlatform<?> orbis) {
-        super(orbis);
+    protected final OrbisPaperPlatform<?> orbis;
+
+    public EntityListener(OrbisPaperPlatform<?> orbis) {
+        this.orbis = orbis;
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(orbis.adventureKey(player.getWorld()));
+        final Location location = player.getLocation();
+        final Vector3d pos = new Vector3d(location.getX(), location.getY(), location.getZ());
+
+        final RegionQuery.Flag.Builder<Boolean> builder =
+                RegionQuery.Flag.builder(DefaultFlags.INVULNERABILITY);
+        builder.player(player.getUniqueId());
+        final boolean canAct = world.query(RegionQuery.Position.builder().position(pos))
+                .query(builder)
+                .result()
+                .orElse(false);
+
+        if (canAct) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onFallDamage(EntityDamageEvent event) {
+        final Entity entity = event.getEntity();
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL
+                && shouldPreventEntityAction(entity, DefaultFlags.FALL_DAMAGE)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onMobDirectDamage(EntityDamageByEntityEvent event) {
+        final Entity entity = event.getEntity();
+        final Entity damager = event.getDamager();
+        if (!(entity instanceof Player)) return;
+
+        if (!(damager instanceof Player)) {
+            if (shouldPreventEntityAction(entity, DefaultFlags.CAN_TAKE_MOB_DAMAGE_SOURCES)) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent event) {
+        final Player player = event.getPlayer();
+        if (shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEM)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPickup(EntityPickupItemEvent event) {
+        if (shouldPreventEntityAction(event.getEntity(), DefaultFlags.CAN_PICKUP_ITEM)) {
+            event.setCancelled(true);
+        }
+    }
+
+    protected boolean shouldPreventEntityAction(Entity entity, RegistryRegionFlag<Boolean> flag) {
+        return shouldPreventEntityAction(entity, entity, flag);
+    }
+
+    protected boolean shouldPreventEntityAction(
+            Entity entity, @Nullable Entity player, RegistryRegionFlag<Boolean> flag) {
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()));
+        if (world == null) return false;
+
+        RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);
+        if (player != null) {
+            builder.player(player.getUniqueId());
+        }
+
+        final Location location = entity.getLocation();
+        return !world.query(RegionQuery.Position.builder()
+                        .position(location.getX(), location.getY(), location.getZ()))
+                .query(builder)
+                .result()
+                .orElse(true);
     }
 
     @EventHandler

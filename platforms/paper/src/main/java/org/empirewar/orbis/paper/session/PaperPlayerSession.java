@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the MIT License.
  *
- * Copyright (C) 2025 Empire War
+ * Copyright (C) 2024 Empire War
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,19 +25,49 @@ package org.empirewar.orbis.paper.session;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.empirewar.orbis.bukkit.session.BukkitPlayerSession;
+import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.paper.OrbisPaperPlatform;
+import org.empirewar.orbis.player.PlayerOrbisSession;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 
-public class PaperPlayerSession extends BukkitPlayerSession {
+public class PaperPlayerSession extends PlayerOrbisSession {
 
     private final CommandSourceStack source;
 
+    private final Player player;
+
+    public Player getPlayer() {
+        return player;
+    }
+
     public PaperPlayerSession(Player player, CommandSourceStack source) {
-        super(player);
+        super(
+                player.getUniqueId(),
+                ((OrbisPaperPlatform<?>) OrbisAPI.get()).senderAsAudience(player));
+        this.player = player;
         this.source = source;
     }
 
     public CommandSourceStack source() {
         return source;
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return player.hasPermission(permission);
+    }
+
+    @Override
+    public void giveWandItem() {
+        player.getInventory().addItem(((OrbisPaperPlatform<?>) OrbisAPI.get()).wandItem());
+    }
+
+    @Override
+    public Vector3dc getPosition() {
+        final Location location = player.getLocation();
+        return new Vector3d(location.getX(), location.getY(), location.getZ());
     }
 }
