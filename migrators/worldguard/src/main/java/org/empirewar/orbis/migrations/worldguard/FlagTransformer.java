@@ -63,10 +63,10 @@ public interface FlagTransformer {
                 }
             } else {
                 switch (state) {
-                    case DENY -> orbisRegion.setFlag(
-                            (RegistryRegionFlag<Boolean>) orbisFlag, false);
-                    case ALLOW -> orbisRegion.setFlag(
-                            (RegistryRegionFlag<Boolean>) orbisFlag, true);
+                    case DENY ->
+                        orbisRegion.setFlag((RegistryRegionFlag<Boolean>) orbisFlag, false);
+                    case ALLOW ->
+                        orbisRegion.setFlag((RegistryRegionFlag<Boolean>) orbisFlag, true);
                 }
             }
 

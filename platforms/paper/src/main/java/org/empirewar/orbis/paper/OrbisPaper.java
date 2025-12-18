@@ -32,20 +32,17 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.empirewar.orbis.bukkit.listener.BlockActionListener;
-import org.empirewar.orbis.bukkit.listener.ConnectionListener;
-import org.empirewar.orbis.bukkit.listener.EntityDamageListener;
-import org.empirewar.orbis.bukkit.listener.MovementListener;
-import org.empirewar.orbis.bukkit.listener.RegionTimeListener;
-import org.empirewar.orbis.bukkit.selection.SelectionListener;
-import org.empirewar.orbis.paper.listener.InteractEntityExtensionListener;
-import org.empirewar.orbis.paper.listener.RegionMessagesListener;
+import org.empirewar.orbis.paper.listener.BlockActionListener;
+import org.empirewar.orbis.paper.listener.ConnectionListener;
+import org.empirewar.orbis.paper.listener.EntityListener;
+import org.empirewar.orbis.paper.listener.MovementListener;
+import org.empirewar.orbis.paper.listener.SelectionListener;
 
 import java.io.IOException;
 
 public class OrbisPaper extends JavaPlugin implements Listener {
 
-    private final OrbisPaperPlatform platform = new OrbisPaperPlatform(this);
+    private final OrbisPaperPlatform<OrbisPaper> platform = new OrbisPaperPlatform<>(this);
 
     @Override
     public void onEnable() {
@@ -84,12 +81,9 @@ public class OrbisPaper extends JavaPlugin implements Listener {
         final PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(this, this);
         pluginManager.registerEvents(new BlockActionListener(platform), this);
-        pluginManager.registerEvents(new InteractEntityExtensionListener(platform), this);
+        pluginManager.registerEvents(new EntityListener(platform), this);
         pluginManager.registerEvents(new MovementListener(platform), this);
-        pluginManager.registerEvents(new RegionTimeListener(platform), this);
         pluginManager.registerEvents(new ConnectionListener(platform), this);
         pluginManager.registerEvents(new SelectionListener(platform), this);
-        pluginManager.registerEvents(new EntityDamageListener(platform), this);
-        pluginManager.registerEvents(new RegionMessagesListener(platform), this);
     }
 }

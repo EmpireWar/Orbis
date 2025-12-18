@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.empirewar.orbis.bukkit.selection;
+package org.empirewar.orbis.paper.listener;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -38,8 +38,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.empirewar.orbis.area.AreaType;
-import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.command.Permissions;
+import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.util.OrbisTranslations;
@@ -48,10 +48,10 @@ import org.joml.Vector3ic;
 
 import java.time.Duration;
 
-public record SelectionListener(OrbisBukkitPlatform<?> api) implements Listener {
+public record SelectionListener(OrbisPaperPlatform<?> api) implements Listener {
 
     @EventHandler
-    public void onLeftRightClick(PlayerInteractEvent event) {
+    public void onClick(PlayerInteractEvent event) {
         final Player player = event.getPlayer();
         if (!player.hasPermission(Permissions.MANAGE)) return;
 

@@ -27,7 +27,7 @@ plugins {
 
 rootProject.name = "Orbis"
 include("common", "migrators:rpgregions", "migrators:worldguard",
-    "bukkitlike", "platforms:paper", "api:paper-api",
+    "platforms:paper", "api:paper-api",
     "platforms:sponge", "api:sponge-api",
     "platforms:modded:modded-common",
     "platforms:modded:fabric", "api:fabric-api",

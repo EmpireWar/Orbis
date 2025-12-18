@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.empirewar.orbis.bukkit.listener;
+package org.empirewar.orbis.paper.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -32,8 +32,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.empirewar.orbis.bukkit.OrbisBukkitPlatform;
 import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
 import org.empirewar.orbis.paper.api.event.RegionLeaveEvent;
 import org.empirewar.orbis.query.RegionQuery;
@@ -42,7 +42,7 @@ import org.empirewar.orbis.world.RegionisedWorld;
 
 import java.util.Set;
 
-public record MovementListener(OrbisBukkitPlatform<?> orbis) implements Listener {
+public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
@@ -117,5 +117,35 @@ public record MovementListener(OrbisBukkitPlatform<?> orbis) implements Listener
                 .orElse(true);
         if (drain) return;
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEnter(RegionEnterEvent event) {
+        final Player player = event.getPlayer();
+        final Region region = event.getRegion();
+        this.applyTimeChanges(player, event.getWorld(), event.getLocation());
+        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
+                .result()
+                .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
+    }
+
+    @EventHandler
+    public void onLeave(RegionLeaveEvent event) {
+        final Player player = event.getPlayer();
+        final Region region = event.getRegion();
+        this.applyTimeChanges(player, event.getWorld(), event.getLocation());
+        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
+                .result()
+                .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
+    }
+
+    private void applyTimeChanges(Player player, RegionisedWorld world, Location location) {
+        final var timeResult = world.query(
+                        RegionQuery.Position.at(location.getX(), location.getY(), location.getZ())
+                                .build())
+                .query(RegionQuery.Flag.builder(DefaultFlags.TIME).player(player.getUniqueId()))
+                .result();
+        timeResult.ifPresentOrElse(
+                time -> player.setPlayerTime(time, false), player::resetPlayerTime);
     }
 }

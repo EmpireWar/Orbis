@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.empirewar.orbis.bukkit.task;
+package org.empirewar.orbis.paper.task;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -35,9 +35,9 @@ import org.joml.Vector3dc;
 
 import java.util.UUID;
 
-public class BukkitRegionVisualiserTask extends RegionVisualiserTaskBase {
+public class PaperRegionVisualiserTask extends RegionVisualiserTaskBase {
 
-    public BukkitRegionVisualiserTask(OrbisPlatform platform) {
+    public PaperRegionVisualiserTask(OrbisPlatform platform) {
         super(platform);
     }
 

@@ -19,8 +19,8 @@ repositories {
 }
 
 dependencies {
-    implementation("com.gradleup.shadow:shadow-gradle-plugin:9.0.0-beta17")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:7.0.2")
+    implementation("com.gradleup.shadow:shadow-gradle-plugin:9.0.0")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:8.1.0")
     implementation("net.kyori:indra-licenser-spotless:3.1.3")
     implementation("net.kyori:blossom:2.1.0")
     implementation("dev.architectury:architectury-loom:1.11.456")

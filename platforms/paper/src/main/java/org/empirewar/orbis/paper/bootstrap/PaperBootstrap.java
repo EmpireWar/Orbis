@@ -30,7 +30,7 @@ import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.empirewar.orbis.bukkit.command.BukkitCommands;
+import org.empirewar.orbis.paper.command.PaperCommands;
 import org.empirewar.orbis.paper.session.PaperConsoleSession;
 import org.empirewar.orbis.paper.session.PaperPlayerSession;
 import org.empirewar.orbis.player.OrbisSession;
@@ -40,7 +40,7 @@ import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.minecraft.extras.suggestion.ComponentTooltipSuggestion;
 import org.incendo.cloud.paper.PaperCommandManager;
 
-public class OrbisPluginBootstrap implements PluginBootstrap {
+public class PaperBootstrap implements PluginBootstrap {
 
     @Override
     public void bootstrap(BootstrapContext bootstrapContext) {
@@ -73,6 +73,6 @@ public class OrbisPluginBootstrap implements PluginBootstrap {
                     MessageComponentSerializer.message()
                             .serializeOrNull(componentTooltipSuggestion.tooltip()));
         });
-        new BukkitCommands<>(manager);
+        new PaperCommands(manager);
     }
 }

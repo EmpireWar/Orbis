@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the MIT License.
  *
- * Copyright (C) 2024 Empire War
+ * Copyright (C) 2025 Empire War
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.empirewar.orbis.bukkit.command;
+package org.empirewar.orbis.paper.command;
 
 import io.leangen.geantyref.TypeToken;
 
@@ -39,38 +39,19 @@ import org.empirewar.orbis.command.parser.registry.RegistryValueParser;
 import org.empirewar.orbis.migrations.rpgregions.RPGRegionsMigrator;
 import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
 import org.empirewar.orbis.player.OrbisSession;
-import org.incendo.cloud.CommandManager;
-import org.incendo.cloud.brigadier.BrigadierManagerHolder;
-import org.incendo.cloud.bukkit.BukkitCommandManager;
-import org.incendo.cloud.bukkit.CloudBukkitCapabilities;
-import org.incendo.cloud.bukkit.PluginHolder;
 import org.incendo.cloud.bukkit.internal.BukkitBrigadierMapper;
-import org.incendo.cloud.paper.LegacyPaperCommandManager;
 import org.incendo.cloud.paper.PaperCommandManager;
 
 import java.util.logging.Logger;
 
-public class BukkitCommands<
-        M extends
-                CommandManager<OrbisSession> & BrigadierManagerHolder<OrbisSession, ?>
-                        & PluginHolder> {
+public class PaperCommands {
 
-    private final M manager;
+    private final PaperCommandManager<OrbisSession> manager;
 
-    public BukkitCommands(M manager) {
+    public PaperCommands(PaperCommandManager<OrbisSession> manager) {
         this.manager = manager;
 
-        if (manager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
-            if (manager instanceof BukkitCommandManager<?> bukkit) {
-                bukkit.registerBrigadier();
-            }
-        } else if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
-            if (manager instanceof LegacyPaperCommandManager<?> legacy) {
-                legacy.registerAsynchronousCompletions();
-            }
-        }
-
-        this.mapDumbBrigadierStuff();
+        this.mapBrigadierTypes();
         this.registerCommands();
     }
 
@@ -110,28 +91,16 @@ public class BukkitCommands<
                 }));
     }
 
-    // How sad that Cloud changed from being clientside, tons of issues stem from this.
-    private void mapDumbBrigadierStuff() {
-        if (!manager.hasBrigadierManager()) return;
-
-        final Logger logger;
-        if (manager instanceof PaperCommandManager<?>) {
-            logger = Logger.getLogger("Orbis");
-        } else {
-            logger = manager.owningPlugin().getLogger();
-        }
-
+    private void mapBrigadierTypes() {
         final BukkitBrigadierMapper<OrbisSession> brigadierMapper =
-                new BukkitBrigadierMapper<>(logger, manager.brigadierManager());
+                new BukkitBrigadierMapper<>(Logger.getLogger("Orbis"), manager.brigadierManager());
+
         brigadierMapper.mapSimpleNMS(
                 new TypeToken<RegionFlagParser<OrbisSession>>() {}, "resource_location", true);
-
         brigadierMapper.mapSimpleNMS(
                 new TypeToken<RegionisedWorldParser<OrbisSession>>() {}, "resource_location", true);
-
         brigadierMapper.mapSimpleNMS(
                 new TypeToken<FlagValueParser<OrbisSession>>() {}, "message", true);
-
         brigadierMapper.mapSimpleNMS(
                 new TypeToken<RegistryValueParser<OrbisSession, ?, ?>>() {},
                 "resource_location",
