@@ -50,11 +50,11 @@ Meaning, you can pick *only the entities you want to allow to take damage*. This
 ## 📆 Supported versions
 Orbis aims to always support the latest version of Minecraft. 
 
-For modded versions, we always target the latest version which is currently **1.21.8-1.21.9**.
+For modded versions, we always target the latest version which is currently **1.21.10**.
 
 For Sponge, we currently target **API 17+ (1.21.8+)**.
 
-For Paper we target **1.21.4-1.21.8**.
+For Paper we target **1.21.4-1.21.11**.
 
 *Newer or older versions may work, but are not tested.*
 
