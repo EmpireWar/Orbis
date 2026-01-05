@@ -153,10 +153,17 @@ tasks {
     }
 
     processResources {
-        inputs.property("version", project.version)
+        val minecraftVersion = loom.minecraftVersion.get()
+
+        val replaceProperties = mapOf(
+            "version" to project.version,
+            "minecraft_version" to minecraftVersion
+        )
+
+        inputs.properties(replaceProperties)
 
         filesMatching("fabric.mod.json") {
-            expand("version" to project.version)
+            expand(replaceProperties)
         }
     }
 }
