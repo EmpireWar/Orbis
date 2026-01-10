@@ -15,7 +15,7 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
         maven("https://maven.fabricmc.net/")
-        maven("https://maven.architectury.dev/")
+        maven("https://maven.shedaniel.me/")
         maven("https://maven.neoforged.net/releases")
     }
 }
