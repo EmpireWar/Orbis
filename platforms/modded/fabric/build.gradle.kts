@@ -104,7 +104,7 @@ dependencies {
     modImplementation(include("org.incendo:cloud-fabric:2.0.0-beta.12") {
         exclude("net.fabricmc.fabric-api")
     })
-    modImplementation(include("net.kyori:adventure-platform-fabric:6.6.0")!!) // for Minecraft 1.21.4
+    modImplementation(include("net.kyori:adventure-platform-fabric:6.7.0")!!)
     modImplementation(include("me.lucko:fabric-permissions-api:0.4.1")!!)
 
     compileOnly("org.slf4j:slf4j-api:2.0.12")

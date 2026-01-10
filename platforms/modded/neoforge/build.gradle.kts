@@ -105,7 +105,7 @@ dependencies {
     forgeRuntimeLibrary("org.spongepowered:configurate-yaml:4.1.2")
 
     modImplementation(include("org.incendo:cloud-neoforge:2.0.0-beta.12")!!)
-    modImplementation(include("net.kyori:adventure-platform-neoforge:6.6.0")!!) // for Minecraft 1.21.4
+    modImplementation(include("net.kyori:adventure-platform-neoforge:6.7.0")!!)
 }
 
 fun Project.includeTransitively(
