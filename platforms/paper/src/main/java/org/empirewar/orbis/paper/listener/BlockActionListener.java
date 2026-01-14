@@ -44,8 +44,8 @@ import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
-import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
@@ -60,7 +60,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
         final Block block = event.getBlock();
-        if (shouldPreventBlockAction(block, event.getPlayer(), DefaultFlags.CAN_BREAK)) {
+        if (shouldPreventBlockAction(block, event.getPlayer(), MinecraftFlags.CAN_BREAK)) {
             event.setCancelled(true);
         }
     }
@@ -68,7 +68,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         final Block block = event.getBlock();
-        if (shouldPreventBlockAction(block, event.getPlayer(), DefaultFlags.CAN_PLACE)) {
+        if (shouldPreventBlockAction(block, event.getPlayer(), MinecraftFlags.CAN_PLACE)) {
             event.setCancelled(true);
             event.setBuild(false);
         }
@@ -79,7 +79,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
         if (event.getInventory().getHolder() instanceof BlockInventoryHolder blockHolder) {
             final Block block = blockHolder.getBlock();
             event.setCancelled(
-                    shouldPreventBlockAction(block, DefaultFlags.BLOCK_INVENTORY_ACCESS));
+                    shouldPreventBlockAction(block, MinecraftFlags.BLOCK_INVENTORY_ACCESS));
         }
     }
 
@@ -94,14 +94,14 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
                 && (block.getType() == Material.FARMLAND
                         || block.getType() == Material.TURTLE_EGG)) {
             if (event.getAction() == Action.PHYSICAL
-                    && shouldPreventBlockAction(block, player, DefaultFlags.BLOCK_TRAMPLE)) {
+                    && shouldPreventBlockAction(block, player, MinecraftFlags.BLOCK_TRAMPLE)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setCancelled(true);
             }
             return;
         }
 
-        if (shouldPreventBlockAction(block, player, DefaultFlags.TRIGGER_REDSTONE)) {
+        if (shouldPreventBlockAction(block, player, MinecraftFlags.TRIGGER_REDSTONE)) {
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setCancelled(true);
         }
@@ -111,13 +111,13 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
     public void onFade(BlockFadeEvent event) {
         final Block block = event.getBlock();
         if (Tag.CORALS.isTagged(block.getType())) {
-            event.setCancelled(shouldPreventBlockAction(block, DefaultFlags.CORAL_DECAY));
+            event.setCancelled(shouldPreventBlockAction(block, MinecraftFlags.CORAL_DECAY));
         }
     }
 
     @EventHandler
     public void onDecay(LeavesDecayEvent event) {
-        if (shouldPreventBlockAction(event.getBlock(), DefaultFlags.LEAF_DECAY)) {
+        if (shouldPreventBlockAction(event.getBlock(), MinecraftFlags.LEAF_DECAY)) {
             event.setCancelled(true);
         }
     }
@@ -129,7 +129,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
                 orbis.getRegionisedWorld(orbis.adventureKey(block.getWorld()));
         final List<Key> growable = world.query(
                         RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
-                .query(RegionQuery.Flag.builder(DefaultFlags.GROWABLE_BLOCKS))
+                .query(RegionQuery.Flag.builder(MinecraftFlags.GROWABLE_BLOCKS))
                 .result()
                 .orElse(null);
         if (growable == null) return;
@@ -143,7 +143,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
     public void onSpread(BlockSpreadEvent event) {
         final Block block = event.getBlock();
         if (Tag.FIRE.isTagged(block.getType())
-                && shouldPreventBlockAction(block, DefaultFlags.FIRE_SPREAD)) {
+                && shouldPreventBlockAction(block, MinecraftFlags.FIRE_SPREAD)) {
             event.setCancelled(true);
             return;
         }
@@ -152,7 +152,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
                 orbis.getRegionisedWorld(orbis.adventureKey(block.getWorld()));
         final List<Key> growable = world.query(
                         RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
-                .query(RegionQuery.Flag.builder(DefaultFlags.GROWABLE_BLOCKS))
+                .query(RegionQuery.Flag.builder(MinecraftFlags.GROWABLE_BLOCKS))
                 .result()
                 .orElse(null);
         if (growable == null) return;
@@ -174,7 +174,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
 
     private void handlePistonEvent(BlockPistonEvent event, Collection<Block> blocks) {
         for (Block block : blocks) {
-            if (shouldPreventBlockAction(block, DefaultFlags.ACTIVATE_PISTONS)) {
+            if (shouldPreventBlockAction(block, MinecraftFlags.ACTIVATE_PISTONS)) {
                 event.setCancelled(true);
                 return;
             }

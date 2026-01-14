@@ -43,15 +43,15 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:0.132.0+1.21.8")
 
     // Add :common as a dependency
-    shadowBundle(project(":common")) {
+    shadowBundle(project(":games:minecraft")) {
         isTransitive = false
     }
-    implementation(project(":common"))
+    implementation(project(":games:minecraft"))
 
     // JiJ all runtime dependencies from :common
     afterEvaluate {
         // Get the resolved runtimeClasspath of :common
-        val commonRuntimeClasspath = project(":common").configurations.getByName("runtimeClasspath")
+        val commonRuntimeClasspath = project(":games:minecraft").configurations.getByName("runtimeClasspath")
         val visited = mutableSetOf<String>()
 
         fun includeAllTransitives(dep: ResolvedDependency) {

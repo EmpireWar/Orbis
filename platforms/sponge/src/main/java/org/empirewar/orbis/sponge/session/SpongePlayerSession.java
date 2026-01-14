@@ -23,7 +23,7 @@
  */
 package org.empirewar.orbis.sponge.session;
 
-import org.empirewar.orbis.player.PlayerOrbisSession;
+import org.empirewar.orbis.minecraft.player.PlayerOrbisSession;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;

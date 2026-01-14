@@ -28,10 +28,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.TestOrbisPlatform;
 import org.empirewar.orbis.area.CuboidArea;
-import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.member.PermissionMember;
+import org.empirewar.orbis.minecraft.command.RegionCommand;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
@@ -160,7 +161,7 @@ public class RegionCommandTest {
     void testOnFlagAddAndSet() {
         TestOrbisPlayerSession session = new TestOrbisPlayerSession(UUID.randomUUID());
         Region region = new Region("flagregion", new CuboidArea());
-        RegistryRegionFlag<Boolean> flag = DefaultFlags.CAN_BREAK;
+        RegistryRegionFlag<Boolean> flag = MinecraftFlags.CAN_BREAK;
         cmd.onFlagAdd(session, null, region, flag, null);
         assertTrue(region.hasFlag(flag));
         cmd.onFlagSet(session, null, region, flag, new FlagValue<>(true));

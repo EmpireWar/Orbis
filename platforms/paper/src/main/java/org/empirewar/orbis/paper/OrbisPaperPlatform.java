@@ -36,7 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.empirewar.orbis.OrbisPlatform;
+import org.empirewar.orbis.minecraft.OrbisMinecraftPlatform;
 import org.empirewar.orbis.paper.task.PaperRegionVisualiserTask;
 import org.empirewar.orbis.selection.Selection;
 import org.slf4j.Logger;
@@ -45,13 +45,13 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.UUID;
 
-public class OrbisPaperPlatform<P extends JavaPlugin> extends OrbisPlatform {
+public class OrbisPaperPlatform<P extends JavaPlugin> extends OrbisMinecraftPlatform {
 
     protected static final NamespacedKey WAND_KEY = NamespacedKey.fromString("orbis:wand");
 
     protected final P plugin;
 
-    public OrbisPaperPlatform(P plugin) {
+    OrbisPaperPlatform(P plugin) {
         this.plugin = plugin;
         load();
     }

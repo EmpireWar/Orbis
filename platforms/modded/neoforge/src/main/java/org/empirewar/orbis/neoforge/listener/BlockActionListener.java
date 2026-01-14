@@ -32,7 +32,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.PistonEvent;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 import org.empirewar.orbis.neoforge.OrbisNeoForge;
 
@@ -51,7 +51,7 @@ public final class BlockActionListener {
                 (Level) event.getLevel(),
                 event.getPos(),
                 event.getPlayer(),
-                DefaultFlags.CAN_BREAK)) {
+                MinecraftFlags.CAN_BREAK)) {
             event.setCanceled(true);
         }
     }
@@ -60,7 +60,7 @@ public final class BlockActionListener {
     public void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (event.getEntity() instanceof Player player) {
             if (FlagActions.shouldPreventBlockAction(
-                    (Level) event.getLevel(), event.getPos(), player, DefaultFlags.CAN_PLACE)) {
+                    (Level) event.getLevel(), event.getPos(), player, MinecraftFlags.CAN_PLACE)) {
                 event.setCanceled(true);
             }
         }
@@ -77,7 +77,7 @@ public final class BlockActionListener {
 
         for (BlockPos toPush : structureHelper.getToPush()) {
             if (FlagActions.shouldPreventBlockAction(
-                    (Level) event.getLevel(), toPush, null, DefaultFlags.ACTIVATE_PISTONS)) {
+                    (Level) event.getLevel(), toPush, null, MinecraftFlags.ACTIVATE_PISTONS)) {
                 event.setCanceled(true);
                 return;
             }
@@ -85,7 +85,7 @@ public final class BlockActionListener {
 
         for (BlockPos toDestroy : structureHelper.getToDestroy()) {
             if (FlagActions.shouldPreventBlockAction(
-                    (Level) event.getLevel(), toDestroy, null, DefaultFlags.ACTIVATE_PISTONS)) {
+                    (Level) event.getLevel(), toDestroy, null, MinecraftFlags.ACTIVATE_PISTONS)) {
                 event.setCanceled(true);
                 return;
             }

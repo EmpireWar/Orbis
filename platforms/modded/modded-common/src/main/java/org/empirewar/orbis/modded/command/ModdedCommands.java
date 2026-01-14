@@ -29,12 +29,12 @@ import net.kyori.adventure.platform.modcommon.impl.NonWrappingComponentSerialize
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 
-import org.empirewar.orbis.command.CommonCommands;
-import org.empirewar.orbis.command.parser.FlagValueParser;
-import org.empirewar.orbis.command.parser.RegionFlagParser;
-import org.empirewar.orbis.command.parser.RegionisedWorldParser;
-import org.empirewar.orbis.command.parser.registry.RegistryValueParser;
-import org.empirewar.orbis.player.OrbisSession;
+import org.empirewar.orbis.minecraft.command.CommonCommands;
+import org.empirewar.orbis.minecraft.command.parser.FlagValueParser;
+import org.empirewar.orbis.minecraft.command.parser.RegionFlagParser;
+import org.empirewar.orbis.minecraft.command.parser.RegionisedWorldParser;
+import org.empirewar.orbis.minecraft.command.parser.registry.RegistryValueParser;
+import org.empirewar.orbis.minecraft.player.OrbisSession;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.brigadier.BrigadierManagerHolder;
 import org.incendo.cloud.brigadier.suggestion.TooltipSuggestion;

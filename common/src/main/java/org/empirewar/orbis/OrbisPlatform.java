@@ -24,11 +24,7 @@
 package org.empirewar.orbis;
 
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
-import net.kyori.adventure.translation.GlobalTranslator;
 
-import org.empirewar.orbis.command.caption.OrbisCaptionProvider;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
@@ -54,9 +50,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,12 +69,6 @@ public abstract class OrbisPlatform implements Orbis {
     // Players currently visualizing regions
     private final Set<UUID> visualisingPlayers = ConcurrentHashMap.newKeySet();
 
-    private final MiniMessage miniMessage = MiniMessage.miniMessage();
-
-    public MiniMessage miniMessage() {
-        return miniMessage;
-    }
-
     public OrbisPlatform() {
         OrbisAPI.set(this);
     }
@@ -90,82 +78,6 @@ public abstract class OrbisPlatform implements Orbis {
             this.loadConfigs();
         } catch (IOException e) {
             logger().error("Error loading configs", e);
-        }
-
-        MiniMessageTranslationStore store =
-                MiniMessageTranslationStore.create(Key.key("orbis", "translations"));
-        store.defaultLocale(Locale.UK);
-
-        final File translationsDirectory = dataFolder().resolve("translations").toFile();
-        translationsDirectory.mkdirs();
-
-        Locale.availableLocales().forEach(locale -> {
-            String resourcePath =
-                    String.format("assets/orbis/translations_%s.properties", locale.toString());
-            if (OrbisPlatform.class.getClassLoader().getResource(resourcePath) != null) {
-                try {
-                    // Copy bundled translation file to the translations directory
-                    final Path target = translationsDirectory
-                            .toPath()
-                            .resolve(String.format("%s.properties", locale));
-                    try (InputStream is = getResourceAsStream("/" + resourcePath)) {
-                        try {
-                            Files.copy(is, target);
-                        } catch (FileAlreadyExistsException ignored) {
-                            compareTranslations(locale, resourcePath, target);
-                        }
-                    }
-
-                    // Register the translation bundle from the copied/existing target
-                    store.registerAll(locale, target, true);
-                    logger().info("Loaded translations for {}", locale);
-                } catch (Exception e) {
-                    logger().warn("Failed to copy translations for {}", locale, e);
-                }
-            }
-        });
-
-        GlobalTranslator.translator().addSource(store);
-        OrbisCaptionProvider.registerTranslations();
-    }
-
-    private void compareTranslations(Locale locale, String resourcePath, Path target) {
-        // Compare keys between existing file and bundled resource, warn on diffs
-        try (InputStream existingIn = Files.newInputStream(target);
-                InputStream jarIn = getResourceAsStream("/" + resourcePath)) {
-            if (jarIn != null) {
-                final Properties existingProps = new Properties();
-                final Properties jarProps = new Properties();
-                existingProps.load(existingIn);
-                jarProps.load(jarIn);
-
-                final Set<String> existingKeys = existingProps.stringPropertyNames();
-                final Set<String> jarKeys = jarProps.stringPropertyNames();
-
-                final Set<String> missingKeys = jarKeys.stream()
-                        .filter(k -> !existingKeys.contains(k))
-                        .collect(Collectors.toSet());
-                final Set<String> extraKeys = existingKeys.stream()
-                        .filter(k -> !jarKeys.contains(k))
-                        .collect(Collectors.toSet());
-
-                if (!missingKeys.isEmpty()) {
-                    logger().warn("Translations for {} are missing keys: {}", locale, missingKeys);
-                }
-
-                if (!extraKeys.isEmpty()) {
-                    logger().warn(
-                                    "Translations for {} contain unknown/removed keys: {}",
-                                    locale,
-                                    extraKeys);
-                }
-
-                if (!missingKeys.isEmpty() || !extraKeys.isEmpty()) {
-                    logger().warn("Consider regenerating the translation file for {}", locale);
-                }
-            }
-        } catch (IOException e) {
-            logger().warn("Failed to compare translation keys for {}", locale, e);
         }
     }
 

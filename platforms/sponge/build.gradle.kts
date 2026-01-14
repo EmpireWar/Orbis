@@ -4,6 +4,7 @@ import org.spongepowered.plugin.metadata.model.PluginDependency
 
 plugins {
     id("buildlogic.java-platform-conventions")
+    id("buildlogic.java-minecraft-platform-conventions")
     id("org.spongepowered.gradle.plugin") version ("2.3.0")
 }
 
