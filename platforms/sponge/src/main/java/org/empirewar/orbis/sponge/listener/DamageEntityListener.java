@@ -24,7 +24,7 @@
 package org.empirewar.orbis.sponge.listener;
 
 import org.empirewar.orbis.Orbis;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.spongepowered.api.entity.Entity;
@@ -55,7 +55,7 @@ public class DamageEntityListener {
                                 attacked.position().y(),
                                 attacked.position().z()));
 
-        if (query.query(RegionQuery.Flag.builder(DefaultFlags.INVULNERABILITY))
+        if (query.query(RegionQuery.Flag.builder(MinecraftFlags.INVULNERABILITY))
                 .result()
                 .orElse(false)) {
             event.setCancelled(true);

@@ -1,7 +1,7 @@
 <div align="center">
 
 <img src="images/orbis-logo-black.png" alt="Orbis Logo">
-<p>Modern region protection plugin for Minecraft: Java Edition.</p>
+<p>Modern region protection plugin for Hytale & Minecraft.</p>
 <hr>
 
 </div>
@@ -13,7 +13,7 @@
 > Please report any bugs or issues to the [GitHub](https://github.com/EmpireWar/Orbis/issues).
 > If there is a feature you would like to see, please open an [issue](https://github.com/EmpireWar/Orbis/issues/new/choose).
 
-Orbis is a modern region protection plugin for Minecraft, supporting the latest version and most platforms: Paper, Fabric, NeoForge, and Sponge.
+Orbis is a modern region protection plugin for Hytale and Minecraft, supporting the latest version and most platforms: Paper, Fabric, NeoForge, and Sponge.
 
 > [!IMPORTANT]
 > Orbis is not compatible with Spigot. Please use Paper instead.

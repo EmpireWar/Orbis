@@ -24,7 +24,7 @@
 package org.empirewar.orbis.sponge.listener;
 
 import org.empirewar.orbis.Orbis;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.sponge.api.RegionEnterEvent;
@@ -63,7 +63,7 @@ public final class MovementListener {
                 == MovementTypes.ENTITY_TELEPORT.get()) {
             final boolean canMove = world.query(
                             RegionQuery.Position.builder().position(to.x(), to.y(), to.z()))
-                    .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
+                    .query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER)
                             .player(player.uniqueId()))
                     .result()
                     .orElse(true);
@@ -75,8 +75,8 @@ public final class MovementListener {
 
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery =
                 world.query(RegionQuery.Position.builder().position(to.x(), to.y(), to.z()));
-        final boolean canMove = toQuery.query(
-                        RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER).player(player.uniqueId()))
+        final boolean canMove = toQuery.query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER)
+                        .player(player.uniqueId()))
                 .result()
                 .orElse(true);
 
@@ -124,7 +124,7 @@ public final class MovementListener {
                                 entity.position().x(),
                                 entity.position().y(),
                                 entity.position().z()))
-                .query(RegionQuery.Flag.builder(DefaultFlags.DRAIN_HUNGER)
+                .query(RegionQuery.Flag.builder(MinecraftFlags.DRAIN_HUNGER)
                         .player(entity.uniqueId()))
                 .result()
                 .orElse(true);

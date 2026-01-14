@@ -28,8 +28,8 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.minecraft.player.PlayerOrbisSession;
 import org.empirewar.orbis.paper.OrbisPaperPlatform;
-import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 

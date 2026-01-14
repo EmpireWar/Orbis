@@ -23,8 +23,8 @@
  */
 package org.empirewar.orbis.sponge.command;
 
-import org.empirewar.orbis.command.CommonCommands;
-import org.empirewar.orbis.player.OrbisSession;
+import org.empirewar.orbis.minecraft.command.CommonCommands;
+import org.empirewar.orbis.minecraft.player.OrbisSession;
 import org.empirewar.orbis.sponge.OrbisSponge;
 import org.empirewar.orbis.sponge.session.SpongeConsoleSession;
 import org.empirewar.orbis.sponge.session.SpongePlayerSession;

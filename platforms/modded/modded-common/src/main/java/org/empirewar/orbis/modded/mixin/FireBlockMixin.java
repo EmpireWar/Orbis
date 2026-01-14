@@ -29,7 +29,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -54,7 +54,7 @@ public abstract class FireBlockMixin {
             BlockPos pos,
             RandomSource random,
             CallbackInfo ci) {
-        if (FlagActions.shouldPreventBlockAction(level, pos, null, DefaultFlags.FIRE_SPREAD)) {
+        if (FlagActions.shouldPreventBlockAction(level, pos, null, MinecraftFlags.FIRE_SPREAD)) {
             ci.cancel(); // Skip the fire spread logic entirely
         }
     }

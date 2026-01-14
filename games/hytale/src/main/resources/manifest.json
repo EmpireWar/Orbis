@@ -1,0 +1,20 @@
+{
+  "Group": "org.empirewar",
+  "Name": "Orbis",
+  "Version": "${version}",
+  "Description": "A modern, multi-platform region protection plugin for Hytale & Minecraft.",
+  "Main": "org.empirewar.orbis.hytale.OrbisHytale",
+  "Authors": [
+    {
+      "Name": "SamB440",
+      "Website": "https://github.com/SamB440"
+    }
+  ],
+  "Website": "https://github.com/EmpireWar/Orbis",
+  "ServerVersion": ">=0.0.1",
+  "Dependencies": {},
+  "OptionalDependencies": {},
+  "LoadBefore": {},
+  "DisabledByDefault": false,
+  "IncludesAssetPack": false
+}

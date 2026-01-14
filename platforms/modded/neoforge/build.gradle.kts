@@ -44,16 +44,16 @@ repositories {
 dependencies {
     neoForge("net.neoforged:neoforge:$neoVersion")
 
-    // Add :common as a dependency
-    shadowBundle(project(":common")) {
+    // Add :games:minecraft as a dependency
+    shadowBundle(project(":games:minecraft")) {
         isTransitive = false
     }
-    implementation(project(":common"))
+    implementation(project(":games:minecraft"))
 
-    // JiJ all runtime dependencies from :common
+    // JiJ all runtime dependencies from :games:minecraft
     afterEvaluate {
-        // Get the resolved runtimeClasspath of :common
-        val commonRuntimeClasspath = project(":common").configurations.getByName("runtimeClasspath")
+        // Get the resolved runtimeClasspath of :games:minecraft
+        val commonRuntimeClasspath = project(":games:minecraft").configurations.getByName("runtimeClasspath")
         val visited = mutableSetOf<String>()
 
         fun includeAllTransitives(dep: ResolvedDependency) {
