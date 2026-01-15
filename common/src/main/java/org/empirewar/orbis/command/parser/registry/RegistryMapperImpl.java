@@ -1,7 +1,7 @@
 /*
  * This file is part of Orbis, licensed under the MIT License.
  *
- * Copyright (C) 2024 Empire War
+ * Copyright (C) 2025 Empire War
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.empirewar.orbis.minecraft.command;
+package org.empirewar.orbis.command.parser.registry;
 
-public final class Permissions {
+import java.util.function.Function;
 
-    public static final String MANAGE = "orbis.manage";
+public class RegistryMapperImpl<I, K> implements RegistryMapper<I, K> {
+
+    private final Function<I, K> map;
+    private final Function<K, I> reverse;
+
+    public RegistryMapperImpl(Function<I, K> map, Function<K, I> reverse) {
+        this.map = map;
+        this.reverse = reverse;
+    }
+
+    @Override
+    public K map(I base) {
+        return map.apply(base);
+    }
+
+    @Override
+    public I reverse(K mapped) {
+        return reverse.apply(mapped);
+    }
 }

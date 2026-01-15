@@ -31,6 +31,8 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.OrbisPlatform;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.hytale.flags.HytaleFlags;
 import org.empirewar.orbis.hytale.logging.HytaleSlf4jLogger;
 import org.slf4j.Logger;
 
@@ -46,6 +48,8 @@ public class OrbisHytalePlatform extends OrbisPlatform {
     OrbisHytalePlatform(OrbisHytale plugin) {
         this.plugin = plugin;
         this.logger = new HytaleSlf4jLogger("Orbis", plugin.getLogger());
+        // Load flags
+        final RegistryRegionFlag<Boolean> canBreak = HytaleFlags.CAN_BREAK;
         load();
     }
 

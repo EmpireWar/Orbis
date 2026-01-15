@@ -26,8 +26,17 @@ package org.empirewar.orbis.hytale;
 import com.hypixel.hytale.server.core.event.events.PrepareUniverseEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.events.AddWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.events.AllWorldsLoadedEvent;
+import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent;
 
+import net.kyori.adventure.key.Key;
+
+import org.empirewar.orbis.hytale.command.OrbisCommand;
+import org.empirewar.orbis.hytale.command.RegionCommand;
+import org.empirewar.orbis.hytale.listener.BlockBreakListener;
+import org.empirewar.orbis.hytale.listener.BlockPlaceListener;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
@@ -39,21 +48,12 @@ public class OrbisHytale extends JavaPlugin {
     public OrbisHytale(@NonNull JavaPluginInit init) {
         super(init);
         this.platform = new OrbisHytalePlatform(this);
-
-        //        this.getEventRegistry().register(AddWorldEvent.class, event -> {
-        //            platform.logger().info("Added new world");
-        //        });
     }
 
     @Override
     protected void setup() {
-        this.getEventRegistry().register(PrepareUniverseEvent.class, event -> {
-            platform.logger().info("Preparing universe");
-        });
-
-        this.getEventRegistry().register(AllWorldsLoadedEvent.class, event -> {
-            platform.logger().info("All worlds loaded");
-        });
+        this.registerListeners();
+        this.registerCommands();
 
         try {
             platform.loadRegions();
@@ -62,6 +62,45 @@ public class OrbisHytale extends JavaPlugin {
         }
     }
 
+    private void registerListeners() {
+        getEntityStoreRegistry().registerSystem(new BlockPlaceListener());
+        getEntityStoreRegistry().registerSystem(new BlockBreakListener());
+
+        this.getEventRegistry().register(PrepareUniverseEvent.class, event -> {
+            platform.logger().info("Preparing universe");
+        });
+
+        this.getEventRegistry().register(AllWorldsLoadedEvent.class, event -> {
+            platform.logger().info("All worlds loaded");
+        });
+
+        this.getEventRegistry().registerGlobal(AddWorldEvent.class, event -> {
+            final World world = event.getWorld();
+            platform.loadWorld(
+                    Key.key("hytale", world.getName()), world.getWorldConfig().getUuid());
+        });
+
+        this.getEventRegistry().registerGlobal(RemoveWorldEvent.class, event -> {
+            final World world = event.getWorld();
+            platform.saveWorld(
+                    Key.key("hytale", world.getName()), world.getWorldConfig().getUuid());
+        });
+    }
+
+    private void registerCommands() {
+        this.getCommandRegistry().registerCommand(new OrbisCommand());
+        this.getCommandRegistry().registerCommand(new RegionCommand());
+    }
+
     @Override
     protected void start() {}
+
+    @Override
+    protected void shutdown() {
+        try {
+            platform.saveRegions();
+        } catch (IOException e) {
+            platform.logger().error("Error saving regions", e);
+        }
+    }
 }

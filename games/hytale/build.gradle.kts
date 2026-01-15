@@ -22,6 +22,7 @@ dependencies {
     // Kyori Adventure
     implementation("net.kyori:adventure-api:${Libs.ADVENTURE}")
     implementation("net.kyori:adventure-text-serializer-gson:${Libs.ADVENTURE}")
+    implementation("net.kyori:adventure-text-serializer-plain:${Libs.ADVENTURE}")
 
     // JOML
     implementation("org.joml:joml:${Libs.JOML}")
