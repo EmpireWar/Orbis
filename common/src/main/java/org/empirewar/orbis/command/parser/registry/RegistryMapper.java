@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.empirewar.orbis.minecraft.command.parser.registry;
+package org.empirewar.orbis.command.parser.registry;
 
 import net.kyori.adventure.key.Key;
 

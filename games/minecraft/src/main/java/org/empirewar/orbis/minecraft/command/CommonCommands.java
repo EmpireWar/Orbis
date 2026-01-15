@@ -42,7 +42,7 @@ import org.empirewar.orbis.minecraft.command.caption.OrbisCaptionProvider;
 import org.empirewar.orbis.minecraft.command.parser.FlagValueParser;
 import org.empirewar.orbis.minecraft.command.parser.RegionFlagParser;
 import org.empirewar.orbis.minecraft.command.parser.RegionisedWorldParser;
-import org.empirewar.orbis.minecraft.command.parser.registry.RegistryMapper;
+import org.empirewar.orbis.command.parser.registry.RegistryMapper;
 import org.empirewar.orbis.minecraft.command.parser.registry.RegistryValueParser;
 import org.empirewar.orbis.minecraft.player.OrbisSession;
 import org.empirewar.orbis.minecraft.player.PlayerOrbisSession;
@@ -96,7 +96,7 @@ public final class CommonCommands {
         // Wand command
         manager.command(manager.commandBuilder("orbis")
                 .senderType(PlayerOrbisSession.class)
-                .permission(Permissions.MANAGE)
+                .permission(org.empirewar.orbis.util.Permissions.MANAGE)
                 .literal("wand")
                 .handler(context -> {
                     final PlayerOrbisSession sender = context.sender();
@@ -106,7 +106,7 @@ public final class CommonCommands {
 
         // Where command
         manager.command(manager.commandBuilder("orbis")
-                .permission(Permissions.MANAGE)
+                .permission(org.empirewar.orbis.util.Permissions.MANAGE)
                 .senderType(PlayerOrbisSession.class)
                 .literal("where")
                 .handler(context -> {

@@ -82,7 +82,7 @@ import org.joml.Vector3ic;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Permission(Permissions.MANAGE)
+@Permission(org.empirewar.orbis.util.Permissions.MANAGE)
 public final class RegionCommand {
 
     @Command("region|rg create|define <name> [area_type]")

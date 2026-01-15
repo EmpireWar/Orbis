@@ -33,6 +33,7 @@ import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.serialization.StaticGsonProvider;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -51,6 +52,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -129,7 +131,11 @@ public abstract class OrbisPlatform implements Orbis {
         return worldsNode;
     }
 
-    public void loadWorld(Key world, UUID worldId) {
+    public void loadWorld(Key world) {
+        this.loadWorld(world, null);
+    }
+
+    public void loadWorld(Key world, @Nullable UUID worldId) {
         try {
             final List<String> regionNames = new ArrayList<>();
             final ConfigurationNode worldsNode = worldsConfig().node("worlds");
@@ -248,7 +254,11 @@ public abstract class OrbisPlatform implements Orbis {
         }
     }
 
-    public void saveWorld(Key world, UUID worldId) {
+    public void saveWorld(Key world) {
+        this.saveWorld(world, null);
+    }
+
+    public void saveWorld(Key world, @Nullable UUID worldId) {
         final RegionisedWorldSet removed = worldSets.remove(world);
         if (removed == null) {
             this.logger()

@@ -33,7 +33,7 @@ import org.bukkit.plugin.Plugin;
 import org.empirewar.orbis.migrations.rpgregions.RPGRegionsMigrator;
 import org.empirewar.orbis.migrations.worldguard.WorldGuardMigrator;
 import org.empirewar.orbis.minecraft.command.CommonCommands;
-import org.empirewar.orbis.minecraft.command.Permissions;
+import org.empirewar.orbis.util.Permissions;
 import org.empirewar.orbis.minecraft.command.parser.FlagValueParser;
 import org.empirewar.orbis.minecraft.command.parser.RegionFlagParser;
 import org.empirewar.orbis.minecraft.command.parser.RegionisedWorldParser;

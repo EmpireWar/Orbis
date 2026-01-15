@@ -38,7 +38,7 @@ import org.incendo.cloud.annotations.Argument;
 import org.incendo.cloud.annotations.Command;
 import org.incendo.cloud.annotations.Permission;
 
-@Permission(Permissions.MANAGE)
+@Permission(org.empirewar.orbis.util.Permissions.MANAGE)
 public final class SelectionCommand {
 
     @Command("orbis select|selection|sel <type>")

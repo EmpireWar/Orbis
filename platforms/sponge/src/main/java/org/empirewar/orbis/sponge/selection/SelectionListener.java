@@ -30,7 +30,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.AreaType;
-import org.empirewar.orbis.minecraft.command.Permissions;
+import org.empirewar.orbis.util.Permissions;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.util.OrbisText;
