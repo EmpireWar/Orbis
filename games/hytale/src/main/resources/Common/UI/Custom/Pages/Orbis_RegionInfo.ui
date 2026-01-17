@@ -1,0 +1,121 @@
+Group {
+  LayoutMode: Center;
+  Padding: (Left: 24, Right: 24, Top: 20, Bottom: 20);
+  Background: #10121A;
+
+  Group #MainPanel {
+    LayoutMode: Top;
+    Anchor: (Width: 700);
+    Padding: (Full: 12);
+    Background: #1E2028;
+
+    Group {
+      LayoutMode: Left;
+
+      Label #TitleLabel {
+        Style: (FontSize: 24, RenderBold: true, TextColor: #F4B860);
+        FlexWeight: 1;
+      }
+
+      Button #CloseButton {
+        Style: ButtonStyle();
+        Anchor: (Width: 36, Height: 36);
+        Background: #252736;
+
+        Label {
+          Text: "x";
+          Style: (FontSize: 18, RenderBold: true, TextColor: #FFFFFF);
+        }
+      }
+    }
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Height: 40);
+
+      Label {
+        Text: "Priority:";
+        Style: (FontSize: 18, TextColor: #FFFFFF);
+      }
+
+      Group #PriorityActions {
+        LayoutMode: Left;
+        FlexWeight: 1;
+        Padding: (Left: 8);
+      }
+    }
+
+    Group {
+      LayoutMode: Top;
+      Label {
+        Text: "Parents";
+        Style: (FontSize: 20, TextColor: #F4B860);
+      }
+
+      Group #ParentsHeader {
+        LayoutMode: Left;
+        Anchor: (Height: 36);
+      }
+
+      Group #ParentsList {
+        LayoutMode: TopScrolling;
+        Anchor: (Height: 140);
+        Padding: (Top: 8);
+      }
+    }
+
+    Group {
+      LayoutMode: Top;
+      Label {
+        Text: "Area";
+        Style: (FontSize: 20, TextColor: #F4B860);
+      }
+
+      Group #AreaDetails {
+        LayoutMode: Top;
+        Padding: (Top: 8, Bottom: 8);
+      }
+
+      Group #AreaActions {
+        LayoutMode: Left;
+        Anchor: (Height: 36);
+        Padding: (Top: 8);
+      }
+    }
+
+    Group {
+      LayoutMode: Top;
+      Label {
+        Text: "Members";
+        Style: (FontSize: 20, TextColor: #F4B860);
+      }
+
+      Group #MembersHeader {
+        LayoutMode: Left;
+        Anchor: (Height: 36);
+      }
+
+      Group #MembersList {
+        LayoutMode: TopScrolling;
+        Anchor: (Height: 150);
+        Padding: (Top: 8);
+      }
+    }
+
+    Group {
+      LayoutMode: Left;
+      Padding: (Top: 12);
+
+      Button #FlagManagerButton {
+        Style: ButtonStyle();
+        Anchor: (Width: 180, Height: 40);
+        Background: #2D5D91;
+
+        Label {
+          Text: "Manage Flags";
+          Style: (FontSize: 16, RenderBold: true, TextColor: #FFFFFF);
+        }
+      }
+    }
+  }
+}

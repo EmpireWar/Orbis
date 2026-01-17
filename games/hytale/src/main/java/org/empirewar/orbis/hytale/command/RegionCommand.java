@@ -23,60 +23,54 @@
  */
 package org.empirewar.orbis.hytale.command;
 
-import static net.kyori.adventure.text.Component.empty;
-import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
 
-import com.google.common.collect.Iterables;
+import com.hypixel.hytale.builtin.buildertools.BuilderToolsPlugin;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.server.core.Message;
-import com.hypixel.hytale.server.core.command.system.AbstractCommand;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
+import com.hypixel.hytale.server.core.command.system.arguments.system.FlagArg;
+import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
+import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractCommandCollection;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.prefab.selection.standard.BlockSelection;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 
+import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.OrbisPlatform;
 import org.empirewar.orbis.area.Area;
-import org.empirewar.orbis.flag.GroupedMutableRegionFlag;
-import org.empirewar.orbis.flag.MutableRegionFlag;
-import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.area.AreaType;
+import org.empirewar.orbis.area.CuboidArea;
+import org.empirewar.orbis.area.PolygonArea;
+import org.empirewar.orbis.area.PolyhedralArea;
+import org.empirewar.orbis.area.SphericalArea;
+import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.hytale.command.arguments.OrbisArgTypes;
+import org.empirewar.orbis.hytale.ui.RegionInfoPage;
 import org.empirewar.orbis.hytale.util.TextUtil;
-import org.empirewar.orbis.member.FlagMemberGroup;
-import org.empirewar.orbis.member.Member;
-import org.empirewar.orbis.member.PermissionMember;
-import org.empirewar.orbis.member.PlayerMember;
+import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.util.OrbisTranslations;
 import org.empirewar.orbis.util.Permissions;
 import org.empirewar.orbis.world.RegionisedWorld;
-import org.joml.Vector3ic;
+import org.joml.Vector3i;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -86,9 +80,142 @@ public class RegionCommand extends AbstractCommandCollection {
         super("region", "The base Orbis region command.");
         this.addAliases("rg");
         this.requirePermission(Permissions.MANAGE);
+        this.addSubCommand(new RegionCreateCommand());
         this.addSubCommand(new RegionVisualiseCommand());
         this.addSubCommand(new RegionInfoCommand());
         this.addSubCommand(new RegionWorldCommand());
+    }
+
+    private static class RegionCreateCommand extends CommandBase {
+
+        private final RequiredArg<String> regionNameArg;
+        private final OptionalArg<AreaType<?>> areaTypeArg;
+        private final FlagArg globalArg, ignoreSelection;
+
+        protected RegionCreateCommand() {
+            super(
+                    "create",
+                    "Creates a new region. "
+                            + "If your selection using the wand is empty, we will instead use your selector builder tool selection to create a cuboid region.");
+            this.regionNameArg =
+                    this.withRequiredArg("name", "The name of the region.", ArgTypes.STRING);
+            this.areaTypeArg = this.withOptionalArg(
+                    "area_type", "The area type of the region.", OrbisArgTypes.AREA_TYPE);
+            this.globalArg = this.withFlagArg("global", "Create the region as a global region.");
+            this.ignoreSelection =
+                    this.withFlagArg("ignore-selection", "Ignore your current selection.");
+        }
+
+        @Override
+        protected void executeSync(@NonNull CommandContext context) {
+            final String regionName = this.regionNameArg.get(context);
+            AreaType<?> areaType = this.areaTypeArg.get(context);
+            final boolean global = this.globalArg.get(context);
+            final boolean ignoreSelection = this.ignoreSelection.get(context);
+
+            final Orbis orbis = OrbisAPI.get();
+            if (OrbisRegistries.REGIONS.get(regionName).isPresent()) {
+                TextUtil.send(
+                        context,
+                        OrbisText.PREFIX.append(OrbisTranslations.REGION_ALREADY_EXISTS.arguments(
+                                Component.text(regionName))));
+                return;
+            }
+
+            if (ignoreSelection) {
+                areaType = null;
+            }
+
+            Area area;
+            if (global) {
+                area = null;
+            } else if (ignoreSelection) {
+                area = new CuboidArea();
+            } else if (context.sender() instanceof Player player) {
+
+                final Selection selection = orbis.selectionManager()
+                        .get(player.getUuid())
+                        .orElseGet(() -> {
+                            final BlockSelection blockSelection = BuilderToolsPlugin.get()
+                                    .getBuilderState(player, player.getPlayerRef())
+                                    .getSelection();
+                            if (blockSelection != null && blockSelection.hasSelectionBounds()) {
+                                Selection sel = new Selection(AreaType.CUBOID);
+                                final com.hypixel.hytale.math.vector.Vector3i min =
+                                        blockSelection.getSelectionMin();
+                                final com.hypixel.hytale.math.vector.Vector3i max =
+                                        blockSelection.getSelectionMax();
+                                sel.addPoint(new Vector3i(min.x, min.y, min.z));
+                                sel.addPoint(new Vector3i(max.x, max.y, max.z));
+                                return sel;
+                            }
+
+                            return null;
+                        });
+
+                if (selection == null) {
+                    TextUtil.send(
+                            context,
+                            OrbisText.PREFIX.append(OrbisTranslations.REGION_SELECTION_REQUIRED));
+                    return;
+                }
+
+                AreaType<?> defaultedType =
+                        areaType == null ? selection.getSelectionType() : areaType;
+                if (selection.getSelectionType() != defaultedType) {
+                    TextUtil.send(
+                            context,
+                            OrbisText.PREFIX.append(
+                                    OrbisTranslations.REGION_SELECTION_TYPE_MISMATCH.arguments(
+                                            Component.text(OrbisRegistries.AREA_TYPE
+                                                    .getKey(defaultedType)
+                                                    .orElseThrow()
+                                                    .asString()),
+                                            Component.text(OrbisRegistries.AREA_TYPE
+                                                    .getKey(selection.getSelectionType())
+                                                    .orElseThrow()
+                                                    .asString()))));
+                    return;
+                }
+
+                try {
+                    area = selection.build();
+                } catch (IncompleteAreaException e) {
+                    TextUtil.send(
+                            context,
+                            OrbisText.PREFIX.append(
+                                    OrbisTranslations.REGION_INCOMPLETE_SELECTION.arguments(
+                                            text(e.getMessage()))));
+                    return;
+                }
+
+                selection.getPoints().forEach(area::addPoint);
+                TextUtil.send(
+                        context,
+                        OrbisText.PREFIX.append(OrbisTranslations.REGION_USED_SELECTION_NOTE));
+            } else if (areaType == null || areaType == AreaType.CUBOID) {
+                area = new CuboidArea();
+            } else if (areaType == AreaType.POLYGON) {
+                area = new PolygonArea();
+            } else if (areaType == AreaType.POLYHEDRAL) {
+                area = new PolyhedralArea();
+            } else if (areaType == AreaType.SPHERE) {
+                area = new SphericalArea();
+            } else {
+                area = new CuboidArea();
+            }
+
+            final Region region =
+                    global ? new GlobalRegion(regionName) : new Region(regionName, area);
+            OrbisRegistries.REGIONS.register(regionName, region);
+            if (context.sender() instanceof Player player && !region.isGlobal()) {
+                orbis.getRegionisedWorld(orbis.getPlayerWorld(player.getUuid())).add(region);
+            }
+            TextUtil.send(
+                    context,
+                    OrbisText.PREFIX.append(OrbisTranslations.REGION_CREATED.arguments(
+                            Component.text(regionName), Component.text(global ? "global " : ""))));
+        }
     }
 
     private static class RegionVisualiseCommand extends AbstractPlayerCommand {
@@ -132,7 +259,7 @@ public class RegionCommand extends AbstractCommandCollection {
         }
     }
 
-    private static class RegionInfoCommand extends AbstractCommand {
+    private static class RegionInfoCommand extends AbstractPlayerCommand {
 
         private final RequiredArg<Region> regionArg;
 
@@ -142,194 +269,36 @@ public class RegionCommand extends AbstractCommandCollection {
         }
 
         @Override
-        protected @Nullable CompletableFuture<Void> execute(@NonNull CommandContext context) {
+        protected void execute(
+                @NonNull CommandContext context,
+                @NonNull Store<EntityStore> store,
+                @NonNull Ref<EntityStore> ref,
+                @NonNull PlayerRef playerRef,
+                @NonNull World world) {
             final Region region = regionArg.get(context);
-            final String regionName = region.name();
+            final Player player = store.getComponent(ref, Player.getComponentType());
 
-            TextUtil.send(
-                    context,
-                    OrbisText.PREFIX.append(text("[", NamedTextColor.GRAY)
-                            .append(text(regionName, OrbisText.SECONDARY_ORANGE))
-                            .append(text("]", NamedTextColor.GRAY))));
-
-            TextUtil.send(
-                    context,
-                    createClickableLine(
-                            "Priority",
-                            String.valueOf(region.priority()),
-                            "/rg setpriority " + regionName + " ",
-                            "Click to set priority"));
-
-            Component parentsLine = text("Parents: ", OrbisText.EREBOR_GREEN);
-
-            if (!region.isGlobal()) {
-                parentsLine = parentsLine
-                        .append(text("[", NamedTextColor.GRAY))
-                        .append(text("+", NamedTextColor.GREEN)
-                                .hoverEvent(HoverEvent.showText(text(
-                                        "Click to add a parent region", OrbisText.EREBOR_GREEN)))
-                                .clickEvent(ClickEvent.suggestCommand(
-                                        "/rg parent add " + regionName + " ")))
-                        .append(text("]", NamedTextColor.GRAY));
-
-                TextUtil.send(context, parentsLine);
-
-                if (region.parents().isEmpty()) {
-                    TextUtil.send(context, text("  » None", NamedTextColor.GRAY));
-                } else {
-                    for (Region parent : region.parents()) {
-                        Component parentLine = text("  ▷ ", NamedTextColor.GRAY)
-                                .append(text(parent.name(), NamedTextColor.WHITE))
-                                .append(space())
-                                .append(text("[", NamedTextColor.GRAY)
-                                        .append(text("-", NamedTextColor.RED)
-                                                .hoverEvent(HoverEvent.showText(text(
-                                                        "Remove parent", OrbisText.SECONDARY_RED)))
-                                                .clickEvent(ClickEvent.suggestCommand(
-                                                        "/rg parent remove " + regionName + " "
-                                                                + parent.name()))))
-                                .append(text("]", NamedTextColor.GRAY));
-                        TextUtil.send(context, parentLine);
-                    }
-                }
-            } else {
+            if (player == null) {
                 TextUtil.send(
                         context,
-                        parentsLine.append(
-                                text("Global regions cannot have parents", NamedTextColor.GRAY)));
+                        OrbisText.PREFIX.append(Component.text(
+                                "Unable to open the region interface right now.",
+                                OrbisText.SECONDARY_RED)));
+                return;
             }
 
-            TextUtil.send(context, empty());
-            TextUtil.send(context, text("Area Information", OrbisText.EREBOR_GREEN));
-
-            if (region.isGlobal()) {
-                TextUtil.send(
-                        context, text("  Global region - no area defined", NamedTextColor.GRAY));
-            } else {
-                final Area area = region.area();
-                final String areaName = OrbisRegistries.AREA_TYPE
-                        .getKey(area.getType())
-                        .orElseThrow()
-                        .asString();
-                TextUtil.send(
-                        context,
-                        text("  Type: ", NamedTextColor.GRAY)
-                                .append(text(areaName, NamedTextColor.WHITE))
-                                .hoverEvent(HoverEvent.showText(
-                                        text("Area type", OrbisText.EREBOR_GREEN))));
-
-                Vector3ic min = area.getMin();
-                Vector3ic max = area.getMax();
-                TextUtil.send(
-                        context,
-                        text("  Bounds: ", NamedTextColor.GRAY)
-                                .append(text(
-                                        String.format(
-                                                "(%d, %d, %d) to (%d, %d, %d)",
-                                                min.x(), min.y(), min.z(), max.x(), max.y(),
-                                                max.z()),
-                                        NamedTextColor.WHITE))
-                                .hoverEvent(HoverEvent.showText(text(
-                                        "The minimum and maximum points of the area",
-                                        OrbisText.EREBOR_GREEN))));
-
-                long volume = Iterables.size(area);
-                TextUtil.send(
-                        context,
-                        text("  Volume: ", NamedTextColor.GRAY)
-                                .append(text(String.format("%,d", volume), NamedTextColor.WHITE))
-                                .append(text(" blocks", NamedTextColor.GRAY)));
-
-                int pointCount = area.points().size();
-                TextUtil.send(
-                        context,
-                        text("  Points: ", NamedTextColor.GRAY)
-                                .append(text(
-                                        String.format("%,d", pointCount), NamedTextColor.WHITE)));
-
-                TextUtil.send(context, empty());
-                TextUtil.send(
-                        context,
-                        text("  [▶] ", NamedTextColor.GRAY)
-                                .append(text("Set area", NamedTextColor.YELLOW)
-                                        .hoverEvent(HoverEvent.showText(text(
-                                                "Click to set a new area for this region",
-                                                OrbisText.EREBOR_GREEN)))
-                                        .clickEvent(ClickEvent.suggestCommand(
-                                                "/rg setarea " + regionName)))
-                                .append(text(" (select an area first with ", NamedTextColor.GRAY))
-                                .append(text("/sel", NamedTextColor.YELLOW))
-                                .append(text(")", NamedTextColor.GRAY)));
-
-                TextUtil.send(
-                        context,
-                        text("  [▶] ", NamedTextColor.GRAY)
-                                .append(text("Select area", NamedTextColor.YELLOW)
-                                        .hoverEvent(HoverEvent.showText(text(
-                                                "Click to select this region's area",
-                                                OrbisText.EREBOR_GREEN)))
-                                        .clickEvent(ClickEvent.suggestCommand(
-                                                "/rg area select " + regionName))));
-
-                int centerX = (min.x() + max.x()) / 2;
-                int centerZ = (min.z() + max.z()) / 2;
-                int centerY = (min.y() + max.y()) / 2;
-
-                TextUtil.send(
-                        context,
-                        text("  [▶] ", NamedTextColor.GRAY)
-                                .append(text("Teleport to center", NamedTextColor.YELLOW)
-                                        .hoverEvent(HoverEvent.showText(text(
-                                                "Click to teleport to the center of this region",
-                                                OrbisText.EREBOR_GREEN)))
-                                        .clickEvent(ClickEvent.runCommand("/tp @s " + centerX + " "
-                                                + centerY + " " + centerZ)))
-                                .append(text(" (", NamedTextColor.GRAY)
-                                        .append(text(
-                                                centerX + ", " + centerY + ", " + centerZ,
-                                                NamedTextColor.WHITE))
-                                        .append(text(")", NamedTextColor.GRAY))));
-            }
-
-            displayFlags(context, region, 5);
-
-            Component membersLine = text("Members: ", OrbisText.EREBOR_GREEN)
-                    .append(text("[", NamedTextColor.GRAY)
-                            .append(text("+", NamedTextColor.GREEN)
-                                    .hoverEvent(HoverEvent.showText(
-                                            text("Click to add a member", OrbisText.EREBOR_GREEN)))
-                                    .clickEvent(ClickEvent.suggestCommand(
-                                            "/rg member add " + regionName + " ")))
-                            .append(text("]", NamedTextColor.GRAY)));
-
-            TextUtil.send(context, membersLine);
-
-            for (Member member : region.members()) {
-                final Key typeName =
-                        OrbisRegistries.MEMBER_TYPE.getKey(member.getType()).orElseThrow();
-                String value = "";
-                if (member instanceof PermissionMember permissionMember) {
-                    value = permissionMember.permission();
-                } else if (member instanceof PlayerMember playerMember) {
-                    value = playerMember.playerId().toString();
-                }
-
-                Component memberLine = text("  " + typeName.asString() + ": ", NamedTextColor.GRAY)
-                        .append(text(value, NamedTextColor.WHITE))
-                        .append(text(" ", NamedTextColor.GRAY))
-                        .append(text("[-]", NamedTextColor.RED)
-                                .hoverEvent(HoverEvent.showText(text(
-                                        "Click to remove this member", OrbisText.SECONDARY_RED)))
-                                .clickEvent(ClickEvent.suggestCommand("/rg member remove "
-                                        + regionName + " " + typeName.value() + " " + value)));
-                TextUtil.send(context, memberLine);
-            }
-
-            return CompletableFuture.completedFuture(null);
+            CompletableFuture.runAsync(
+                    () -> player.getPageManager()
+                            .openCustomPage(
+                                    ref,
+                                    store,
+                                    new RegionInfoPage(
+                                            playerRef, CustomPageLifetime.CanDismiss, region)),
+                    world);
         }
     }
 
-    private static class RegionWorldAddCommand extends AbstractCommand {
+    private static class RegionWorldAddCommand extends CommandBase {
 
         private final RequiredArg<Region> regionArg;
         private final RequiredArg<RegionisedWorld> worldArg;
@@ -344,13 +313,13 @@ public class RegionCommand extends AbstractCommandCollection {
         }
 
         @Override
-        protected @Nullable CompletableFuture<Void> execute(@NonNull CommandContext context) {
+        protected void executeSync(@NonNull CommandContext context) {
             final Region region = regionArg.get(context);
             final RegionisedWorld world = worldArg.get(context);
             if (region.isGlobal()) {
                 TextUtil.send(
                         context, OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_GLOBAL));
-                return CompletableFuture.completedFuture(null);
+                return;
             }
 
             if (world.add(region)) {
@@ -359,7 +328,7 @@ public class RegionCommand extends AbstractCommandCollection {
                         OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_ADDED.arguments(
                                 Component.text(region.name()),
                                 Component.text(world.worldId().orElseThrow().asString()))));
-                return CompletableFuture.completedFuture(null);
+                return;
             }
 
             TextUtil.send(
@@ -367,11 +336,10 @@ public class RegionCommand extends AbstractCommandCollection {
                     OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_ADD_FAILED.arguments(
                             Component.text(region.name()),
                             Component.text(world.worldId().orElseThrow().asString()))));
-            return CompletableFuture.completedFuture(null);
         }
     }
 
-    private static class RegionWorldRemoveCommand extends AbstractCommand {
+    private static class RegionWorldRemoveCommand extends CommandBase {
 
         private final RequiredArg<Region> regionArg;
         private final RequiredArg<RegionisedWorld> worldArg;
@@ -384,13 +352,13 @@ public class RegionCommand extends AbstractCommandCollection {
         }
 
         @Override
-        protected @Nullable CompletableFuture<Void> execute(@NonNull CommandContext context) {
+        protected void executeSync(@NonNull CommandContext context) {
             final Region region = regionArg.get(context);
             final RegionisedWorld world = worldArg.get(context);
             if (region.isGlobal()) {
                 TextUtil.send(
                         context, OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_GLOBAL));
-                return CompletableFuture.completedFuture(null);
+                return;
             }
 
             if (world.remove(region)) {
@@ -399,7 +367,7 @@ public class RegionCommand extends AbstractCommandCollection {
                         OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_REMOVED.arguments(
                                 Component.text(region.name()),
                                 Component.text(world.worldId().orElseThrow().asString()))));
-                return CompletableFuture.completedFuture(null);
+                return;
             }
 
             TextUtil.send(
@@ -407,120 +375,6 @@ public class RegionCommand extends AbstractCommandCollection {
                     OrbisText.PREFIX.append(OrbisTranslations.REGION_WORLD_REMOVE_FAILED.arguments(
                             Component.text(region.name()),
                             Component.text(world.worldId().orElseThrow().asString()))));
-            return CompletableFuture.completedFuture(null);
-        }
-    }
-
-    private static Component createClickableLine(
-            String label, String value, String command, String hoverText) {
-        return text(label + ": ", OrbisText.EREBOR_GREEN)
-                .append(text(value, NamedTextColor.WHITE)
-                        .hoverEvent(HoverEvent.showText(text(hoverText, OrbisText.EREBOR_GREEN)))
-                        .clickEvent(ClickEvent.suggestCommand(command)));
-    }
-
-    private static void displayFlags(CommandContext context, Region region, int limit) {
-        final String regionName = region.name();
-
-        Component flagsLine = text("Flags: ", OrbisText.EREBOR_GREEN)
-                .append(text("[", NamedTextColor.GRAY)
-                        .append(text("List", NamedTextColor.YELLOW)
-                                .hoverEvent(HoverEvent.showText(
-                                        text("Click to list all flags", OrbisText.EREBOR_GREEN)))
-                                .clickEvent(ClickEvent.runCommand("/rg flag list " + regionName)))
-                        .append(text("] ", NamedTextColor.GRAY))
-                        .append(text("[", NamedTextColor.GRAY)
-                                .append(text("+", NamedTextColor.GREEN)
-                                        .hoverEvent(HoverEvent.showText(text(
-                                                "Click to add a flag", OrbisText.EREBOR_GREEN)))
-                                        .clickEvent(ClickEvent.suggestCommand(
-                                                "/rg flag add " + regionName + " ")))
-                                .append(text("] ", NamedTextColor.GRAY))));
-
-        TextUtil.send(context, flagsLine);
-
-        Map<RegistryRegionFlag<?>, Set<String>> flags = new HashMap<>();
-        for (RegistryRegionFlag<?> flag : OrbisRegistries.FLAGS) {
-            region.getFlag(flag).ifPresent(mu -> {
-                if (mu instanceof GroupedMutableRegionFlag<?> grouped) {
-                    flags.put(
-                            flag,
-                            grouped.groups().stream()
-                                    .map(FlagMemberGroup::name)
-                                    .collect(HashSet::new, Set::add, Set::addAll));
-                } else {
-                    flags.put(flag, Collections.emptySet());
-                }
-            });
-        }
-
-        if (flags.isEmpty()) {
-            if (limit != 0) {
-                TextUtil.send(context, text("  No flags set.", NamedTextColor.GRAY));
-            }
-            return;
-        }
-
-        List<Map.Entry<RegistryRegionFlag<?>, Set<String>>> flagEntries =
-                new ArrayList<>(flags.entrySet());
-        boolean hasMore = limit > 0 && flagEntries.size() > limit;
-        int displayCount = hasMore ? limit - 1 : flagEntries.size();
-
-        for (int i = 0; i < displayCount; i++) {
-            Map.Entry<RegistryRegionFlag<?>, Set<String>> entry = flagEntries.get(i);
-            final RegistryRegionFlag<?> registryFlag = entry.getKey();
-            final MutableRegionFlag<?> flag = region.getFlag(registryFlag).orElseThrow();
-            Set<String> groups = entry.getValue();
-
-            Component flagName = text(flag.key().asString(), NamedTextColor.WHITE);
-            registryFlag
-                    .description()
-                    .ifPresent(description -> flagName.hoverEvent(
-                            HoverEvent.showText(text(description, NamedTextColor.WHITE))));
-
-            Component flagLine = text("  ", NamedTextColor.GRAY)
-                    .append(flagName)
-                    .append(text(": ", NamedTextColor.GRAY))
-                    .append(text(flag.getValue().toString(), NamedTextColor.YELLOW));
-
-            if (!groups.isEmpty()) {
-                flagLine = flagLine.append(text(" (", NamedTextColor.GRAY))
-                        .append(text(String.join(", ", groups), NamedTextColor.AQUA))
-                        .append(text(")", NamedTextColor.GRAY));
-            }
-
-            flagLine = flagLine.append(space())
-                    .append(text("[", NamedTextColor.GRAY))
-                    .append(text("✎", NamedTextColor.YELLOW)
-                            .hoverEvent(HoverEvent.showText(
-                                    text("Click to modify this flag", OrbisText.SECONDARY_ORANGE)))
-                            .clickEvent(ClickEvent.suggestCommand("/rg flag set " + regionName + " "
-                                    + flag.key().asString() + " ")))
-                    .append(text("]", NamedTextColor.GRAY));
-
-            flagLine = flagLine.append(space())
-                    .append(text("[", NamedTextColor.GRAY))
-                    .append(text("-", NamedTextColor.RED)
-                            .hoverEvent(HoverEvent.showText(
-                                    text("Click to remove this flag", OrbisText.SECONDARY_RED)))
-                            .clickEvent(ClickEvent.suggestCommand("/rg flag remove " + regionName
-                                    + " " + flag.key().asString())))
-                    .append(text("]", NamedTextColor.GRAY));
-
-            TextUtil.send(context, flagLine);
-        }
-
-        if (hasMore) {
-            int remaining = flagEntries.size() - displayCount;
-            TextUtil.send(
-                    context,
-                    text(
-                                    "  and " + remaining + " more...",
-                                    NamedTextColor.GRAY,
-                                    TextDecoration.ITALIC)
-                            .hoverEvent(HoverEvent.showText(
-                                    text("Click to view all flags", OrbisText.EREBOR_GREEN)))
-                            .clickEvent(ClickEvent.runCommand("/rg flag list " + regionName)));
         }
     }
 }

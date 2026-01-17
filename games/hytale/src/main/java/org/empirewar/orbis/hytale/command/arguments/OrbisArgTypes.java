@@ -31,6 +31,7 @@ import com.hypixel.hytale.server.core.command.system.suggestion.SuggestionResult
 import net.kyori.adventure.text.Component;
 
 import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.command.parser.registry.RegistryMapper;
 import org.empirewar.orbis.hytale.util.TextUtil;
 import org.empirewar.orbis.region.Region;
@@ -48,6 +49,9 @@ public final class OrbisArgTypes {
             "spawn_region",
             OrbisRegistries.REGIONS,
             RegistryMapper.IDENTITY);
+
+    public static final SingleArgumentType<AreaType<?>> AREA_TYPE = registryArgument(
+            "<area_type>", "Area type", "cuboid", OrbisRegistries.AREA_TYPE, RegistryMapper.KEY);
 
     public static final SingleArgumentType<RegionisedWorld> REGIONISED_WORLD =
             new SingleArgumentType<>("<world>", "Regionised world", "overworld") {
