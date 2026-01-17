@@ -1,0 +1,79 @@
+Group {
+  LayoutMode: Top;
+  Anchor: (Width: 720, Height: 620);
+  Padding: (Left: 24, Right: 24, Top: 20, Bottom: 20);
+  Background: #10121A;
+
+  Group {
+    LayoutMode: Left;
+    Anchor: (Height: 48);
+
+    Label #RegionNameLabel {
+      FlexWeight: 1;
+      Style: (
+        FontSize: 24,
+        RenderBold: true,
+        TextColor: #F4B860
+      );
+    }
+
+    Button #BackButton {
+      Style: ButtonStyle();
+      Anchor: (Width: 36, Height: 36);
+      Background: #252736;
+
+      Label {
+        Text: "←";
+        Style: (
+          FontSize: 18,
+          RenderBold: true,
+          TextColor: #FFFFFF
+        );
+      }
+    }
+  }
+
+  Group {
+    LayoutMode: Left;
+    Anchor: (Height: 44);
+    Padding: (Top: 12, Bottom: 12);
+
+    Label {
+      FlexWeight: 1;
+      Text: "Region Flags";
+      Style: (
+        FontSize: 18,
+        RenderBold: true,
+        TextColor: #FFFFFF
+      );
+    }
+
+    DropdownBox #FlagSelector {
+      Anchor: (Width: 240, Height: 36);
+      Background: #1A1C29;
+      Padding: (Left: 6, Right: 6);
+    }
+
+    Button #AddFlagButton {
+      Style: ButtonStyle();
+      Anchor: (Width: 160, Height: 36);
+      Background: #2D5D91;
+
+      Label {
+        Text: "Add Flag";
+        Style: (
+          FontSize: 14,
+          RenderBold: true,
+          TextColor: #FFFFFF
+        );
+      }
+    }
+  }
+
+  Group #FlagList {
+    LayoutMode: TopScrolling;
+    FlexWeight: 1;
+    Padding: (Left: 12, Right: 12, Top: 12, Bottom: 12);
+    Background: #11131D;
+  }
+}

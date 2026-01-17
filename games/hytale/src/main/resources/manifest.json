@@ -12,7 +12,9 @@
   ],
   "Website": "https://github.com/EmpireWar/Orbis",
   "ServerVersion": ">=0.0.1",
-  "Dependencies": {},
+  "Dependencies": {
+
+  },
   "OptionalDependencies": {},
   "LoadBefore": {},
   "DisabledByDefault": false,
