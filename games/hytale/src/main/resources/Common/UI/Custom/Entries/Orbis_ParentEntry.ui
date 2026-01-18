@@ -13,7 +13,7 @@ Group {
   }
 
   $C.@CancelTextButton #RemoveParent {
-    Anchor: (Width: 110, Height: 28);
+    Anchor: (Width: 192, Height: 28);
     Text: "Remove";
   }
 }

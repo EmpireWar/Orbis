@@ -33,12 +33,15 @@ import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.ui.DropdownEntryInfo;
+import com.hypixel.hytale.server.core.ui.LocalizableString;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.member.Member;
 import org.empirewar.orbis.member.PermissionMember;
@@ -47,6 +50,10 @@ import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3ic;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage.RegionInfoData> {
 
@@ -94,12 +101,8 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
 
             case "Flags" -> openFlags(store, ref);
 
-            case "AddParent" -> {
-                /* TODO */
-            }
-            case "RemoveParent" -> {
-                /* TODO */
-            }
+            case "AddParent" -> addParent(data);
+            case "RemoveParent" -> removeParent(data);
             case "AddMember" -> {
                 /* TODO */
             }
@@ -151,12 +154,50 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
     private void renderParents(UICommandBuilder ui, UIEventBuilder ev, Region region) {
         ui.clear("#ParentCards");
 
+        if (region.isGlobal()) {
+            ui.appendInline("#ParentCards", """
+                    Label {
+                      Text: "Global regions cannot have parents.";
+                      Style: (FontSize: 15, TextColor: #8A90B2);
+                    }
+                    """);
+            return;
+        }
+
         ui.append("#ParentCards", "Entries/Orbis_ParentAddRow.ui");
 
         ev.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#ParentCards[0] #AddParent",
-                EventData.of(UIActions.BUTTON, "AddParent").append(UIActions.REGION, regionName));
+                EventData.of(UIActions.BUTTON, "AddParent")
+                        .append(UIActions.REGION, regionName)
+                        .append("@" + UIActions.PARENT, "#ParentCards[0] #ParentSelector.Value"));
+
+        List<WrappedDropdownEntryInfo> parentChoices;
+        try {
+            parentChoices = buildParentChoices(region);
+        } catch (Exception e) {
+            OrbisAPI.get().logger().error("Error trying to build parent choices", e);
+            return;
+        }
+
+        OrbisAPI.get().logger().info("Parent choices: {}", parentChoices);
+        if (parentChoices.isEmpty()) {
+            ui.set("#ParentCards[0] #ParentSelector.Visible", false);
+            ui.set("#ParentCards[0] #AddParent.Visible", false);
+            ui.set("#ParentCards[0] #ParentSelector.Value", "");
+        } else {
+            ui.set("#ParentCards[0] #ParentSelector.Visible", true);
+            ui.set("#ParentCards[0] #AddParent.Visible", true);
+            ui.set(
+                    "#ParentCards[0] #ParentSelector.Entries",
+                    parentChoices.stream()
+                            .map(WrappedDropdownEntryInfo::toEntry)
+                            .toList());
+            ui.set(
+                    "#ParentCards[0] #ParentSelector.Value",
+                    parentChoices.getFirst().value());
+        }
 
         if (region.parents().isEmpty()) {
             ui.appendInline("#ParentCards", """
@@ -179,7 +220,7 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
                     entryBase + " #RemoveParent",
                     EventData.of(UIActions.BUTTON, "RemoveParent")
                             .append(UIActions.REGION, regionName)
-                            .append("Parent", parent.name()));
+                            .append(UIActions.PARENT, parent.name()));
 
             index++;
         }
@@ -222,6 +263,63 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
 
             index++;
         }
+    }
+
+    private List<WrappedDropdownEntryInfo> buildParentChoices(Region region) {
+        List<WrappedDropdownEntryInfo> entries = new ArrayList<>();
+
+        for (Region candidate : OrbisRegistries.REGIONS.getAll()) {
+            if (candidate.equals(region)) continue;
+            if (region.parents().contains(candidate)) continue;
+            if (!candidate.isGlobal() && candidate.parents().contains(region)) continue;
+            boolean loopViaExisting = region.parents().stream()
+                    .anyMatch(existing ->
+                            !existing.isGlobal() && existing.parents().contains(candidate));
+            if (loopViaExisting) continue;
+
+            entries.add(new WrappedDropdownEntryInfo(candidate.name(), candidate.name()));
+        }
+
+        entries.sort(Comparator.comparing(entry -> entry.label().toLowerCase()));
+        return entries;
+    }
+
+    private record WrappedDropdownEntryInfo(String label, String value) {
+
+        public DropdownEntryInfo toEntry() {
+            return new DropdownEntryInfo(LocalizableString.fromString(label), value);
+        }
+    }
+
+    private void addParent(RegionInfoData data) {
+        if (data.parent == null || data.parent.isBlank()) return;
+
+        Region region = resolveRegion();
+        if (region == null) return;
+
+        Region parent = OrbisRegistries.REGIONS.get(data.parent).orElse(null);
+        if (parent == null) return;
+
+        try {
+            region.addParent(parent);
+        } catch (IllegalArgumentException ignored) {
+            // Selection became invalid between render and submission; ignore.
+        }
+
+        rebuild();
+    }
+
+    private void removeParent(RegionInfoData data) {
+        if (data.parent == null || data.parent.isBlank()) return;
+
+        Region region = resolveRegion();
+        if (region == null) return;
+
+        Region parent = OrbisRegistries.REGIONS.get(data.parent).orElse(null);
+        if (parent == null) return;
+
+        region.removeParent(parent);
+        rebuild();
     }
 
     private String memberDisplay(Member member) {
@@ -275,8 +373,18 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
                         new KeyedCodec<>(UIActions.BUTTON, Codec.STRING),
                         (d, v) -> d.button = v,
                         d -> d.button)
+                .addField(
+                        new KeyedCodec<>(UIActions.PARENT, Codec.STRING),
+                        (d, v) -> d.parent = v,
+                        d -> d.parent)
+                .addField(
+                        new KeyedCodec<>("@" + UIActions.PARENT, Codec.STRING),
+                        (d, v) -> d.parent = v,
+                        d -> d.parent)
                 .build();
 
         @Nullable String button;
+
+        @Nullable String parent;
     }
 }
