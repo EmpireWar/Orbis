@@ -38,7 +38,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.empirewar.orbis.area.AreaType;
-import org.empirewar.orbis.command.Permissions;
+import org.empirewar.orbis.util.Permissions;
 import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;

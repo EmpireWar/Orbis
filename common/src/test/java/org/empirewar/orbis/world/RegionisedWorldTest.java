@@ -32,7 +32,7 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.area.EncompassingArea;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
@@ -116,12 +116,12 @@ public class RegionisedWorldTest {
         // Based on a real-world example
         region.area().addPoint(new Vector3i(-467, 147, 49));
         region.area().addPoint(new Vector3i(-652, 4, -87));
-        region.addFlag(DefaultFlags.CAN_BREAK);
-        region.setFlag(DefaultFlags.CAN_BREAK, false);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
+        region.setFlag(MinecraftFlags.CAN_BREAK, false);
         set.add(region);
 
         final boolean canAct = set.query(RegionQuery.Position.builder().position(-580, 81, -26))
-                .query(RegionQuery.Flag.builder(DefaultFlags.CAN_BREAK))
+                .query(RegionQuery.Flag.builder(MinecraftFlags.CAN_BREAK))
                 .result()
                 .orElse(true);
         assertFalse(canAct);
@@ -135,13 +135,13 @@ public class RegionisedWorldTest {
         Region region2 = new Region("test2", new CuboidArea());
         region.area().addPoint(new Vector3i());
         region.area().addPoint(new Vector3i(5, 5, 5));
-        region.addFlag(DefaultFlags.CAN_BREAK);
-        region.setFlag(DefaultFlags.CAN_BREAK, false);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
+        region.setFlag(MinecraftFlags.CAN_BREAK, false);
 
         region2.area().addPoint(new Vector3i());
         region2.area().addPoint(new Vector3i(5, 5, 5));
-        region2.addFlag(DefaultFlags.CAN_BREAK);
-        region2.setFlag(DefaultFlags.CAN_BREAK, true);
+        region2.addFlag(MinecraftFlags.CAN_BREAK);
+        region2.setFlag(MinecraftFlags.CAN_BREAK, true);
         region2.priority(region.priority() + 1);
 
         set.add(region);
@@ -151,7 +151,7 @@ public class RegionisedWorldTest {
                         .position(new Vector3d(4, 4, 4))
                         .build())
                 .query(RegionQuery.Flag.<Boolean>builder()
-                        .flag(DefaultFlags.CAN_BREAK)
+                        .flag(MinecraftFlags.CAN_BREAK)
                         .build())
                 .result()
                 .orElse(true);
@@ -164,7 +164,7 @@ public class RegionisedWorldTest {
                         .position(new Vector3d(4, 4, 4))
                         .build())
                 .query(RegionQuery.Flag.<Boolean>builder()
-                        .flag(DefaultFlags.CAN_BREAK)
+                        .flag(MinecraftFlags.CAN_BREAK)
                         .build())
                 .result()
                 .orElse(true);

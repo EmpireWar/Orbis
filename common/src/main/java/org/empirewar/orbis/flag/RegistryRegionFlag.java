@@ -81,7 +81,10 @@ public final class RegistryRegionFlag<T> extends RegionFlag<T> {
     /**
      * Gets the description of this flag.
      * <p>
-     * This description is displayed as a tooltip when hovering over the flag name in chat or command suggestions.
+     * On Minecraft platforms,
+     * this description is displayed as a tooltip when hovering over the flag name in chat or command suggestions.
+     * <p>
+     * On Hytale, this description is displayed in the flag entry UI.
      * @return the description
      */
     public Optional<String> description() {

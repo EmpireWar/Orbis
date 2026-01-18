@@ -1,0 +1,16 @@
+$C = "../Common.ui";
+
+Group {
+  LayoutMode: Left;
+  Anchor: (Bottom: 6);
+
+  $C.@DropdownBox #ParentSelector {
+    FlexWeight: 1;
+    Anchor: (Height: 28, Right: 8);
+  }
+
+  $C.@TextButton #AddParent {
+    Anchor: (Width: 192, Height: 28);
+    Text: "Add Parent";
+  }
+}

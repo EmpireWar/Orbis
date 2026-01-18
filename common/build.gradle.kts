@@ -5,6 +5,8 @@ plugins {
 
 dependencies {
     compileOnly("org.slf4j:slf4j-api:2.0.12")
+    // Using the minecraft game as a test implementation, although hytale would also work
+    testImplementation(project(":games:minecraft"))
     testImplementation("org.slf4j:slf4j-api:2.0.12")
     testImplementation("org.slf4j:slf4j-simple:2.0.17")
     testImplementation("net.kyori:adventure-text-serializer-plain:4.22.0")

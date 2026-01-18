@@ -26,9 +26,20 @@ plugins {
 }
 
 rootProject.name = "Orbis"
-include("common", "migrators:rpgregions", "migrators:worldguard",
+include("common", "games:minecraft",
+    "migrators:rpgregions", "migrators:worldguard",
     "platforms:paper", "api:paper-api",
     "platforms:sponge", "api:sponge-api",
-    "platforms:modded:modded-common",
-    "platforms:modded:fabric", "api:fabric-api",
-    "platforms:modded:neoforge", "api:neoforge-api")
+//    "platforms:modded:modded-common",
+    //"platforms:modded:fabric", "api:fabric-api",
+//    "platforms:modded:neoforge", "api:neoforge-api"
+)
+
+val hytaleServerJarFile: String by settings
+val hytaleServerJar = rootDir.resolve(hytaleServerJarFile.trim())
+if (hytaleServerJar.exists()) {
+    include("games:hytale", "api:hytale-api")
+    logger.lifecycle("Hytale server jar found at ${hytaleServerJar.relativeTo(rootDir)} - we will build against the Hytale game.")
+} else {
+    logger.warn("Skipping building against Hytale game because ${hytaleServerJar.relativeTo(rootDir)} is missing")
+}

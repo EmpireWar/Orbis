@@ -50,11 +50,11 @@ import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.area.Area;
 import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.area.PolygonArea;
-import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlag;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.member.PlayerMember;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
@@ -75,64 +75,64 @@ public final class WorldGuardMigrator {
     static {
         FLAG_MAPPINGS = new HashMap<>(Map.of(
                 "block-break",
-                DefaultFlags.CAN_BREAK,
+                MinecraftFlags.CAN_BREAK,
                 "block-place",
-                DefaultFlags.CAN_PLACE,
+                MinecraftFlags.CAN_PLACE,
                 "pvp",
-                DefaultFlags.CAN_PVP,
+                MinecraftFlags.CAN_PVP,
                 "damage-animals",
-                DefaultFlags.DAMAGEABLE_ENTITIES,
+                MinecraftFlags.DAMAGEABLE_ENTITIES,
                 "fall-damage",
-                DefaultFlags.FALL_DAMAGE,
+                MinecraftFlags.FALL_DAMAGE,
                 "item-drop",
-                DefaultFlags.CAN_DROP_ITEM,
+                MinecraftFlags.CAN_DROP_ITEM,
                 "item-pickup",
-                DefaultFlags.CAN_PICKUP_ITEM,
+                MinecraftFlags.CAN_PICKUP_ITEM,
                 "chest-access",
-                DefaultFlags.BLOCK_INVENTORY_ACCESS,
+                MinecraftFlags.BLOCK_INVENTORY_ACCESS,
                 "use",
-                DefaultFlags.TRIGGER_REDSTONE,
+                MinecraftFlags.TRIGGER_REDSTONE,
                 "coral-fade",
-                DefaultFlags.CORAL_DECAY));
+                MinecraftFlags.CORAL_DECAY));
         FLAG_MAPPINGS.putAll(Map.of(
                 "leaf-decay",
-                DefaultFlags.LEAF_DECAY,
+                MinecraftFlags.LEAF_DECAY,
                 "block-trampling",
-                DefaultFlags.BLOCK_TRAMPLE,
+                MinecraftFlags.BLOCK_TRAMPLE,
                 "entity-painting-destroy",
-                DefaultFlags.CAN_DESTROY_PAINTING,
+                MinecraftFlags.CAN_DESTROY_PAINTING,
                 "entity-item-frame-destroy",
-                DefaultFlags.CAN_DESTROY_ITEM_FRAME,
+                MinecraftFlags.CAN_DESTROY_ITEM_FRAME,
                 "item-frame-rotation",
-                DefaultFlags.ITEM_FRAME_ROTATE,
+                MinecraftFlags.ITEM_FRAME_ROTATE,
                 "mushroom-growth",
-                DefaultFlags.GROWABLE_BLOCKS,
+                MinecraftFlags.GROWABLE_BLOCKS,
                 "vine-growth",
-                DefaultFlags.GROWABLE_BLOCKS,
+                MinecraftFlags.GROWABLE_BLOCKS,
                 "rock-growth",
-                DefaultFlags.GROWABLE_BLOCKS));
+                MinecraftFlags.GROWABLE_BLOCKS));
         FLAG_MAPPINGS.putAll(Map.of(
                 "crop-growth",
-                DefaultFlags.GROWABLE_BLOCKS,
+                MinecraftFlags.GROWABLE_BLOCKS,
                 "vehicle-destroy",
-                DefaultFlags.CAN_DESTROY_VEHICLE,
+                MinecraftFlags.CAN_DESTROY_VEHICLE,
                 "entry",
-                DefaultFlags.CAN_ENTER,
+                MinecraftFlags.CAN_ENTER,
                 "invincible",
-                DefaultFlags.CAN_TAKE_MOB_DAMAGE_SOURCES,
+                MinecraftFlags.CAN_TAKE_MOB_DAMAGE_SOURCES,
                 "fire-spread",
-                DefaultFlags.FIRE_SPREAD,
+                MinecraftFlags.FIRE_SPREAD,
                 "time-lock",
-                DefaultFlags.TIME,
+                MinecraftFlags.TIME,
                 "greeting",
-                DefaultFlags.ENTRY_MESSAGE,
+                MinecraftFlags.ENTRY_MESSAGE,
                 "farewell",
-                DefaultFlags.EXIT_MESSAGE));
-        FLAG_MAPPINGS.putAll(Map.of("pistons", DefaultFlags.ACTIVATE_PISTONS));
+                MinecraftFlags.EXIT_MESSAGE));
+        FLAG_MAPPINGS.putAll(Map.of("pistons", MinecraftFlags.ACTIVATE_PISTONS));
     }
 
     private static final Map<RegionFlag<?>, FlagTransformer> TRANSFORMERS = Map.of(
-            DefaultFlags.DAMAGEABLE_ENTITIES,
+            MinecraftFlags.DAMAGEABLE_ENTITIES,
                     (audience, region, flag, orbisRegion, orbisFlag) -> {
                         StateFlag stateFlag = (StateFlag) flag;
                         final StateFlag.State value = region.getFlag(stateFlag);
@@ -159,7 +159,7 @@ public final class WorldGuardMigrator {
                             // Else, do nothing. If not in list, not allowed.
                         }
                     },
-            DefaultFlags.GROWABLE_BLOCKS,
+            MinecraftFlags.GROWABLE_BLOCKS,
                     (audience, region, flag, orbisRegion, orbisFlag) -> {
                         if (!orbisRegion.hasFlag(orbisFlag)) {
                             orbisRegion.addFlag(orbisFlag);
@@ -300,16 +300,16 @@ public final class WorldGuardMigrator {
 
             for (Region region : regionisedWorld.regions()) {
                 // Apply worldguard default protection rules
-                if (region.query(RegionQuery.Flag.builder(DefaultFlags.CAN_BREAK))
+                if (region.query(RegionQuery.Flag.builder(MinecraftFlags.CAN_BREAK))
                         .result()
                         .isEmpty()) {
-                    region.addFlag(DefaultFlags.CAN_BREAK).setValue(false);
+                    region.addFlag(MinecraftFlags.CAN_BREAK).setValue(false);
                 }
 
-                if (region.query(RegionQuery.Flag.builder(DefaultFlags.CAN_PLACE))
+                if (region.query(RegionQuery.Flag.builder(MinecraftFlags.CAN_PLACE))
                         .result()
                         .isEmpty()) {
-                    region.addFlag(DefaultFlags.CAN_PLACE).setValue(false);
+                    region.addFlag(MinecraftFlags.CAN_PLACE).setValue(false);
                 }
             }
             worldIndex++;

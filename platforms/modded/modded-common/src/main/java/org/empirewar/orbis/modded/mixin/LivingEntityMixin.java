@@ -25,7 +25,7 @@ package org.empirewar.orbis.modded.mixin;
 
 import net.minecraft.world.entity.LivingEntity;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +38,7 @@ public abstract class LivingEntityMixin {
     @Inject(method = "calculateFallDamage", at = @At(value = "HEAD"), cancellable = true)
     private void calculateFallDamage(double d, float f, CallbackInfoReturnable<Integer> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        if (FlagActions.shouldPreventEntityAction(entity, DefaultFlags.FALL_DAMAGE)) {
+        if (FlagActions.shouldPreventEntityAction(entity, MinecraftFlags.FALL_DAMAGE)) {
             cir.setReturnValue(0); // No fall damage
         }
     }

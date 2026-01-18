@@ -1,0 +1,11 @@
+$C = "../Common.ui";
+
+Group {
+  LayoutMode: Left;
+  Anchor: (Bottom: 6);
+
+  $C.@TextButton #AddMember {
+    Anchor: (Width: 192, Height: 28);
+    Text: "Add Member";
+  }
+}
