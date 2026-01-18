@@ -151,17 +151,7 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
     private void renderParents(UICommandBuilder ui, UIEventBuilder ev, Region region) {
         ui.clear("#ParentCards");
 
-        ui.appendInline("#ParentCards", """
-                Group {
-                  LayoutMode: Left;
-                  Anchor: (Bottom: 6);
-
-                  Button #AddParent {
-                    Anchor: (Width: 140, Height: 28);
-                    Label { Text: "Add Parent"; }
-                  }
-                }
-                """);
+        ui.append("#ParentCards", "Entries/Orbis_ParentAddRow.ui");
 
         ev.addEventBinding(
                 CustomUIEventBindingType.Activating,
@@ -180,28 +170,13 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
 
         int index = 1;
         for (Region parent : region.parents()) {
-            ui.appendInline("#ParentCards", """
-                    Group {
-                      LayoutMode: Left;
-                      Padding: (6);
-                      Background: #15192A;
-
-                      Label {
-                        FlexWeight: 1;
-                        Text: "%s";
-                        Style: (FontSize: 15);
-                      }
-
-                      Button #RemoveParent {
-                        Anchor: (Width: 110, Height: 28);
-                        Label { Text: "Remove"; }
-                      }
-                    }
-                    """.formatted(parent.name()));
+            ui.append("#ParentCards", "Entries/Orbis_ParentEntry.ui");
+            String entryBase = "#ParentCards[" + index + "]";
+            ui.set(entryBase + " #ParentName.Text", parent.name());
 
             ev.addEventBinding(
                     CustomUIEventBindingType.Activating,
-                    "#ParentCards[" + index + "] #RemoveParent",
+                    entryBase + " #RemoveParent",
                     EventData.of(UIActions.BUTTON, "RemoveParent")
                             .append(UIActions.REGION, regionName)
                             .append("Parent", parent.name()));
@@ -213,17 +188,7 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
     private void renderMembers(UICommandBuilder ui, UIEventBuilder ev, Region region) {
         ui.clear("#MemberCards");
 
-        ui.appendInline("#MemberCards", """
-                Group {
-                  LayoutMode: Left;
-                  Anchor: (Bottom: 6);
-
-                  Button #AddMember {
-                    Anchor: (Width: 140, Height: 28);
-                    Label { Text: "Add Member"; }
-                  }
-                }
-                """);
+        ui.append("#MemberCards", "Entries/Orbis_MemberAddRow.ui");
 
         ev.addEventBinding(
                 CustomUIEventBindingType.Activating,
@@ -244,28 +209,13 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
         for (Member member : region.members()) {
             String label = memberDisplay(member);
 
-            ui.appendInline("#MemberCards", """
-                    Group {
-                      LayoutMode: Left;
-                      Padding: (6);
-                      Background: #15192A;
-
-                      Label {
-                        FlexWeight: 1;
-                        Text: "%s";
-                        Style: (FontSize: 15);
-                      }
-
-                      Button #RemoveMember {
-                        Anchor: (Width: 110, Height: 28);
-                        Label { Text: "Remove"; }
-                      }
-                    }
-                    """.formatted(label));
+            ui.append("#MemberCards", "Entries/Orbis_MemberEntry.ui");
+            String entryBase = "#MemberCards[" + index + "]";
+            ui.set(entryBase + " #MemberName.Text", label);
 
             ev.addEventBinding(
                     CustomUIEventBindingType.Activating,
-                    "#MemberCards[" + index + "] #RemoveMember",
+                    entryBase + " #RemoveMember",
                     EventData.of(UIActions.BUTTON, "RemoveMember")
                             .append(UIActions.REGION, regionName)
                             .append("Member", label));

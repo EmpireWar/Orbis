@@ -43,7 +43,7 @@ $C.@PageOverlay {
           Anchor: (Bottom: 10);
 
           Label {
-            @Text = "Priority:";
+            Text: "Priority:";
             Style: (
               FontSize: 14,
               TextColor: #ffffffcc
@@ -71,7 +71,7 @@ $C.@PageOverlay {
           Anchor: (Bottom: 12);
 
           Label {
-            @Text = "Parent Regions";
+            Text: "Parent Regions";
             Style: (
               FontSize: 16,
               RenderBold: true,
@@ -97,7 +97,7 @@ $C.@PageOverlay {
           Anchor: (Bottom: 12);
 
           Label {
-            @Text = "Members";
+            Text: "Members";
             Style: (
               FontSize: 16,
               RenderBold: true,
