@@ -109,9 +109,7 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
             case "RemoveMember" -> {
                 /* TODO */
             }
-            case "SetPriority" -> {
-                /* TODO */
-            }
+            case "SetPriority" -> setPriority(data);
         }
     }
 
@@ -143,12 +141,14 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
     }
 
     private void renderPriority(UICommandBuilder ui, UIEventBuilder ev, Region region) {
-        ui.set("#PriorityValue.Text", String.valueOf(region.priority()));
+        ui.set("#PriorityValue.Value", region.priority());
 
         ev.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#AdjustPriority",
-                EventData.of(UIActions.BUTTON, "SetPriority").append(UIActions.REGION, regionName));
+                EventData.of(UIActions.BUTTON, "SetPriority")
+                        .append(UIActions.REGION, regionName)
+                        .append("@" + UIActions.PRIORITY, "#PriorityValue.Value"));
     }
 
     private void renderParents(UICommandBuilder ui, UIEventBuilder ev, Region region) {
@@ -322,6 +322,17 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
         rebuild();
     }
 
+    private void setPriority(RegionInfoData data) {
+        int value = data.priority;
+        if (value < 0) return;
+
+        Region region = resolveRegion();
+        if (region == null) return;
+
+        region.priority(value);
+        rebuild();
+    }
+
     private String memberDisplay(Member member) {
         if (member instanceof PlayerMember p) {
             return p.playerId().toString();
@@ -381,10 +392,20 @@ public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage
                         new KeyedCodec<>("@" + UIActions.PARENT, Codec.STRING),
                         (d, v) -> d.parent = v,
                         d -> d.parent)
+                .addField(
+                        new KeyedCodec<>(UIActions.PRIORITY, Codec.INTEGER),
+                        (d, v) -> d.priority = v,
+                        d -> d.priority)
+                .addField(
+                        new KeyedCodec<>("@" + UIActions.PRIORITY, Codec.INTEGER),
+                        (d, v) -> d.priority = v,
+                        d -> d.priority)
                 .build();
 
         @Nullable String button;
 
         @Nullable String parent;
+
+        int priority;
     }
 }

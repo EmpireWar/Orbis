@@ -28,6 +28,7 @@ public final class UIActions {
     public static final String REGION = "Region";
     public static final String FLAG = "Flag";
     public static final String PARENT = "Parent";
+    public static final String PRIORITY = "Priority";
 
     private UIActions() {}
 }

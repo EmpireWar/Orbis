@@ -51,13 +51,9 @@ $C.@PageOverlay {
             Anchor: (Vertical: 0);
           }
 
-          Label #PriorityValue {
-            Anchor: (Left: 6, Vertical: 0);
-            Style: (
-              FontSize: 14,
-              RenderBold: true,
-              TextColor: #ffffffff
-            );
+          $C.@NumberField #PriorityValue {
+            Anchor: (Left: 6, Vertical: 0, Width: 120);
+            Value: 0;
           }
 
           $C.@TextButton #AdjustPriority {
