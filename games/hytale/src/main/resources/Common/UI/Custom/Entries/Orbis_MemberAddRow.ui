@@ -5,7 +5,7 @@ Group {
   Anchor: (Bottom: 6);
 
   $C.@TextButton #AddMember {
-    Anchor: (Width: 140, Height: 28);
+    Anchor: (Width: 192, Height: 28);
     Text: "Add Member";
   }
 }

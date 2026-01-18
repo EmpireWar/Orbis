@@ -47,10 +47,9 @@ $C.@PageOverlay {
           LayoutMode: Left;
           Anchor: (Bottom: 12);
 
-          DropdownBox #FlagSelector {
+          $C.@DropdownBox #FlagSelector {
             FlexWeight: 1;
             Anchor: (Height: 30);
-            Style: $C.@DefaultDropdownBoxStyle;
           }
 
           $C.@TextButton #AddFlagButton {
