@@ -23,12 +23,11 @@
  */
 package org.empirewar.orbis.hytale;
 
-import com.hypixel.hytale.server.core.event.events.PrepareUniverseEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.events.AddWorldEvent;
-import com.hypixel.hytale.server.core.universe.world.events.AllWorldsLoadedEvent;
 import com.hypixel.hytale.server.core.universe.world.events.RemoveWorldEvent;
 
 import net.kyori.adventure.key.Key;
@@ -66,14 +65,6 @@ public class OrbisHytale extends JavaPlugin {
         getEntityStoreRegistry().registerSystem(new BlockPlaceListener());
         getEntityStoreRegistry().registerSystem(new BlockBreakListener());
 
-        this.getEventRegistry().register(PrepareUniverseEvent.class, event -> {
-            platform.logger().info("Preparing universe");
-        });
-
-        this.getEventRegistry().register(AllWorldsLoadedEvent.class, event -> {
-            platform.logger().info("All worlds loaded");
-        });
-
         this.getEventRegistry().registerGlobal(AddWorldEvent.class, event -> {
             final World world = event.getWorld();
             platform.loadWorld(
@@ -93,7 +84,19 @@ public class OrbisHytale extends JavaPlugin {
     }
 
     @Override
-    protected void start() {}
+    protected void start() {
+        Universe.get().getWorlds().forEach((name, world) -> {
+            final Key worldKey = Key.key("hytale", name);
+            if (platform.getRegionisedWorld(worldKey) != null) {
+                platform.logger()
+                        .warn(
+                                "Skipping world {} because it was already loaded. Reload?",
+                                worldKey.asString());
+                return;
+            }
+            platform.loadWorld(worldKey, world.getWorldConfig().getUuid());
+        });
+    }
 
     @Override
     protected void shutdown() {
