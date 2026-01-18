@@ -1,0 +1,19 @@
+$C = "../Common.ui";
+
+Group {
+  LayoutMode: Left;
+  Padding: (6);
+  Background: #15192A;
+
+  Label #ParentName {
+    FlexWeight: 1;
+    Style: (
+      FontSize: 15
+    );
+  }
+
+  $C.@CancelTextButton #RemoveParent {
+    Anchor: (Width: 110, Height: 28);
+    Text: "Remove";
+  }
+}

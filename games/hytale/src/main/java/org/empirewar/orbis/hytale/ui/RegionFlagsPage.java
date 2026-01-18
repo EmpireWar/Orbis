@@ -51,7 +51,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class RegionFlagsPage extends InteractiveCustomUIPage<RegionFlagsPage.RegionFlagsData> {
+public final class RegionFlagsPage
+        extends InteractiveCustomUIPage<RegionFlagsPage.RegionFlagsData> {
 
     private final String regionName;
 
