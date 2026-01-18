@@ -45,57 +45,16 @@ import org.empirewar.orbis.member.PermissionMember;
 import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3ic;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
-import java.util.OptionalInt;
-
-/**
- * Interactive UI page that displays detailed information about a region.
- */
-public class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage.RegionInfoData> {
+public final class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage.RegionInfoData> {
 
     private final String regionName;
 
-    public RegionInfoPage(PlayerRef playerRef, CustomPageLifetime lifetime, Region region) {
-        super(playerRef, lifetime, RegionInfoData.CODEC);
-        this.regionName = region.key();
-    }
-
-    @Override
-    public void handleDataEvent(
-            @NonNull Ref<EntityStore> ref,
-            @NonNull Store<EntityStore> store,
-            RegionInfoPage.@NonNull RegionInfoData data) {
-        if (data.button == null) {
-            return;
-        }
-
-        switch (data.button) {
-            case "Close" -> this.close();
-
-            case "AddParent" -> {
-                // your logic
-            }
-
-            case "RemoveParent" -> {
-                // your logic
-            }
-
-            case "Flags" -> {
-                final Player player = store.getComponent(ref, Player.getComponentType());
-                final Region region = resolveRegion();
-                player.getPageManager()
-                        .openCustomPage(
-                                ref,
-                                store,
-                                new RegionFlagsPage(
-                                        playerRef, CustomPageLifetime.CanDismiss, region));
-            }
-        }
-
-        this.sendUpdate();
+    public RegionInfoPage(PlayerRef player, CustomPageLifetime lifetime, Region region) {
+        super(player, lifetime, RegionInfoData.CODEC);
+        this.regionName = region.name();
     }
 
     @Override
@@ -105,321 +64,269 @@ public class RegionInfoPage extends InteractiveCustomUIPage<RegionInfoPage.Regio
             UIEventBuilder ev,
             Store<EntityStore> store) {
         ui.append("Pages/Orbis_RegionInfo.ui");
-        ui.set("#TitleLabel.Text", regionName);
 
-        // Close + FlagMgr buttons
         ev.addEventBinding(
                 CustomUIEventBindingType.Activating,
-                "#CloseButton",
-                EventData.of("Button", "Close"));
-        ev.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                "#FlagManagerButton",
-                EventData.of("Button", "Flags").append("Region", regionName));
+                "#ManageFlags",
+                EventData.of(UIActions.BUTTON, "Flags").append(UIActions.REGION, regionName));
 
         Region region = resolveRegion();
         if (region == null) {
-            renderMissingUI(ui);
+            renderMissing(ui);
             return;
         }
+
+        ui.set("#RegionNameLabel.Text", region.name());
 
         renderPriority(ui, ev, region);
         renderParents(ui, ev, region);
-        renderArea(ui, ev, region);
         renderMembers(ui, ev, region);
+        renderArea(ui, region);
     }
 
-    private void renderPriority(UICommandBuilder ui, UIEventBuilder ev, Region region) {
-        ui.clear("#PriorityActions");
+    @Override
+    public void handleDataEvent(
+            Ref<EntityStore> ref, Store<EntityStore> store, RegionInfoData data) {
+        if (data.button == null) return;
 
-        ui.appendInline("#PriorityActions", """
-            Button #SetPriority {
-              Background: #2D5D91;
-              Anchor: (Width: 120, Height: 30);
-              Style: ButtonStyle();
-              Label {Text:"Set priority"; Style:(FontSize:14,RenderBold:true,TextColor:#FFFFFF);}
+        switch (data.button) {
+            case "Back" -> close();
+
+            case "Flags" -> openFlags(store, ref);
+
+            case "AddParent" -> {
+                /* TODO */
             }
-        """);
-
-        ev.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                "#PriorityActions #SetPriority",
-                EventData.of("Button", "SetPriority").append("Region", regionName));
-    }
-
-    private void renderParents(UICommandBuilder ui, UIEventBuilder ev, Region region) {
-        ui.clear("#ParentsHeader");
-        ui.clear("#ParentsList");
-
-        // Add parent button
-        ui.appendInline("#ParentsHeader", """
-            Button #AddParent {
-              Background: #2D5D91; Anchor:(Width:160,Height:30); Style:ButtonStyle();
-              Label {Text:"Add parent"; Style:(FontSize:14,RenderBold:true,TextColor:#FFFFFF);}
+            case "RemoveParent" -> {
+                /* TODO */
             }
-        """);
-        ev.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                "#ParentsHeader #AddParent",
-                EventData.of("Button", "AddParent").append("Region", regionName));
-
-        var parents = region.parents();
-        if (parents.isEmpty()) {
-            ui.appendInline(
-                    "#ParentsList",
-                    "Label {Text:\"No parents assigned.\"; Style:(FontSize:15,TextColor:#8A90B2);} ");
-            return;
-        }
-
-        int idx = 0;
-        for (Region parent : parents) {
-            String itemUI = String.format("""
-                Group {
-                  LayoutMode: Left;
-                  Label { FlexWeight:1; Text:"%s"; Style:(FontSize:16,TextColor:#FFFFFF); }
-                  Button #Remove {
-                    Background:#AA3E3E; Anchor:(Width:110,Height:28); Style:ButtonStyle();
-                    Label {Text:"Remove"; Style:(FontSize:14,RenderBold:true,TextColor:#FFFFFF);}
-                  }
-                }
-            """, parent.name());
-
-            ui.appendInline("#ParentsList", itemUI);
-            ev.addEventBinding(
-                    CustomUIEventBindingType.Activating,
-                    "#ParentsList[" + idx + "] #Remove",
-                    EventData.of("Button", "RemoveParent")
-                            .append("Region", regionName)
-                            .append("Parent", parent.name()));
-            idx++;
-        }
-    }
-
-    private void renderArea(UICommandBuilder ui, UIEventBuilder ev, Region region) {
-        ui.clear("#AreaDetails");
-        ui.clear("#AreaActions");
-
-        if (region.isGlobal()) {
-            ui.appendInline(
-                    "#AreaDetails",
-                    "Label {Text:\"Global - no area.\"; Style:(FontSize:16,TextColor:#8A90B2);} ");
-            return;
-        }
-
-        Area area = region.area();
-        Vector3ic min = area.getMin(), max = area.getMax();
-        long volume = Iterables.size(area);
-        int points = area.points().size();
-
-        ui.appendInline(
-                "#AreaDetails",
-                String.format(
-                        """
-                            Label {Text:"Type: %s"; Style:(FontSize:16,TextColor:#FFFFFF); }
-                            Label {Text:"Bounds: (%d,%d,%d) - (%d,%d,%d)"; Style:(FontSize:16,TextColor:#FFFFFF); }
-                            Label {Text:"Volume: %,d blocks"; Style:(FontSize:16,TextColor:#FFFFFF); }
-                            Label {Text:"Points: %d"; Style:(FontSize:16,TextColor:#FFFFFF); }
-                        """,
-                        OrbisRegistries.AREA_TYPE
-                                .getKey(area.getType())
-                                .orElseThrow()
-                                .asString(),
-                        min.x(),
-                        min.y(),
-                        min.z(),
-                        max.x(),
-                        max.y(),
-                        max.z(),
-                        volume,
-                        points));
-    }
-
-    private void renderMembers(UICommandBuilder ui, UIEventBuilder ev, Region region) {
-        ui.clear("#MembersHeader");
-        ui.clear("#MembersList");
-
-        // Add member button
-        ui.appendInline("#MembersHeader", """
-            Button #AddMember {
-              Background: #2D5D91;
-              Anchor: (Width: 160, Height: 30);
-              Style: ButtonStyle();
-              Label {
-                Text: "Add member";
-                Style: (FontSize: 14, RenderBold: true, TextColor: #FFFFFF);
-              }
+            case "AddMember" -> {
+                /* TODO */
             }
-        """);
-
-        ev.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                "#MembersHeader #AddMember",
-                EventData.of("Button", "AddMember").append("Region", regionName));
-
-        var members = region.members();
-        if (members.isEmpty()) {
-            ui.appendInline(
-                    "#MembersList",
-                    "Label {Text:\"No members.\"; Style:(FontSize:15,TextColor:#8A90B2);}");
-            return;
-        }
-
-        int index = 0;
-        for (Member member : members) {
-            String inline = String.format(
-                    """
-                        Group {
-                          LayoutMode: Left;
-                          Padding: (Top: 4, Bottom: 4);
-
-                          Label {
-                            FlexWeight: 1;
-                            Text: "%s";
-                            Style: (FontSize: 16, TextColor: #FFFFFF);
-                          }
-
-                          Button #RemoveMember {
-                            Background: #AA3E3E;
-                            Anchor: (Width: 110, Height: 28);
-                            Style: ButtonStyle();
-                            Label {
-                              Text: "Remove";
-                              Style: (FontSize: 14, RenderBold: true, TextColor: #FFFFFF);
-                            }
-                          }
-                        }
-                    """,
-                    OrbisRegistries.MEMBER_TYPE
-                            .getKey(member.getType())
-                            .orElseThrow()
-                            .asString());
-
-            ui.appendInline("#MembersList", inline);
-
-            String value = "";
-            if (member instanceof PermissionMember permissionMember) {
-                value = permissionMember.permission();
-            } else if (member instanceof PlayerMember playerMember) {
-                value = playerMember.playerId().toString();
+            case "RemoveMember" -> {
+                /* TODO */
             }
-
-            ev.addEventBinding(
-                    CustomUIEventBindingType.Activating,
-                    "#MembersList[" + index + "] #RemoveMember",
-                    EventData.of("Button", "RemoveMember")
-                            .append("Region", regionName)
-                            .append("Member", value));
-
-            index++;
+            case "SetPriority" -> {
+                /* TODO */
+            }
         }
     }
 
-    private void renderMissingUI(UICommandBuilder ui) {
-        ui.clear("#PriorityActions");
-        ui.clear("#ParentsHeader");
-        ui.clear("#ParentsList");
-        ui.clear("#AreaDetails");
-        ui.clear("#AreaActions");
-        ui.clear("#MembersHeader");
-        ui.clear("#MembersList");
+    private void openFlags(Store<EntityStore> store, Ref<EntityStore> ref) {
+        Player player = store.getComponent(ref, Player.getComponentType());
+        Region region = resolveRegion();
+        if (region == null) return;
 
-        ui.appendInline(
-                "#PriorityActions",
-                "Label {Text:\"Region not found.\"; Style:(FontSize:16,TextColor:#FF6B6B);}");
+        player.getPageManager()
+                .openCustomPage(
+                        ref,
+                        store,
+                        new RegionFlagsPage(playerRef, CustomPageLifetime.CanDismiss, region));
     }
 
     private Region resolveRegion() {
         return OrbisRegistries.REGIONS.get(regionName).orElse(null);
     }
 
+    private void renderMissing(UICommandBuilder ui) {
+        ui.clear("#PrioritySummary");
+        ui.clear("#ParentsList");
+        ui.clear("#MembersList");
+        ui.clear("#AreaDetails");
+
+        ui.appendInline(
+                "#PrioritySummary",
+                "Label { Text:\"Region not found\"; Style:(FontSize:18,TextColor:#FF6B6B); }");
+    }
+
+    private void renderPriority(UICommandBuilder ui, UIEventBuilder ev, Region region) {
+        ui.set("#PriorityValue.Text", String.valueOf(region.priority()));
+
+        ev.addEventBinding(
+                CustomUIEventBindingType.Activating,
+                "#AdjustPriority",
+                EventData.of(UIActions.BUTTON, "SetPriority").append(UIActions.REGION, regionName));
+    }
+
+    private void renderParents(UICommandBuilder ui, UIEventBuilder ev, Region region) {
+        ui.clear("#ParentCards");
+
+        ui.appendInline("#ParentCards", """
+                Group {
+                  LayoutMode: Left;
+                  Anchor: (Bottom: 6);
+
+                  Button #AddParent {
+                    Anchor: (Width: 140, Height: 28);
+                    Label { Text: "Add Parent"; }
+                  }
+                }
+                """);
+
+        ev.addEventBinding(
+                CustomUIEventBindingType.Activating,
+                "#ParentCards[0] #AddParent",
+                EventData.of(UIActions.BUTTON, "AddParent").append(UIActions.REGION, regionName));
+
+        if (region.parents().isEmpty()) {
+            ui.appendInline("#ParentCards", """
+                    Label {
+                      Text: "No parents assigned.";
+                      Style: (FontSize: 15, TextColor: #8A90B2);
+                    }
+                    """);
+            return;
+        }
+
+        int index = 1;
+        for (Region parent : region.parents()) {
+            ui.appendInline("#ParentCards", """
+                    Group {
+                      LayoutMode: Left;
+                      Padding: (6);
+                      Background: #15192A;
+
+                      Label {
+                        FlexWeight: 1;
+                        Text: "%s";
+                        Style: (FontSize: 15);
+                      }
+
+                      Button #RemoveParent {
+                        Anchor: (Width: 110, Height: 28);
+                        Label { Text: "Remove"; }
+                      }
+                    }
+                    """.formatted(parent.name()));
+
+            ev.addEventBinding(
+                    CustomUIEventBindingType.Activating,
+                    "#ParentCards[" + index + "] #RemoveParent",
+                    EventData.of(UIActions.BUTTON, "RemoveParent")
+                            .append(UIActions.REGION, regionName)
+                            .append("Parent", parent.name()));
+
+            index++;
+        }
+    }
+
+    private void renderMembers(UICommandBuilder ui, UIEventBuilder ev, Region region) {
+        ui.clear("#MemberCards");
+
+        ui.appendInline("#MemberCards", """
+                Group {
+                  LayoutMode: Left;
+                  Anchor: (Bottom: 6);
+
+                  Button #AddMember {
+                    Anchor: (Width: 140, Height: 28);
+                    Label { Text: "Add Member"; }
+                  }
+                }
+                """);
+
+        ev.addEventBinding(
+                CustomUIEventBindingType.Activating,
+                "#MemberCards[0] #AddMember",
+                EventData.of(UIActions.BUTTON, "AddMember").append(UIActions.REGION, regionName));
+
+        if (region.members().isEmpty()) {
+            ui.appendInline("#MemberCards", """
+                    Label {
+                      Text: "No members.";
+                      Style: (FontSize: 15, TextColor: #8A90B2);
+                    }
+                    """);
+            return;
+        }
+
+        int index = 1;
+        for (Member member : region.members()) {
+            String label = memberDisplay(member);
+
+            ui.appendInline("#MemberCards", """
+                    Group {
+                      LayoutMode: Left;
+                      Padding: (6);
+                      Background: #15192A;
+
+                      Label {
+                        FlexWeight: 1;
+                        Text: "%s";
+                        Style: (FontSize: 15);
+                      }
+
+                      Button #RemoveMember {
+                        Anchor: (Width: 110, Height: 28);
+                        Label { Text: "Remove"; }
+                      }
+                    }
+                    """.formatted(label));
+
+            ev.addEventBinding(
+                    CustomUIEventBindingType.Activating,
+                    "#MemberCards[" + index + "] #RemoveMember",
+                    EventData.of(UIActions.BUTTON, "RemoveMember")
+                            .append(UIActions.REGION, regionName)
+                            .append("Member", label));
+
+            index++;
+        }
+    }
+
+    private String memberDisplay(Member member) {
+        if (member instanceof PlayerMember p) {
+            return p.playerId().toString();
+        }
+        if (member instanceof PermissionMember p) {
+            return "perm:" + p.permission();
+        }
+        return member.toString();
+    }
+
+    private void renderArea(UICommandBuilder ui, Region region) {
+        ui.clear("#AreaDetails");
+
+        if (region.isGlobal()) {
+            ui.appendInline("#AreaDetails", """
+                    Label {
+                      Text: "Global region (entire world).";
+                      Style: (FontSize: 16, TextColor: #8A90B2);
+                    }
+                    """);
+            return;
+        }
+
+        Area area = region.area();
+        Vector3ic min = area.getMin();
+        Vector3ic max = area.getMax();
+
+        ui.appendInline("#AreaDetails", """
+                Label { Text: "Bounds:"; Style:(FontSize:16,RenderBold:true); }
+                Label { Text: "(%d, %d, %d) - (%d, %d, %d)"; Style:(FontSize:15); }
+                Label { Text: "Volume: %,d blocks"; Style:(FontSize:15); }
+                Label { Text: "Points: %d"; Style:(FontSize:15); }
+                """.formatted(
+                        min.x(),
+                        min.y(),
+                        min.z(),
+                        max.x(),
+                        max.y(),
+                        max.z(),
+                        Iterables.size(area),
+                        area.points().size()));
+    }
+
     public static final class RegionInfoData {
 
-        // ---- Common keys ----
-        public static final String KEY_BUTTON = "Button";
-        public static final String KEY_REGION = "Region";
-
-        // ---- Parent management ----
-        public static final String KEY_PARENT = "Parent";
-
-        // ---- Member management ----
-        public static final String KEY_MEMBER = "Member";
-
-        // ---- Teleport / area ----
-        public static final String KEY_X = "X";
-        public static final String KEY_Y = "Y";
-        public static final String KEY_Z = "Z";
-
-        // ---- Codec ----
         public static final BuilderCodec<RegionInfoData> CODEC = BuilderCodec.builder(
                         RegionInfoData.class, RegionInfoData::new)
                 .addField(
-                        new KeyedCodec<>(KEY_BUTTON, Codec.STRING),
+                        new KeyedCodec<>(UIActions.BUTTON, Codec.STRING),
                         (d, v) -> d.button = v,
                         d -> d.button)
-                .addField(
-                        new KeyedCodec<>(KEY_REGION, Codec.STRING),
-                        (d, v) -> d.region = v,
-                        d -> d.region)
-                .addField(
-                        new KeyedCodec<>(KEY_PARENT, Codec.STRING),
-                        (d, v) -> d.parent = v,
-                        d -> d.parent)
-                .addField(
-                        new KeyedCodec<>(KEY_MEMBER, Codec.STRING),
-                        (d, v) -> d.member = v,
-                        d -> d.member)
-                .addField(new KeyedCodec<>(KEY_X, Codec.STRING), (d, v) -> d.x = v, d -> d.x)
-                .addField(new KeyedCodec<>(KEY_Y, Codec.STRING), (d, v) -> d.y = v, d -> d.y)
-                .addField(new KeyedCodec<>(KEY_Z, Codec.STRING), (d, v) -> d.z = v, d -> d.z)
                 .build();
 
-        // ---- Decoded values ----
-        private @Nullable String button;
-        private @Nullable String region;
-        private @Nullable String parent;
-        private @Nullable String member;
-        private @Nullable String x;
-        private @Nullable String y;
-        private @Nullable String z;
-
-        // ---- Convenience helpers ----
-
-        public @Nullable String button() {
-            return button;
-        }
-
-        public @Nullable String region() {
-            return region;
-        }
-
-        public @Nullable String parent() {
-            return parent;
-        }
-
-        public @Nullable String member() {
-            return member;
-        }
-
-        public OptionalInt x() {
-            return parseInt(x);
-        }
-
-        public OptionalInt y() {
-            return parseInt(y);
-        }
-
-        public OptionalInt z() {
-            return parseInt(z);
-        }
-
-        private static OptionalInt parseInt(@Nullable String value) {
-            try {
-                return value == null
-                        ? OptionalInt.empty()
-                        : OptionalInt.of(Integer.parseInt(value));
-            } catch (NumberFormatException e) {
-                return OptionalInt.empty();
-            }
-        }
+        @Nullable String button;
     }
 }

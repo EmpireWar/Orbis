@@ -38,7 +38,7 @@ include("common", "games:minecraft",
 val hytaleServerJarFile: String by settings
 val hytaleServerJar = rootDir.resolve(hytaleServerJarFile.trim())
 if (hytaleServerJar.exists()) {
-    include("games:hytale", "platforms:hytale", "api:hytale-api")
+    include("games:hytale", "api:hytale-api")
     logger.lifecycle("Hytale server jar found at ${hytaleServerJar.relativeTo(rootDir)} - we will build against the Hytale game.")
 } else {
     logger.warn("Skipping building against Hytale game because ${hytaleServerJar.relativeTo(rootDir)} is missing")

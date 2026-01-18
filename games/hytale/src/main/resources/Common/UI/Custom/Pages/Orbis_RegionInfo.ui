@@ -1,121 +1,130 @@
-Group {
-  LayoutMode: Center;
-  Padding: (Left: 24, Right: 24, Top: 20, Bottom: 20);
-  Background: #10121A;
+$C = "../Common.ui";
 
-  Group #MainPanel {
-    LayoutMode: Top;
-    Anchor: (Width: 700);
-    Padding: (Full: 12);
-    Background: #1E2028;
+$C.@PageOverlay {
+  $C.@Container {
+    Anchor: (Width: 650, Height: 669);
 
-    Group {
-      LayoutMode: Left;
-
-      Label #TitleLabel {
-        Style: (FontSize: 24, RenderBold: true, TextColor: #F4B860);
-        FlexWeight: 1;
-      }
-
-      Button #CloseButton {
-        Style: ButtonStyle();
-        Anchor: (Width: 36, Height: 36);
-        Background: #252736;
-
-        Label {
-          Text: "x";
-          Style: (FontSize: 18, RenderBold: true, TextColor: #FFFFFF);
+    #Title {
+      Group {
+        $C.@Title {
+          @Text = "REGION INFO";
         }
       }
     }
 
-    Group {
+    #Content {
       LayoutMode: Left;
-      Anchor: (Height: 40);
 
-      Label {
-        Text: "Priority:";
-        Style: (FontSize: 18, TextColor: #FFFFFF);
-      }
-
-      Group #PriorityActions {
-        LayoutMode: Left;
-        FlexWeight: 1;
-        Padding: (Left: 8);
-      }
-    }
-
-    Group {
-      LayoutMode: Top;
-      Label {
-        Text: "Parents";
-        Style: (FontSize: 20, TextColor: #F4B860);
-      }
-
-      Group #ParentsHeader {
-        LayoutMode: Left;
-        Anchor: (Height: 36);
-      }
-
-      Group #ParentsList {
-        LayoutMode: TopScrolling;
-        Anchor: (Height: 140);
-        Padding: (Top: 8);
-      }
-    }
-
-    Group {
-      LayoutMode: Top;
-      Label {
-        Text: "Area";
-        Style: (FontSize: 20, TextColor: #F4B860);
-      }
-
-      Group #AreaDetails {
+      Group #Main {
         LayoutMode: Top;
-        Padding: (Top: 8, Bottom: 8);
-      }
 
-      Group #AreaActions {
-        LayoutMode: Left;
-        Anchor: (Height: 36);
-        Padding: (Top: 8);
-      }
-    }
+        Group {
+          LayoutMode: Left;
+          Anchor: (Bottom: 12);
 
-    Group {
-      LayoutMode: Top;
-      Label {
-        Text: "Members";
-        Style: (FontSize: 20, TextColor: #F4B860);
-      }
+          Label #RegionNameLabel {
+            FlexWeight: 1;
+            Anchor: (Left: 4, Vertical: 0);
+            Style: (
+              FontSize: 18,
+              RenderBold: true,
+              TextColor: #93844cff
+            );
+          }
 
-      Group #MembersHeader {
-        LayoutMode: Left;
-        Anchor: (Height: 36);
-      }
+          $C.@TextButton #ManageFlags {
+            Anchor: (Width: 120, Height: 30, Left: 8);
+            Text: "Flags";
+          }
+        }
 
-      Group #MembersList {
-        LayoutMode: TopScrolling;
-        Anchor: (Height: 150);
-        Padding: (Top: 8);
-      }
-    }
+        Group #PrioritySection {
+          LayoutMode: Left;
+          Anchor: (Bottom: 10);
 
-    Group {
-      LayoutMode: Left;
-      Padding: (Top: 12);
+          Label {
+            @Text = "Priority:";
+            Style: (
+              FontSize: 14,
+              TextColor: #ffffffcc
+            );
+            Anchor: (Vertical: 0);
+          }
 
-      Button #FlagManagerButton {
-        Style: ButtonStyle();
-        Anchor: (Width: 180, Height: 40);
-        Background: #2D5D91;
+          Label #PriorityValue {
+            Anchor: (Left: 6, Vertical: 0);
+            Style: (
+              FontSize: 14,
+              RenderBold: true,
+              TextColor: #ffffffff
+            );
+          }
 
-        Label {
-          Text: "Manage Flags";
-          Style: (FontSize: 16, RenderBold: true, TextColor: #FFFFFF);
+          $C.@TextButton #AdjustPriority {
+            Text: "Adjust";
+            Anchor: (Width: 120, Height: 28, Left: 10);
+          }
+        }
+
+        Group #ParentsSection {
+          LayoutMode: Top;
+          Anchor: (Bottom: 12);
+
+          Label {
+            @Text = "Parent Regions";
+            Style: (
+              FontSize: 16,
+              RenderBold: true,
+              TextColor: #93844cff
+            );
+            Anchor: (Bottom: 4);
+          }
+
+          Group #ParentsList {
+            LayoutMode: TopScrolling;
+            Anchor: (Width: 630, Height: 160);
+            Padding: (Left: 4, Right: 4);
+            ScrollbarStyle: $C.@DefaultScrollbarStyle;
+
+            Group #ParentCards {
+              LayoutMode: Top;
+            }
+          }
+        }
+
+        Group #MembersSection {
+          LayoutMode: Top;
+          Anchor: (Bottom: 12);
+
+          Label {
+            @Text = "Members";
+            Style: (
+              FontSize: 16,
+              RenderBold: true,
+              TextColor: #93844cff
+            );
+            Anchor: (Bottom: 4);
+          }
+
+          Group #MembersList {
+            LayoutMode: TopScrolling;
+            Anchor: (Width: 630, Height: 160);
+            Padding: (Left: 4, Right: 4);
+            ScrollbarStyle: $C.@DefaultScrollbarStyle;
+
+            Group #MemberCards {
+              LayoutMode: Top;
+            }
+          }
+        }
+
+        Group #AreaDetails {
+          LayoutMode: Top;
+          Anchor: (Bottom: 6);
         }
       }
     }
   }
 }
+
+$C.@BackButton {}
