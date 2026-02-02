@@ -50,4 +50,17 @@ tasks {
             expand(replaceProperties)
         }
     }
+
+    shadowJar {
+        val root = "org.empirewar.orbis.${project.name}.libs"
+        relocate("org.joml", "$root.joml")
+        relocate("net.kyori", "$root.adventure")
+        relocate("org.spongepowered.configurate", "$root.configurate")
+        relocate("com.mojang", "$root.mojang")
+        relocate("com.google", "$root.google")
+        relocate("org.slf4j", "$root.slf4j")
+        relocate("org.yaml.snakeyaml", "$root.snakeyaml")
+        relocate("it.unimi.dsi.fastutil", "$root.fastutil")
+        relocate("io.leangen.geantyref", "$root.geantyref")
+    }
 }

@@ -31,7 +31,7 @@ import net.minecraft.world.phys.Vec3;
 
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.fabric.OrbisFabric;
-import org.empirewar.orbis.player.PlayerOrbisSession;
+import org.empirewar.orbis.minecraft.player.PlayerOrbisSession;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 
