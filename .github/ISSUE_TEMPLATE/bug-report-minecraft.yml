@@ -1,7 +1,8 @@
-name: "Bug report"
-description: "Report a bug with Orbis."
+name: "Minecraft Bug report"
+description: "Report a Minecraft bug with Orbis."
 labels:
   - bug
+  - minecraft
 body:
   - type: input
     id: orbis_version

@@ -35,7 +35,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
-public class TextUtil {
+public final class TextUtil {
 
     public static void send(IMessageReceiver receiver, Component component) {
         receiver.sendMessage(componentToHytaleMessage(component));
