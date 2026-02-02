@@ -48,12 +48,15 @@ dependencies {
     shadowBundle(project(":common")) {
         isTransitive = false
     }
-    implementation(project(":common"))
+    shadowBundle(project(":games:minecraft")) {
+        isTransitive = false
+    }
+    implementation(project(":games:minecraft"))
 
-    // JiJ all runtime dependencies from :common
+    // JiJ all runtime dependencies from :games:minecraft
     afterEvaluate {
-        // Get the resolved runtimeClasspath of :common
-        val commonRuntimeClasspath = project(":common").configurations.getByName("runtimeClasspath")
+        // Get the resolved runtimeClasspath of :games:minecraft
+        val commonRuntimeClasspath = project(":games:minecraft").configurations.getByName("runtimeClasspath")
         val visited = mutableSetOf<String>()
 
         fun includeAllTransitives(dep: ResolvedDependency) {

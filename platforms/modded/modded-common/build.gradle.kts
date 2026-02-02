@@ -22,5 +22,5 @@ dependencies {
     // Mixin annotations
     compileOnly("org.spongepowered:mixin:0.8.7")
 
-    compileOnly(project(":common"))
+    compileOnly(project(":games:minecraft"))
 }

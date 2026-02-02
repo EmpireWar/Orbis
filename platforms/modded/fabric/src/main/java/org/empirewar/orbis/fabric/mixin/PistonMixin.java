@@ -29,7 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.piston.PistonStructureResolver;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -54,7 +54,7 @@ public class PistonMixin {
 
         for (BlockPos toPush : structureHelper.getToPush()) {
             if (FlagActions.shouldPreventBlockAction(
-                    level, toPush, null, DefaultFlags.ACTIVATE_PISTONS)) {
+                    level, toPush, null, MinecraftFlags.ACTIVATE_PISTONS)) {
                 cir.setReturnValue(false);
                 return;
             }
@@ -62,7 +62,7 @@ public class PistonMixin {
 
         for (BlockPos toDestroy : structureHelper.getToDestroy()) {
             if (FlagActions.shouldPreventBlockAction(
-                    level, toDestroy, null, DefaultFlags.ACTIVATE_PISTONS)) {
+                    level, toDestroy, null, MinecraftFlags.ACTIVATE_PISTONS)) {
                 cir.setReturnValue(false);
                 return;
             }

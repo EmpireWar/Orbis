@@ -1,7 +1,7 @@
 <div align="center">
 
 <img src="images/orbis-logo-black.png" alt="Orbis Logo">
-<p>Modern region protection plugin for Minecraft: Java Edition.</p>
+<p>Modern region protection plugin for Hytale & Minecraft.</p>
 <hr>
 
 </div>
@@ -13,7 +13,7 @@
 > Please report any bugs or issues to the [GitHub](https://github.com/EmpireWar/Orbis/issues).
 > If there is a feature you would like to see, please open an [issue](https://github.com/EmpireWar/Orbis/issues/new/choose).
 
-Orbis is a modern region protection plugin for Minecraft, supporting the latest version and most platforms: Paper, Fabric, NeoForge, and Sponge.
+Orbis is a modern region protection plugin for Hytale and Minecraft, supporting the latest version and most platforms: Paper, Fabric, NeoForge, and Sponge.
 
 > [!IMPORTANT]
 > Orbis is not compatible with Spigot. Please use Paper instead.
@@ -48,7 +48,9 @@ Meaning, you can pick *only the entities you want to allow to take damage*. This
 - Plugins that use WorldGuard's API: Orbis does not support WorldGuard's API. Plugin developers will have to add support for Orbis' API.
 
 ## 📆 Supported versions
-Orbis aims to always support the latest version of Minecraft. 
+Orbis aims to always support the latest version of Minecraft and Hytale. 
+
+For Hytale, we always target the latest version.
 
 For modded versions, we always target the latest version which is currently **1.21.10**.
 
@@ -77,7 +79,7 @@ For Paper we target **1.21.4-1.21.11**.
 
 ## 📚 API & Integration
 
-Replace `PLATFORM` with your server type (e.g., `paper`, `fabric`, `neoforge`, `sponge`). For Bukkit-compatible servers, use `paper`.
+Replace `PLATFORM` with your server type (e.g., `hytale`, `paper`, `fabric`, `neoforge`, `sponge`). For Bukkit-compatible servers, use `paper`.
 
 Replace `VERSION` with the latest Orbis version. For snapshots, use the `/snapshots` repo and append `-SNAPSHOT`.
 

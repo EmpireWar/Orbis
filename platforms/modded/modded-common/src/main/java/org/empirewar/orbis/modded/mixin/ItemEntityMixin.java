@@ -26,7 +26,7 @@ package org.empirewar.orbis.modded.mixin;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +38,7 @@ public abstract class ItemEntityMixin {
 
     @Inject(method = "playerTouch", at = @At(value = "HEAD"), cancellable = true)
     private void checkPickupItem(Player player, CallbackInfo ci) {
-        if (FlagActions.shouldPreventEntityAction(player, DefaultFlags.CAN_PICKUP_ITEM)) {
+        if (FlagActions.shouldPreventEntityAction(player, MinecraftFlags.CAN_PICKUP_ITEM)) {
             ci.cancel(); // Cancel item pickup
         }
     }

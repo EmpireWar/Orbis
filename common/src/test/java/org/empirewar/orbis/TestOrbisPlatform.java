@@ -25,6 +25,8 @@ package org.empirewar.orbis;
 
 import net.kyori.adventure.key.Key;
 
+import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,7 @@ public class TestOrbisPlatform extends OrbisPlatform {
             UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     public TestOrbisPlatform() {
+        // Load flags
         load();
         try {
             loadRegions();
@@ -47,6 +50,11 @@ public class TestOrbisPlatform extends OrbisPlatform {
             logger().error("Error loading regions", e);
         }
         loadWorld(OVERWORLD, OVERWORLD_ID);
+    }
+
+    @Override
+    public RegistryRegionFlag<?> initialiseFlags() {
+        return MinecraftFlags.CAN_BREAK;
     }
 
     @Override

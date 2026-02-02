@@ -1,5 +1,6 @@
 plugins {
     id("buildlogic.java-common-conventions")
+    id("buildlogic.java-minecraft-platform-conventions")
 }
 
 repositories {
@@ -7,7 +8,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":common"))
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.15-SNAPSHOT")
 }

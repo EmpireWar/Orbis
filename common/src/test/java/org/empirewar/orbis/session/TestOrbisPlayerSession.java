@@ -23,7 +23,7 @@
  */
 package org.empirewar.orbis.session;
 
-import org.empirewar.orbis.player.PlayerOrbisSession;
+import org.empirewar.orbis.minecraft.player.PlayerOrbisSession;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 

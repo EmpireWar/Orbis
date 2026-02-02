@@ -1,0 +1,73 @@
+$C = "../Common.ui";
+
+Group {
+  LayoutMode: Left;
+  Anchor: (Bottom: 8);
+  Background: $C.@InputBoxBackground;
+  Padding: (Left: 6, Right: 6, Top: 6, Bottom: 6);
+
+//  Group #FlagIcon {
+//    Anchor: (Width: 48, Height: 48, Left: 4, Top: 4, Bottom: 4);
+//    Background: "../mod_icon_not_found.png";
+//    Padding: (Full: 4);
+//  }
+
+  Group {
+    LayoutMode: Top;
+    FlexWeight: 1;
+    Padding: (Left: 8);
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Bottom: 4);
+
+      Label #FlagName {
+        Style: (
+          FontSize: 16,
+          RenderBold: true,
+          TextColor: #93844cff
+        );
+        FlexWeight: 1;
+      }
+
+      Label #FlagValue {
+        Style: (
+          FontSize: 12,
+          RenderBold: false,
+          TextColor: #ffffff
+        );
+        Anchor: (Left: 2, Top: 4, Bottom: 2);
+        Padding: (Left: 6, Right: 6, Top: 1, Bottom: 0);
+        Background: (Color: #ec8a1a83);
+        OutlineColor: #ec8a1ade;
+        OutlineSize: 1.5;
+        ContentHeight: 10;
+      }
+    }
+
+    Label #FlagDescription {
+      Visible: false;
+      Style: (
+        FontSize: 14,
+        Wrap: true,
+        TextColor: #ffffffb3
+      );
+      Anchor: (Bottom: 6);
+    }
+
+    Group {
+      LayoutMode: Left;
+      Anchor: (Top: 4);
+
+      $C.@TextButton #ToggleFlag {
+        Anchor: (Width: 192, Height: 28);
+        Text: "Toggle";
+      }
+
+      $C.@CancelTextButton #RemoveFlag {
+        Anchor: (Width: 192, Height: 28, Left: 6);
+        Text: "Remove";
+      }
+    }
+  }
+}

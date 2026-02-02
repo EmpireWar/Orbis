@@ -38,9 +38,6 @@ object Libs {
     const val CONFIGURATE = "4.1.2"
     const val DATAFIXERUPPER = "8.0.16"
     const val RTREE_MULTI = "0.1"
-    const val CLOUD = "2.0.0"
-    const val CLOUD_EXTRAS = "2.0.0-beta.11"
-    const val CLOUD_CONFIRMATION = "1.0.0-rc.1"
     const val CAFFEINE = "3.1.8"
     
     // Test
@@ -83,35 +80,6 @@ dependencies {
     // RTree
     implementation("com.github.davidmoten:rtree-multi:${Libs.RTREE_MULTI}")
     testImplementation("com.github.davidmoten:rtree-multi:${Libs.RTREE_MULTI}")
-
-    // Cloud
-    implementation("org.incendo:cloud-annotations:${Libs.CLOUD}") {
-        exclude("io.leangen.geantyref")
-    }
-    testImplementation("org.incendo:cloud-annotations:${Libs.CLOUD}") {
-        exclude("io.leangen.geantyref")
-    }
-    annotationProcessor("org.incendo:cloud-annotations:${Libs.CLOUD}") {
-        exclude("io.leangen.geantyref")
-    }
-    implementation("org.incendo:cloud-minecraft-extras:${Libs.CLOUD_EXTRAS}") {
-        exclude("io.leangen.geantyref")
-    }
-    testImplementation("org.incendo:cloud-minecraft-extras:${Libs.CLOUD_EXTRAS}") {
-        exclude("io.leangen.geantyref")
-    }
-    implementation("org.incendo:cloud-brigadier:${Libs.CLOUD_EXTRAS}") {
-        exclude("io.leangen.geantyref")
-    }
-    testImplementation("org.incendo:cloud-brigadier:${Libs.CLOUD_EXTRAS}") {
-        exclude("io.leangen.geantyref")
-    }
-    implementation("org.incendo:cloud-processors-confirmation:${Libs.CLOUD_CONFIRMATION}") {
-        exclude("io.leangen.geantyref")
-    }
-    testImplementation("org.incendo:cloud-processors-confirmation:${Libs.CLOUD_CONFIRMATION}") {
-        exclude("io.leangen.geantyref")
-    }
     
     // Caffeine
     implementation("com.github.ben-manes.caffeine:caffeine:${Libs.CAFFEINE}")

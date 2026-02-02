@@ -23,7 +23,7 @@
  */
 package org.empirewar.orbis.session;
 
-import org.empirewar.orbis.player.ConsoleOrbisSession;
+import org.empirewar.orbis.minecraft.player.ConsoleOrbisSession;
 
 public class TestOrbisConsoleSession extends ConsoleOrbisSession {
 

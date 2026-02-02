@@ -32,7 +32,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
 import org.empirewar.orbis.paper.api.event.RegionLeaveEvent;
@@ -54,7 +54,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
         final RegionisedWorld world = orbis.getRegionisedWorld(orbis.adventureKey(to.getWorld()));
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery = world.query(
                 RegionQuery.Position.builder().position(to.getX(), to.getY(), to.getZ()));
-        final boolean canMove = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
+        final boolean canMove = toQuery.query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER)
                         .player(player.getUniqueId()))
                 .result()
                 .orElse(true);
@@ -94,7 +94,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
         final RegionisedWorld world = orbis.getRegionisedWorld(orbis.adventureKey(to.getWorld()));
         final boolean canMove = world.query(
                         RegionQuery.Position.builder().position(to.getX(), to.getY(), to.getZ()))
-                .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
+                .query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER)
                         .player(player.getUniqueId()))
                 .result()
                 .orElse(true);
@@ -111,7 +111,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
                 orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()));
         final boolean drain = world.query(RegionQuery.Position.builder()
                         .position(location.getX(), location.getY(), location.getZ()))
-                .query(RegionQuery.Flag.builder(DefaultFlags.DRAIN_HUNGER)
+                .query(RegionQuery.Flag.builder(MinecraftFlags.DRAIN_HUNGER)
                         .player(entity.getUniqueId()))
                 .result()
                 .orElse(true);
@@ -124,7 +124,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
         final Player player = event.getPlayer();
         final Region region = event.getRegion();
         this.applyTimeChanges(player, event.getWorld(), event.getLocation());
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_MESSAGE))
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
     }
@@ -134,7 +134,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
         final Player player = event.getPlayer();
         final Region region = event.getRegion();
         this.applyTimeChanges(player, event.getWorld(), event.getLocation());
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_MESSAGE))
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
     }
@@ -143,7 +143,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
         final var timeResult = world.query(
                         RegionQuery.Position.at(location.getX(), location.getY(), location.getZ())
                                 .build())
-                .query(RegionQuery.Flag.builder(DefaultFlags.TIME).player(player.getUniqueId()))
+                .query(RegionQuery.Flag.builder(MinecraftFlags.TIME).player(player.getUniqueId()))
                 .result();
         timeResult.ifPresentOrElse(
                 time -> player.setPlayerTime(time, false), player::resetPlayerTime);

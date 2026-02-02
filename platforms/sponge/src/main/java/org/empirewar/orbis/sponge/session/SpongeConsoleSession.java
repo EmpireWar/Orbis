@@ -23,7 +23,7 @@
  */
 package org.empirewar.orbis.sponge.session;
 
-import org.empirewar.orbis.player.ConsoleOrbisSession;
+import org.empirewar.orbis.minecraft.player.ConsoleOrbisSession;
 import org.spongepowered.api.command.CommandCause;
 
 public class SpongeConsoleSession extends ConsoleOrbisSession {

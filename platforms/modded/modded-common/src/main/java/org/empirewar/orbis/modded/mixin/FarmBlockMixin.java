@@ -30,7 +30,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,7 +47,7 @@ public abstract class FarmBlockMixin {
                 level,
                 blockPos,
                 entity instanceof Player player ? player : null,
-                DefaultFlags.BLOCK_TRAMPLE)) {
+                MinecraftFlags.BLOCK_TRAMPLE)) {
             ci.cancel(); // Skip the block trample logic
         }
     }

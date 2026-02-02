@@ -33,7 +33,7 @@ import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import org.empirewar.orbis.Orbis;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.neoforge.access.ServerPlayerDuck;
 import org.empirewar.orbis.neoforge.api.event.RegionEnterEvent;
 import org.empirewar.orbis.neoforge.api.event.RegionLeaveEvent;
@@ -59,7 +59,7 @@ public final class MovementListener {
                 orbis.getRegionisedWorld(((Keyed) player.level().dimension()).key());
         final boolean canMove = world.query(RegionQuery.Position.builder()
                         .position(event.getTargetX(), event.getTargetY(), event.getTargetZ()))
-                .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER).player(player.getUUID()))
+                .query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER).player(player.getUUID()))
                 .result()
                 .orElse(true);
         if (!canMove) {
@@ -83,7 +83,7 @@ public final class MovementListener {
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery =
                 world.query(RegionQuery.Position.builder().position(to.x(), to.y(), to.z()));
         final boolean canMove = toQuery.query(
-                        RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER).player(player.getUUID()))
+                        RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER).player(player.getUUID()))
                 .result()
                 .orElse(true);
 

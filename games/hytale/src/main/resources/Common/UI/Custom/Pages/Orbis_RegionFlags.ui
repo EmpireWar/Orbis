@@ -1,0 +1,77 @@
+$C = "../Common.ui";
+
+$C.@PageOverlay {
+
+  $C.@Container {
+    Anchor: (Width: 650, Height: 669);
+
+    #Title {
+      Group {
+        $C.@Title {
+          @Text = "REGION FLAGS";
+        }
+      }
+    }
+
+    #Content {
+      LayoutMode: Left;
+
+      Group #Main {
+        LayoutMode: Top;
+
+        Group {
+          LayoutMode: Left;
+          Anchor: (Bottom: 10);
+
+          Label #RegionNameLabel {
+            FlexWeight: 1;
+            Anchor: (Left: 4, Vertical: 0);
+            Style: (
+              FontSize: 18,
+              RenderBold: true,
+              TextColor: #93844cff
+            );
+          }
+
+          Label #FlagCountLabel {
+            Anchor: (Right: 8, Vertical: 0);
+            Style: (
+              FontSize: 14,
+              RenderBold: false,
+              TextColor: #ffffffcc
+            );
+          }
+        }
+
+        Group {
+          LayoutMode: Left;
+          Anchor: (Bottom: 12);
+
+          $C.@DropdownBox #FlagSelector {
+            FlexWeight: 1;
+            Anchor: (Height: 30);
+          }
+
+          $C.@TextButton #AddFlagButton {
+            Anchor: (Width: 196, Height: 30, Left: 8);
+            Text: "Add Flag";
+          }
+        }
+
+        Group #FlagList {
+          Anchor: (Width: 630);
+          FlexWeight: 1;
+          LayoutMode: TopScrolling;
+          Padding: (Left: 4, Right: 4);
+          ScrollbarStyle: $C.@DefaultScrollbarStyle;
+
+          Group #FlagCards {
+            LayoutMode: Top;
+          }
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}

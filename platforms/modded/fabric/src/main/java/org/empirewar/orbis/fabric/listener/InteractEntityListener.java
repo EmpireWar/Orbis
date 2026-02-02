@@ -27,7 +27,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.server.level.ServerPlayer;
 
 import org.empirewar.orbis.Orbis;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 
 public final class InteractEntityListener {
@@ -35,13 +35,14 @@ public final class InteractEntityListener {
     public InteractEntityListener(Orbis orbis) {
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (entity instanceof ServerPlayer) {
-                if (!FlagActions.shouldPreventEntityAction(entity, DefaultFlags.INVULNERABILITY)) {
+                if (!FlagActions.shouldPreventEntityAction(
+                        entity, MinecraftFlags.INVULNERABILITY)) {
                     return false;
                 }
 
                 if (!(source.getDirectEntity() instanceof ServerPlayer)) {
                     return !FlagActions.shouldPreventEntityAction(
-                            entity, DefaultFlags.CAN_TAKE_MOB_DAMAGE_SOURCES);
+                            entity, MinecraftFlags.CAN_TAKE_MOB_DAMAGE_SOURCES);
                 }
             }
             return true;

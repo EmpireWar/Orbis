@@ -28,7 +28,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.CoralBlock;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -43,7 +43,8 @@ public abstract class CoralBlockMixin {
             BlockGetter blockGetter, BlockPos blockPos, CallbackInfoReturnable<Boolean> cir) {
         if (!(blockGetter instanceof ServerLevel level)) return;
 
-        if (FlagActions.shouldPreventBlockAction(level, blockPos, null, DefaultFlags.CORAL_DECAY)) {
+        if (FlagActions.shouldPreventBlockAction(
+                level, blockPos, null, MinecraftFlags.CORAL_DECAY)) {
             cir.setReturnValue(true); // Pretend there's water to prevent decay
             cir.cancel();
         }

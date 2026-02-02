@@ -26,9 +26,12 @@ plugins {
 }
 
 rootProject.name = "Orbis"
-include("common", "migrators:rpgregions", "migrators:worldguard",
+include("common", "games:hytale", "api:hytale-api", "games:minecraft",
+    "migrators:rpgregions", "migrators:worldguard",
     "platforms:paper", "api:paper-api",
     "platforms:sponge", "api:sponge-api",
     "platforms:modded:modded-common",
     "platforms:modded:fabric", "api:fabric-api",
-    "platforms:modded:neoforge", "api:neoforge-api")
+    "platforms:modded:neoforge", "api:neoforge-api"
+)
+
