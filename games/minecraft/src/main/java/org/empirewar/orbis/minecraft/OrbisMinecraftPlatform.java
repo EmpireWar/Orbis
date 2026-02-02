@@ -29,7 +29,9 @@ import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationSt
 import net.kyori.adventure.translation.GlobalTranslator;
 
 import org.empirewar.orbis.OrbisPlatform;
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.minecraft.command.caption.OrbisCaptionProvider;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +50,11 @@ public abstract class OrbisMinecraftPlatform extends OrbisPlatform {
 
     public MiniMessage miniMessage() {
         return miniMessage;
+    }
+
+    @Override
+    public RegistryRegionFlag<?> initialiseFlags() {
+        return MinecraftFlags.CAN_BREAK;
     }
 
     @Override

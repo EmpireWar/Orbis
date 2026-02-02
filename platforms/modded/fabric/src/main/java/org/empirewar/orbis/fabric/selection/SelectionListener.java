@@ -43,10 +43,10 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.AreaType;
-import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.util.OrbisTranslations;
+import org.empirewar.orbis.util.Permissions;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 

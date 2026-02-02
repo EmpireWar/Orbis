@@ -43,6 +43,9 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:0.132.0+1.21.8")
 
     // Add :common as a dependency
+    shadowBundle(project(":common")) {
+        isTransitive = false
+    }
     shadowBundle(project(":games:minecraft")) {
         isTransitive = false
     }
@@ -71,6 +74,8 @@ dependencies {
                 include(notation)
                 visited.add(notation)
                 dep.children.forEach { includeAllTransitives(it) }
+            } else {
+                println("Skipping $notation")
             }
         }
 

@@ -43,7 +43,9 @@ public final class RegistryValueParser<C, R, K>
     private final OrbisRegistry<R, K> registry;
     private final org.empirewar.orbis.command.parser.registry.RegistryMapper<String, K> keyMapper;
 
-    public RegistryValueParser(OrbisRegistry<R, K> registry, org.empirewar.orbis.command.parser.registry.RegistryMapper<String, K> keyMapper) {
+    public RegistryValueParser(
+            OrbisRegistry<R, K> registry,
+            org.empirewar.orbis.command.parser.registry.RegistryMapper<String, K> keyMapper) {
         this.registry = registry;
         this.keyMapper = keyMapper;
     }

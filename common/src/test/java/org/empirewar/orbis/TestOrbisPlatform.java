@@ -54,7 +54,6 @@ public class TestOrbisPlatform extends OrbisPlatform {
     public TestOrbisPlatform(Path dataFolder) {
         this.dataFolder = dataFolder;
         // Load flags
-        final RegistryRegionFlag<Boolean> canBreak = MinecraftFlags.CAN_BREAK;
         load();
         try {
             loadRegions();
@@ -62,6 +61,11 @@ public class TestOrbisPlatform extends OrbisPlatform {
             logger().error("Error loading regions", e);
         }
         loadWorld(OVERWORLD, OVERWORLD_ID);
+    }
+
+    @Override
+    public RegistryRegionFlag<?> initialiseFlags() {
+        return MinecraftFlags.CAN_BREAK;
     }
 
     @Override

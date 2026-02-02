@@ -25,6 +25,7 @@ package org.empirewar.orbis;
 
 import net.kyori.adventure.key.Key;
 
+import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
@@ -53,7 +54,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,7 +74,10 @@ public abstract class OrbisPlatform implements Orbis {
 
     public OrbisPlatform() {
         OrbisAPI.set(this);
+        initialiseFlags();
     }
+
+    public abstract RegistryRegionFlag<?> initialiseFlags();
 
     protected void load() {
         try {

@@ -49,8 +49,12 @@ public class OrbisHytalePlatform extends OrbisPlatform {
         this.plugin = plugin;
         this.logger = new HytaleSlf4jLogger("Orbis", plugin.getLogger());
         // Load flags
-        final RegistryRegionFlag<Boolean> canBreak = HytaleFlags.CAN_BREAK;
         load();
+    }
+
+    @Override
+    public RegistryRegionFlag<?> initialiseFlags() {
+        return HytaleFlags.CAN_BREAK;
     }
 
     @Override

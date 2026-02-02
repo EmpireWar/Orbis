@@ -44,7 +44,10 @@ repositories {
 dependencies {
     neoForge("net.neoforged:neoforge:$neoVersion")
 
-    // Add :games:minecraft as a dependency
+    // Add :common as a dependency
+    shadowBundle(project(":common")) {
+        isTransitive = false
+    }
     shadowBundle(project(":games:minecraft")) {
         isTransitive = false
     }
