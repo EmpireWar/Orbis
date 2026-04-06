@@ -92,6 +92,8 @@ public final class RegionCommand {
             @Flag("ignore-selection") boolean ignoreSelection,
             @Argument("name") String regionName,
             @Argument("area_type") @Nullable AreaType<?> areaType) {
+        regionName = regionName.toLowerCase(Locale.ROOT);
+
         final Orbis orbis = OrbisAPI.get();
         if (OrbisRegistries.REGIONS.get(regionName).isPresent()) {
             session.sendMessage(OrbisText.PREFIX.append(
