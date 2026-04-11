@@ -127,6 +127,12 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
         region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
+        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_PLAYER_COMMANDS))
+                .result()
+                .ifPresent(commands -> commands.forEach(cmd -> player.performCommand(cmd)));
+        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_CONSOLE_COMMANDS))
+                .result()
+                .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()).replace("%uuid%", player.getUniqueId().toString()))));
     }
 
     @EventHandler
@@ -137,6 +143,12 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
         region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
+        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_PLAYER_COMMANDS))
+                .result()
+                .ifPresent(commands -> commands.forEach(cmd -> player.performCommand(cmd)));
+        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_CONSOLE_COMMANDS))
+                .result()
+                .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()).replace("%uuid%", player.getUniqueId().toString()))));
     }
 
     private void applyTimeChanges(Player player, RegionisedWorld world, Location location) {

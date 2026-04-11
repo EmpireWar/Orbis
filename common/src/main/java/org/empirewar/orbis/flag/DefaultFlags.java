@@ -95,6 +95,14 @@ public final class DefaultFlags {
     public static final RegistryRegionFlag<String> EXIT_MESSAGE = register("exit_message",
             "A message to display when a player leaves this region (supports MiniMessage)", () -> "", Codec.STRING);
 //    public static final RegionFlag<Component> DENY_MESSAGE = register("deny_message", () -> Component.text("You can't do that here.", TextColor.color(244, 61, 61)), ExtraCodecs.COMPONENT);
+    public static final RegistryRegionFlag<List<String>> ENTRY_PLAYER_COMMANDS = register("entry_player_commands",
+            "A list of commands to be executed by the player upon entry", ArrayList::new, Codec.STRING.listOf());
+    public static final RegistryRegionFlag<List<String>> EXIT_PLAYER_COMMANDS = register("exit_player_commands",
+            "A list of commands to be executed by the player upon exit", ArrayList::new, Codec.STRING.listOf());
+    public static final RegistryRegionFlag<List<String>> ENTRY_CONSOLE_COMMANDS = register("entry_console_commands",
+            "A list of commands to be executed by the console upon entry", ArrayList::new, Codec.STRING.listOf());
+    public static final RegistryRegionFlag<List<String>> EXIT_CONSOLE_COMMANDS = register("exit_console_commands",
+            "A list of commands to be executed by the console upon exit", ArrayList::new, Codec.STRING.listOf());
     // spotless:on
 
     private static <T> RegistryRegionFlag<T> register(
