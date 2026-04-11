@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    implementation("org.incendo:cloud-paper:2.0.0-beta.14")
+    implementation("org.incendo:cloud-paper:2.0.0-SNAPSHOT")
     implementation(project(":common"))
     implementation(project(":api:paper-api"))
     implementation(project(":migrators:worldguard"))

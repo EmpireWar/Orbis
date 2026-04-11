@@ -4,7 +4,12 @@ import org.spongepowered.plugin.metadata.model.PluginDependency
 
 plugins {
     id("buildlogic.java-platform-conventions")
-    id("org.spongepowered.gradle.plugin") version ("2.3.0")
+    id("org.spongepowered.gradle.plugin") version ("2.3.1-SNAPSHOT")
+}
+
+java {
+    // TODO: Temporary until on 26.1 - broken cloud dependency
+    disableAutoTargetJvm()
 }
 
 dependencies {
