@@ -29,6 +29,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -68,6 +69,17 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
                     to.getYaw(),
                     to.getPitch()));
             return;
+        }
+
+        if (player.isGliding()) {
+            final boolean canGlide = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_GLIDE)
+                            .player(player.getUniqueId()))
+                    .result()
+                    .orElse(true);
+            if (!canGlide) {
+                player.setGliding(false);
+                return;
+            }
         }
 
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> fromQuery = world.query(
@@ -132,7 +144,10 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
                 .ifPresent(commands -> commands.forEach(cmd -> player.performCommand(cmd)));
         region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_CONSOLE_COMMANDS))
                 .result()
-                .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()).replace("%uuid%", player.getUniqueId().toString()))));
+                .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
+                        Bukkit.getConsoleSender(),
+                        cmd.replace("%player%", player.getName())
+                                .replace("%uuid%", player.getUniqueId().toString()))));
     }
 
     @EventHandler
@@ -148,7 +163,29 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
                 .ifPresent(commands -> commands.forEach(cmd -> player.performCommand(cmd)));
         region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_CONSOLE_COMMANDS))
                 .result()
-                .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", player.getName()).replace("%uuid%", player.getUniqueId().toString()))));
+                .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
+                        Bukkit.getConsoleSender(),
+                        cmd.replace("%player%", player.getName())
+                                .replace("%uuid%", player.getUniqueId().toString()))));
+    }
+
+    @EventHandler
+    public void onElytraGlide(EntityToggleGlideEvent event) {
+        if (!event.isGliding()) return;
+        if (event.getEntity() instanceof Player player) {
+            final Location location = player.getLocation();
+            final RegionisedWorld world =
+                    orbis.getRegionisedWorld(orbis.adventureKey(location.getWorld()));
+            final boolean canGlide = world.query(RegionQuery.Position.builder()
+                            .position(location.getX(), location.getY(), location.getZ()))
+                    .query(RegionQuery.Flag.builder(DefaultFlags.CAN_GLIDE)
+                            .player(player.getUniqueId()))
+                    .result()
+                    .orElse(true);
+            if (!canGlide) {
+                event.setCancelled(true);
+            }
+        }
     }
 
     private void applyTimeChanges(Player player, RegionisedWorld world, Location location) {
