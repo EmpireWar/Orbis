@@ -27,7 +27,6 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
@@ -105,10 +104,6 @@ public class OrbisPaperPlatform<P extends JavaPlugin> extends OrbisPlatform {
 
     public Audience senderAsAudience(CommandSender player) {
         return player;
-    }
-
-    public Key adventureKey(Keyed keyed) {
-        return keyed.key();
     }
 
     @Override

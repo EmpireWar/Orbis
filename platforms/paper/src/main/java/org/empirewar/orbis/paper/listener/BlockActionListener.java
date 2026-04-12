@@ -125,8 +125,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
     @EventHandler
     public void onGrow(BlockGrowEvent event) {
         final Block block = event.getBlock();
-        final RegionisedWorld world =
-                orbis.getRegionisedWorld(orbis.adventureKey(block.getWorld()));
+        final RegionisedWorld world = orbis.getRegionisedWorld(block.getWorld());
         final List<Key> growable = world.query(
                         RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
                 .query(RegionQuery.Flag.builder(DefaultFlags.GROWABLE_BLOCKS))
@@ -134,7 +133,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
                 .orElse(null);
         if (growable == null) return;
 
-        if (!growable.contains(orbis.adventureKey(block.getType()))) {
+        if (!growable.contains(block.getType().key())) {
             event.setCancelled(true);
         }
     }
@@ -148,8 +147,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
             return;
         }
 
-        final RegionisedWorld world =
-                orbis.getRegionisedWorld(orbis.adventureKey(block.getWorld()));
+        final RegionisedWorld world = orbis.getRegionisedWorld(block.getWorld());
         final List<Key> growable = world.query(
                         RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
                 .query(RegionQuery.Flag.builder(DefaultFlags.GROWABLE_BLOCKS))
@@ -157,7 +155,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
                 .orElse(null);
         if (growable == null) return;
 
-        if (!growable.contains(orbis.adventureKey(block.getType()))) {
+        if (!growable.contains(block.getType().key())) {
             event.setCancelled(true);
         }
     }
@@ -191,8 +189,7 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
         // spotless:on
         if (block == null) return false;
         final Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());
-        final RegionisedWorld world =
-                orbis.getRegionisedWorld(orbis.adventureKey(block.getWorld()));
+        final RegionisedWorld world = orbis.getRegionisedWorld(block.getWorld());
         final RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);
         if (player != null) builder.player(player.getUniqueId());
         final boolean canAct = world.query(RegionQuery.Position.builder().position(pos))

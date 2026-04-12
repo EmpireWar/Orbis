@@ -52,7 +52,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
         if (to == null || to.distanceSquared(from) == 0) return;
 
         final Player player = event.getPlayer();
-        final RegionisedWorld world = orbis.getRegionisedWorld(orbis.adventureKey(to.getWorld()));
+        final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld());
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery = world.query(
                 RegionQuery.Position.builder().position(to.getX(), to.getY(), to.getZ()));
         final boolean canMove = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
@@ -103,7 +103,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
     public void onTeleport(PlayerTeleportEvent event) {
         final Player player = event.getPlayer();
         final Location to = event.getTo();
-        final RegionisedWorld world = orbis.getRegionisedWorld(orbis.adventureKey(to.getWorld()));
+        final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld());
         final boolean canMove = world.query(
                         RegionQuery.Position.builder().position(to.getX(), to.getY(), to.getZ()))
                 .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
@@ -119,8 +119,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         final HumanEntity entity = event.getEntity();
         final Location location = entity.getLocation();
-        final RegionisedWorld world =
-                orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()));
+        final RegionisedWorld world = orbis.getRegionisedWorld(entity.getWorld());
         final boolean drain = world.query(RegionQuery.Position.builder()
                         .position(location.getX(), location.getY(), location.getZ()))
                 .query(RegionQuery.Flag.builder(DefaultFlags.DRAIN_HUNGER)
@@ -141,7 +140,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
         region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_PLAYER_COMMANDS))
                 .result()
-                .ifPresent(commands -> commands.forEach(cmd -> player.performCommand(cmd)));
+                .ifPresent(commands -> commands.forEach(player::performCommand));
         region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_CONSOLE_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
@@ -160,7 +159,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
         region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_PLAYER_COMMANDS))
                 .result()
-                .ifPresent(commands -> commands.forEach(cmd -> player.performCommand(cmd)));
+                .ifPresent(commands -> commands.forEach(player::performCommand));
         region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_CONSOLE_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
@@ -174,8 +173,7 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
         if (!event.isGliding()) return;
         if (event.getEntity() instanceof Player player) {
             final Location location = player.getLocation();
-            final RegionisedWorld world =
-                    orbis.getRegionisedWorld(orbis.adventureKey(location.getWorld()));
+            final RegionisedWorld world = orbis.getRegionisedWorld(location.getWorld());
             final boolean canGlide = world.query(RegionQuery.Position.builder()
                             .position(location.getX(), location.getY(), location.getZ()))
                     .query(RegionQuery.Flag.builder(DefaultFlags.CAN_GLIDE)

@@ -62,8 +62,7 @@ public class EntityListener implements Listener {
     public void onEntityDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
 
-        final RegionisedWorld world =
-                orbis.getRegionisedWorld(orbis.adventureKey(player.getWorld()));
+        final RegionisedWorld world = orbis.getRegionisedWorld(player.getWorld());
         final Location location = player.getLocation();
         final Vector3d pos = new Vector3d(location.getX(), location.getY(), location.getZ());
 
@@ -123,8 +122,7 @@ public class EntityListener implements Listener {
 
     protected boolean shouldPreventEntityAction(
             Entity entity, @Nullable Entity player, RegistryRegionFlag<Boolean> flag) {
-        final RegionisedWorld world =
-                orbis.getRegionisedWorld(orbis.adventureKey(entity.getWorld()));
+        final RegionisedWorld world = orbis.getRegionisedWorld(entity.getWorld());
         if (world == null) return false;
 
         RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);

@@ -24,6 +24,7 @@
 package org.empirewar.orbis;
 
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.Keyed;
 
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.selection.SelectionManager;
@@ -49,6 +50,10 @@ public interface Orbis {
     Set<RegionisedWorld> getRegionisedWorlds();
 
     RegionisedWorld getRegionisedWorld(Key worldId);
+
+    default RegionisedWorld getRegionisedWorld(Keyed world) {
+        return getRegionisedWorld(world.key());
+    }
 
     boolean removeRegion(Region region);
 
