@@ -29,6 +29,7 @@ import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import net.kyori.adventure.key.Key;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Painting;
@@ -38,6 +39,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -215,5 +217,21 @@ public class EntityListener implements Listener {
                 event.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityExplode(EntityExplodeEvent event) {
+        // Check if the explosion is allowed to break blocks in the region
+        event.blockList().removeIf(this::shouldPreventEntityExplosionAt);
+    }
+
+    private boolean shouldPreventEntityExplosionAt(Block block) {
+        final RegionisedWorld world = orbis.getRegionisedWorld(block.getWorld());
+        final boolean canExplode = world.query(
+                        RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
+                .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTITIES_EXPLODE))
+                .result()
+                .orElse(true);
+        return !canExplode;
     }
 }

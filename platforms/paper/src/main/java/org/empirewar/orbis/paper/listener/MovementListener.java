@@ -41,9 +41,19 @@ import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
-public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener {
+public class MovementListener implements Listener {
+    private final OrbisPaperPlatform<?> orbis;
+    private static final long DENY_COOLDOWN_MS = 3000L;
+    private final Map<UUID, Long> denialCooldowns = new HashMap<>();
+
+    public MovementListener(OrbisPaperPlatform<?> orbis) {
+        this.orbis = orbis;
+    }
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
@@ -61,6 +71,19 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
                 .orElse(true);
 
         if (!canMove) {
+            long now = System.currentTimeMillis();
+            long lastDenied = denialCooldowns.getOrDefault(player.getUniqueId(), 0L);
+            if (now - lastDenied >= DENY_COOLDOWN_MS) {
+                denialCooldowns.put(player.getUniqueId(), now);
+
+                toQuery.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_DENIED_COMMANDS)
+                                .player(player.getUniqueId()))
+                        .result()
+                        .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
+                                Bukkit.getConsoleSender(),
+                                cmd.replace("%player%", player.getName())
+                                        .replace("%uuid%", player.getUniqueId().toString()))));
+            }
             event.setTo(new Location(
                     from.getWorld(),
                     from.getX(),
@@ -112,6 +135,21 @@ public record MovementListener(OrbisPaperPlatform<?> orbis) implements Listener 
                 .orElse(true);
         if (!canMove) {
             event.setCancelled(true);
+            long now = System.currentTimeMillis();
+            long lastDenied = denialCooldowns.getOrDefault(player.getUniqueId(), 0L);
+            if (now - lastDenied >= DENY_COOLDOWN_MS) {
+                denialCooldowns.put(player.getUniqueId(), now);
+                world.query(RegionQuery.Position.builder()
+                                .position(to.getX(), to.getY(), to.getZ())
+                                .build())
+                        .query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_DENIED_COMMANDS)
+                                .player(player.getUniqueId()))
+                        .result()
+                        .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
+                                Bukkit.getConsoleSender(),
+                                cmd.replace("%player%", player.getName())
+                                        .replace("%uuid%", player.getUniqueId().toString()))));
+            }
         }
     }
 
