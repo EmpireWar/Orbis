@@ -25,6 +25,7 @@ package org.empirewar.orbis.paper.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,6 +34,7 @@ import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
@@ -41,15 +43,13 @@ import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.world.RegionisedWorld;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 public class MovementListener implements Listener {
     private final OrbisPaperPlatform<?> orbis;
     private static final long DENY_COOLDOWN_MS = 3000L;
-    private final Map<UUID, Long> denialCooldowns = new HashMap<>();
+    private static final NamespacedKey ENTRY_DENY_COOLDOWN_KEY =
+            new NamespacedKey("orbis", "entry_deny_cooldown");
 
     public MovementListener(OrbisPaperPlatform<?> orbis) {
         this.orbis = orbis;
@@ -71,19 +71,7 @@ public class MovementListener implements Listener {
                 .orElse(true);
 
         if (!canMove) {
-            long now = System.currentTimeMillis();
-            long lastDenied = denialCooldowns.getOrDefault(player.getUniqueId(), 0L);
-            if (now - lastDenied >= DENY_COOLDOWN_MS) {
-                denialCooldowns.put(player.getUniqueId(), now);
-
-                toQuery.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_DENIED_COMMANDS)
-                                .player(player.getUniqueId()))
-                        .result()
-                        .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
-                                Bukkit.getConsoleSender(),
-                                cmd.replace("%player%", player.getName())
-                                        .replace("%uuid%", player.getUniqueId().toString()))));
-            }
+            handleEntryDenial(player, toQuery);
             event.setTo(new Location(
                     from.getWorld(),
                     from.getX(),
@@ -127,29 +115,36 @@ public class MovementListener implements Listener {
         final Player player = event.getPlayer();
         final Location to = event.getTo();
         final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld());
-        final boolean canMove = world.query(
-                        RegionQuery.Position.builder().position(to.getX(), to.getY(), to.getZ()))
+        var queryResult = world.query(RegionQuery.Position.at(to.getX(), to.getY(), to.getZ()));
+        boolean canMove = queryResult
                 .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
                         .player(player.getUniqueId()))
                 .result()
                 .orElse(true);
         if (!canMove) {
             event.setCancelled(true);
-            long now = System.currentTimeMillis();
-            long lastDenied = denialCooldowns.getOrDefault(player.getUniqueId(), 0L);
-            if (now - lastDenied >= DENY_COOLDOWN_MS) {
-                denialCooldowns.put(player.getUniqueId(), now);
-                world.query(RegionQuery.Position.builder()
-                                .position(to.getX(), to.getY(), to.getZ())
-                                .build())
-                        .query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_DENIED_COMMANDS)
-                                .player(player.getUniqueId()))
-                        .result()
-                        .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
-                                Bukkit.getConsoleSender(),
-                                cmd.replace("%player%", player.getName())
-                                        .replace("%uuid%", player.getUniqueId().toString()))));
-            }
+            handleEntryDenial(player, queryResult);
+        }
+    }
+
+    private void handleEntryDenial(
+            Player player, RegionQuery.FilterableRegionResult<?> queryResult) {
+        long lastDenied = player.getPersistentDataContainer()
+                .getOrDefault(ENTRY_DENY_COOLDOWN_KEY, PersistentDataType.LONG, 0L);
+        if (System.currentTimeMillis() - lastDenied >= DENY_COOLDOWN_MS) {
+            player.getPersistentDataContainer()
+                    .set(
+                            ENTRY_DENY_COOLDOWN_KEY,
+                            PersistentDataType.LONG,
+                            System.currentTimeMillis());
+            queryResult
+                    .query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_DENIED_COMMANDS)
+                            .player(player.getUniqueId()))
+                    .result()
+                    .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
+                            Bukkit.getConsoleSender(),
+                            cmd.replace("%player%", player.getName())
+                                    .replace("%uuid%", player.getUniqueId().toString()))));
         }
     }
 
