@@ -29,7 +29,6 @@ import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import net.kyori.adventure.key.Key;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Painting;
@@ -221,17 +220,12 @@ public class EntityListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
-        // Check if the explosion is allowed to break blocks in the region
-        event.blockList().removeIf(this::shouldPreventEntityExplosionAt);
-    }
-
-    private boolean shouldPreventEntityExplosionAt(Block block) {
-        final RegionisedWorld world = orbis.getRegionisedWorld(block.getWorld());
-        final boolean canExplode = world.query(
-                        RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
-                .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTITIES_EXPLODE))
-                .result()
-                .orElse(true);
-        return !canExplode;
+        final RegionisedWorld world = orbis.getRegionisedWorld(event.getLocation().getWorld());
+        event.blockList().removeIf(block -> {
+            return !world.query(RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
+                    .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTITIES_EXPLODE))
+                    .result()
+                    .orElse(true);
+        });
     }
 }
