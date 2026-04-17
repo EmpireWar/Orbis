@@ -59,7 +59,7 @@ public class MovementListener implements Listener {
     public void onMove(PlayerMoveEvent event) {
         final Location to = event.getTo();
         final Location from = event.getFrom();
-        if (to == null || to.distanceSquared(from) == 0) return;
+        if (to == null || from.getBlock().equals(to.getBlock())) return;
 
         final Player player = event.getPlayer();
         final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld());

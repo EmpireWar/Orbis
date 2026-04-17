@@ -220,7 +220,8 @@ public class EntityListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
-        final RegionisedWorld world = orbis.getRegionisedWorld(event.getLocation().getWorld());
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(event.getLocation().getWorld());
         event.blockList().removeIf(block -> {
             return !world.query(RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
                     .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTITIES_EXPLODE))
