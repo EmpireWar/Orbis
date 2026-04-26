@@ -38,6 +38,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -215,5 +216,17 @@ public class EntityListener implements Listener {
                 event.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityExplode(EntityExplodeEvent event) {
+        final RegionisedWorld world =
+                orbis.getRegionisedWorld(event.getLocation().getWorld());
+        event.blockList().removeIf(block -> {
+            return !world.query(RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
+                    .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTITIES_EXPLODE))
+                    .result()
+                    .orElse(true);
+        });
     }
 }

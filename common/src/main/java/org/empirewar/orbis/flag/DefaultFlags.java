@@ -103,8 +103,14 @@ public final class DefaultFlags {
             "A list of commands to be executed by the console upon entry", ArrayList::new, Codec.STRING.listOf());
     public static final RegistryRegionFlag<List<String>> EXIT_CONSOLE_COMMANDS = register("exit_console_commands",
             "A list of commands to be executed by the console upon exit", ArrayList::new, Codec.STRING.listOf());
+    public static final RegistryRegionFlag<List<String>> ENTRY_DENIED_COMMANDS = register("entry_denied_commands",
+            "A list of commands to be executed when a player's entry is denied", ArrayList::new, Codec.STRING.listOf());
     public static final RegistryRegionFlag<Boolean> CAN_GLIDE = register("can_glide",
             "Whether players can glide with elytra", () -> true, Codec.BOOL);
+    public static final RegistryRegionFlag<Boolean> CAN_ENTITIES_EXPLODE = register("can_entities_explode",
+            "Whether entity-caused explosions can break blocks", () -> true, Codec.BOOL);
+    public static final RegistryRegionFlag<Boolean> CAN_BLOCKS_EXPLODE = register("can_blocks_explode",
+            "Whether block-caused explosions can break blocks", () -> true, Codec.BOOL);
     // spotless:on
 
     private static <T> RegistryRegionFlag<T> register(
