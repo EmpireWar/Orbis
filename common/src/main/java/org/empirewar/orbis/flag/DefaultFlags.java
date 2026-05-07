@@ -27,6 +27,7 @@ import com.mojang.serialization.Codec;
 
 import net.kyori.adventure.key.Key;
 
+import net.kyori.adventure.key.KeyPattern;
 import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.util.ExtraCodecs;
 
@@ -114,12 +115,12 @@ public final class DefaultFlags {
     // spotless:on
 
     private static <T> RegistryRegionFlag<T> register(
-            String name, Supplier<T> defaultValue, Codec<T> codec) {
+            @KeyPattern.Value String name, Supplier<T> defaultValue, Codec<T> codec) {
         return register(name, null, defaultValue, codec);
     }
 
     private static <T> RegistryRegionFlag<T> register(
-            String name, String description, Supplier<T> defaultValue, Codec<T> codec) {
+            @KeyPattern.Value String name, String description, Supplier<T> defaultValue, Codec<T> codec) {
         final Key key = Key.key("orbis", name);
         final RegistryRegionFlag.Builder<T> entry =
                 RegistryRegionFlag.<T>builder().key(key).codec(codec).defaultValue(defaultValue);
