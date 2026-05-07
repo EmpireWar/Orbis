@@ -80,8 +80,9 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
     public void onAttemptAccess(InventoryOpenEvent event) {
         if (event.getInventory().getHolder() instanceof BlockInventoryHolder blockHolder) {
             final Block block = blockHolder.getBlock();
-            event.setCancelled(
-                    shouldPreventBlockAction(block, DefaultFlags.BLOCK_INVENTORY_ACCESS));
+            if (shouldPreventBlockAction(block, DefaultFlags.BLOCK_INVENTORY_ACCESS)) {
+                event.setCancelled(true);
+            }
         }
     }
 
