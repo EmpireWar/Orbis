@@ -35,6 +35,7 @@ import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.registry.lifecycle.RegistryLifecycles;
 import org.empirewar.orbis.selection.SelectionManager;
 import org.empirewar.orbis.serialization.StaticGsonProvider;
+import org.empirewar.orbis.util.AtomicFiles;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.empirewar.orbis.world.RegionisedWorldSet;
 import org.spongepowered.configurate.CommentedConfigurationNode;
@@ -45,10 +46,10 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -286,17 +287,41 @@ public abstract class OrbisPlatform implements Orbis {
 
         File regionsFolder = dataFolder().resolve("regions").toFile();
         if (!regionsFolder.exists()) regionsFolder.mkdirs();
-        for (File regionFile : regionsFolder.listFiles()) {
+
+        final File[] regionFiles = regionsFolder.listFiles();
+        if (regionFiles == null) {
+            logger().error("Unable to list region files in '{}'", regionsFolder);
+            return;
+        }
+
+        for (File regionFile : regionFiles) {
             if (!regionFile.getName().endsWith(".json")) continue;
-            try (FileReader reader = new FileReader(regionFile)) {
+            // Each file is isolated. One bad region must never stop the rest from loading, because
+            // regions missing from the registry get pruned out of worlds.yml on the next save.
+            try (Reader reader =
+                    Files.newBufferedReader(regionFile.toPath(), StandardCharsets.UTF_8)) {
                 final Region region = StaticGsonProvider.GSON.fromJson(reader, Region.class);
                 if (region == null) {
                     logger().error(
-                                    "Error loading region from '{}' - is the file corrupted?",
+                                    "Error loading region from '{}' - is the file corrupted? The file has NOT been modified.",
                                     regionFile);
                     continue;
                 }
+
+                if (OrbisRegistries.REGIONS.get(region.name()).isPresent()) {
+                    logger().error(
+                                    "Duplicate region name '{}' from '{}' - ignoring this file. The file has NOT been modified.",
+                                    region.name(),
+                                    regionFile);
+                    continue;
+                }
+
                 OrbisRegistries.REGIONS.register(region.name(), region);
+            } catch (Exception e) {
+                logger().error(
+                                "Error loading region from '{}' - skipping this file. The file has NOT been modified.",
+                                regionFile,
+                                e);
             }
         }
 
@@ -320,14 +345,22 @@ public abstract class OrbisPlatform implements Orbis {
     }
 
     public void saveRegions() throws IOException {
-        File regionsFolder = dataFolder().resolve("regions").toFile();
-        if (!regionsFolder.exists()) regionsFolder.mkdirs();
+        final Path regionsFolder = dataFolder().resolve("regions");
+        Files.createDirectories(regionsFolder);
 
         for (Region region : OrbisRegistries.REGIONS.getAll()) {
-            File regionFile = new File(
-                    regionsFolder + File.separator + region.name().replace(":", "-") + ".json");
-            try (FileWriter writer = new FileWriter(regionFile)) {
-                StaticGsonProvider.GSON.toJson(region, writer);
+            final Path regionFile =
+                    regionsFolder.resolve(region.name().replace(":", "-") + ".json");
+            try {
+                final String json = StaticGsonProvider.GSON.toJson(region);
+                // Serialisation succeeded without error, so we can write the file now.
+                AtomicFiles.writeString(regionFile, json);
+            } catch (Exception e) {
+                logger().error(
+                                "Error saving region '{}' - the existing file at '{}' has been left unchanged",
+                                region.name(),
+                                regionFile,
+                                e);
             }
         }
 

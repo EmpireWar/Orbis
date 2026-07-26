@@ -27,19 +27,46 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.translation.GlobalTranslator;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 public class TestLogAudience implements Audience {
+
+    private final List<String> sent = new ArrayList<>();
+
+    /**
+     * Gets every message sent to this audience, as plain text.
+     * @return the sent messages
+     */
+    public List<String> sent() {
+        return List.copyOf(sent);
+    }
+
+    public void clear() {
+        sent.clear();
+    }
 
     @Override
     public void sendMessage(final @NotNull ComponentLike message) {
-        System.out.println(
-                PlainTextComponentSerializer.plainText().serialize(message.asComponent()));
+        record(message.asComponent());
     }
 
     @Override
     public void sendMessage(final @NotNull Component message) {
-        System.out.println(PlainTextComponentSerializer.plainText().serialize(message));
+        record(message);
+    }
+
+    private void record(final Component message) {
+        // Render through the global translator first so captured text matches what a player sees
+        // rather than a bare translation key.
+        final String plain = PlainTextComponentSerializer.plainText()
+                .serialize(GlobalTranslator.render(message, Locale.UK));
+        sent.add(plain);
+        System.out.println(plain);
     }
 }

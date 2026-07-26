@@ -25,6 +25,9 @@ package org.empirewar.orbis.command;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.TestOrbisPlatform;
 import org.empirewar.orbis.area.CuboidArea;
@@ -35,6 +38,7 @@ import org.empirewar.orbis.member.PermissionMember;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.serialization.StaticGsonProvider;
 import org.empirewar.orbis.session.TestOrbisConsoleSession;
 import org.empirewar.orbis.session.TestOrbisPlayerSession;
 import org.empirewar.orbis.world.RegionisedWorld;
@@ -173,5 +177,36 @@ public class RegionCommandTest {
         Region region = new Region("pointregion", new CuboidArea());
         region.area().addPoint(new Vector3i(1, 2, 3));
         assertDoesNotThrow(() -> cmd.onListPoints(session, region));
+    }
+
+    @Test
+    void testOnInfoListsUnrecognisedFlags() {
+        Region region = new Region("inforegion", new CuboidArea());
+        region.area().addPoint(new Vector3i(0, 0, 0));
+        region.area().addPoint(new Vector3i(4, 4, 4));
+        region.addFlag(DefaultFlags.CAN_BREAK);
+
+        // Round-trip through a flag entry no registry knows about, as if the owning plugin failed
+        // to load. Operators need to see these listed, or they cannot tell a preserved flag apart
+        // from a broken region file.
+        final JsonObject json = StaticGsonProvider.GSON.toJsonTree(region).getAsJsonObject();
+        final JsonObject unknown = new JsonObject();
+        unknown.add("value", new JsonPrimitive(42));
+        unknown.addProperty("type", "otherplugin:custom");
+        unknown.addProperty("region_flag_type", "orbis:mutable");
+        json.getAsJsonArray("flags").add(unknown);
+
+        final Region loaded = StaticGsonProvider.GSON.fromJson(json, Region.class);
+        assertNotNull(loaded);
+
+        TestOrbisConsoleSession session = new TestOrbisConsoleSession();
+        cmd.onInfo(session, loaded);
+
+        assertTrue(
+                session.sent().stream().anyMatch(line -> line.contains("Unrecognised flags: 1")),
+                "expected an unrecognised flag summary, got: " + session.sent());
+        assertTrue(
+                session.sent().stream().anyMatch(line -> line.contains("otherplugin:custom")),
+                "expected the unrecognised flag key to be listed, got: " + session.sent());
     }
 }

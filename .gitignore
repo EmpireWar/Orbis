@@ -6,6 +6,9 @@ build
 
 # Ignore platform run directories
 run
+runs
 
 .idea
 .vscode
+.architectury-transformer
+.kotlin

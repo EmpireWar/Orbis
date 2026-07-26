@@ -25,7 +25,9 @@ package org.empirewar.orbis.region;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -43,6 +45,7 @@ import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.registry.RegistryResolvable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -89,10 +92,9 @@ public sealed class Region
                                     .listOf()
                                     .fieldOf("members")
                                     .forGetter(r -> r.members().stream().toList()),
-                            MutableRegionFlag.TYPE_CODEC
-                                    .listOf()
+                            MutableRegionFlag.FLAG_LIST_CODEC
                                     .fieldOf("flags")
-                                    .forGetter(r -> r.flags.values().stream().toList()),
+                                    .forGetter(Region::flagEntries),
                             Area.CODEC.fieldOf("area").forGetter(Region::area),
                             Codec.INT.fieldOf("priority").forGetter(Region::priority))
                     .apply(instance, Region::new));
@@ -101,6 +103,14 @@ public sealed class Region
     private final Set<Region> parents;
     private final Set<Member> members;
     protected final Map<Key, MutableRegionFlag<?>> flags;
+
+    /**
+     * Same as flags map but for types that are unknown (no longer exist in registry).
+     * Unknown flags do nothing at runtime and this exists only to save them to file again.
+     * @see MutableRegionFlag#FLAG_LIST_CODEC
+     */
+    protected final Map<String, Dynamic<?>> unknownFlags;
+
     private final Area area;
 
     private int priority;
@@ -110,6 +120,7 @@ public sealed class Region
         this.parents = new HashSet<>();
         this.members = new HashSet<>();
         this.flags = new HashMap<>();
+        this.unknownFlags = new HashMap<>();
         this.area = area;
         this.priority = 2;
     }
@@ -118,7 +129,7 @@ public sealed class Region
             String name,
             List<String> parents,
             List<Member> members,
-            List<MutableRegionFlag<?>> flags,
+            List<Either<MutableRegionFlag<?>, Dynamic<?>>> flags,
             Area area,
             int priority) {
         this.name = name;
@@ -131,9 +142,71 @@ public sealed class Region
         });
         this.members = new HashSet<>(members);
         this.flags = new HashMap<>();
-        flags.forEach(mu -> this.flags.put(mu.key(), mu));
+        this.unknownFlags = new HashMap<>();
+        applyFlagEntries(name, flags, this.flags, this.unknownFlags);
         this.area = area;
         this.priority = priority;
+    }
+
+    /**
+     * Adds entries to the flags map.
+     * Entries that did not decode correctly are added to the unknownFlags map, if possible.
+     */
+    protected static void applyFlagEntries(
+            String regionName,
+            List<Either<MutableRegionFlag<?>, Dynamic<?>>> entries,
+            Map<Key, MutableRegionFlag<?>> flags,
+            Map<String, Dynamic<?>> unknownFlags) {
+        int index = 0;
+        for (Either<MutableRegionFlag<?>, Dynamic<?>> entry : entries) {
+            final int position = index++;
+            entry.ifLeft(mutable -> flags.put(mutable.key(), mutable))
+                    // Flag failed to parse - try to add as an unknown flag
+                    .ifRight(raw -> raw.get("type")
+                            .asString()
+                            .result()
+                            .ifPresentOrElse(
+                                    type -> unknownFlags.put(type, raw),
+                                    // This shouldn't happen and is unrecoverable, the flag is
+                                    // corrupt
+                                    () -> OrbisAPI.get()
+                                            .logger()
+                                            .warn(
+                                                    "Discarding region flag entry {} for region {}; is the file corrupt?",
+                                                    position,
+                                                    regionName)));
+        }
+
+        if (!unknownFlags.isEmpty()) {
+            OrbisAPI.get()
+                    .logger()
+                    .warn(
+                            "Region '{}' has {} flag(s) that this server does not recognise: {}. These usually come from another plugin or mod that is missing or failed to start. Their data has been preserved untouched and will load normally once that plugin is working again, as long as you do not delete or hand-edit the region file.",
+                            regionName,
+                            unknownFlags.size(),
+                            unknownFlags.keySet());
+        }
+    }
+
+    /**
+     * Gets this region's flags in serialisable form: decoded flags on the left, retained raw
+     * entries on the right.
+     * @return the flag entries
+     */
+    protected List<Either<MutableRegionFlag<?>, Dynamic<?>>> flagEntries() {
+        final List<Either<MutableRegionFlag<?>, Dynamic<?>>> entries =
+                new ArrayList<>(flags.size() + unknownFlags.size());
+        flags.values().forEach(mutable -> entries.add(Either.left(mutable)));
+        unknownFlags.values().forEach(raw -> entries.add(Either.right(raw)));
+        return entries;
+    }
+
+    /**
+     * Gets the raw {@code type} strings of flags on this region that failed to decode.
+     * @return the unrecognised flag keys, or an empty set
+     */
+    public Set<String> unknownFlagKeys() {
+        return Set.copyOf(unknownFlags.keySet());
     }
 
     /**
@@ -338,6 +411,7 @@ public sealed class Region
         return MoreObjects.toStringHelper(this)
                 .add("name", name)
                 .add("flags", flags)
+                .add("unknownFlags", unknownFlags.keySet())
                 .add("area", area)
                 .toString();
     }
