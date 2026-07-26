@@ -23,7 +23,9 @@
  */
 package org.empirewar.orbis.region;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -42,10 +44,9 @@ public final class GlobalRegion extends Region {
     public static final MapCodec<GlobalRegion> CODEC =
             RecordCodecBuilder.mapCodec(instance -> instance.group(
                             Codec.STRING.fieldOf("name").forGetter(Region::name),
-                            MutableRegionFlag.TYPE_CODEC
-                                    .listOf()
+                            MutableRegionFlag.FLAG_LIST_CODEC
                                     .fieldOf("flags")
-                                    .forGetter(r -> r.flags.values().stream().toList()))
+                                    .forGetter(Region::flagEntries))
                     .apply(instance, GlobalRegion::new));
 
     public GlobalRegion(RegionisedWorldSet set) {
@@ -58,10 +59,10 @@ public final class GlobalRegion extends Region {
         this.priority(1);
     }
 
-    private GlobalRegion(String name, List<MutableRegionFlag<?>> flags) {
+    private GlobalRegion(String name, List<Either<MutableRegionFlag<?>, Dynamic<?>>> flags) {
         super(name, null);
         this.priority(1);
-        flags.forEach(mu -> this.flags.put(mu.key(), mu));
+        Region.applyFlagEntries(name, flags, this.flags, this.unknownFlags);
     }
 
     @Override

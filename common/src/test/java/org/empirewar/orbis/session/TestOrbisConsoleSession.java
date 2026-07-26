@@ -27,7 +27,22 @@ import org.empirewar.orbis.player.ConsoleOrbisSession;
 
 public class TestOrbisConsoleSession extends ConsoleOrbisSession {
 
+    private final TestLogAudience audience;
+
     public TestOrbisConsoleSession() {
-        super(new TestLogAudience());
+        this(new TestLogAudience());
+    }
+
+    private TestOrbisConsoleSession(TestLogAudience audience) {
+        super(audience);
+        this.audience = audience;
+    }
+
+    /**
+     * Gets every message this session was sent, as plain text.
+     * @return the sent messages
+     */
+    public java.util.List<String> sent() {
+        return audience.sent();
     }
 }

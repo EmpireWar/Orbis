@@ -31,6 +31,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 
 import org.empirewar.orbis.OrbisAPI;
@@ -49,15 +50,34 @@ public final class RegionAdapter implements JsonSerializer<Region>, JsonDeserial
     public JsonElement serialize(Region region, Type typeOfSrc, JsonSerializationContext context) {
         final Codec<Region> dispatch =
                 OrbisRegistries.REGION_TYPE.getCodec().dispatch(Region::getType, RegionType::codec);
-        final Optional<JsonElement> result = dispatch.encodeStart(JsonOps.INSTANCE, region)
-                .resultOrPartial(
-                        msg -> OrbisAPI.get().logger().error("Error saving region: {}", msg));
-        return result.map(OrbisDataFixes::updateFixerVersion).orElse(null);
+        final DataResult<JsonElement> result = dispatch.encodeStart(JsonOps.INSTANCE, region);
+
+        // Unless encoding fully succeeded, don't do anything at all.
+        // Throw an exception otherwise Gson will write "null" into the file.
+        final Optional<DataResult.Error<JsonElement>> error = result.error();
+        if (error.isPresent()) {
+            final String message = error.get().message();
+            OrbisAPI.get().logger().error("Could not save region '{}': {}", region.name(), message);
+            throw new JsonParseException(
+                    "Unable to serialise region '" + region.name() + "': " + message);
+        }
+
+        final JsonElement encoded = result.result().orElseThrow();
+        if (!encoded.isJsonObject()) {
+            throw new JsonParseException(
+                    "Serialised region '" + region.name() + "' is not a JSON object");
+        }
+        return OrbisDataFixes.updateFixerVersion(encoded);
     }
 
     @Override
     public Region deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
+        if (json == null || !json.isJsonObject()) {
+            throw new JsonParseException(
+                    "Region data is not a JSON object (found: " + json + ") - the file is corrupt");
+        }
+
         final JsonObject object = json.getAsJsonObject();
         final JsonElement fixed = OrbisDataFixes.fix(TypeReferences.REGION, object);
 

@@ -24,6 +24,7 @@
 package org.empirewar.orbis.command;
 
 import static net.kyori.adventure.text.Component.empty;
+import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.space;
 import static net.kyori.adventure.text.Component.text;
 
@@ -881,6 +882,7 @@ public final class RegionCommand {
             if (limit != 0) { // Only show "No flags set" if we're not just checking
                 session.sendMessage(text("  No flags set.", NamedTextColor.GRAY));
             }
+            displayUnrecognisedFlags(session, region);
             return;
         }
 
@@ -949,6 +951,36 @@ public final class RegionCommand {
                     .hoverEvent(HoverEvent.showText(
                             text("Click to view all flags", OrbisText.EREBOR_GREEN)))
                     .clickEvent(ClickEvent.runCommand("/rg flag list " + regionName)));
+        }
+
+        displayUnrecognisedFlags(session, region);
+    }
+
+    /**
+     * Lists flags on the region that could not be decoded.
+     */
+    private void displayUnrecognisedFlags(OrbisSession session, Region region) {
+        final Set<String> unknown = region.unknownFlagKeys();
+        if (unknown.isEmpty()) return;
+
+        session.sendMessage(text("Unrecognised flags: ", OrbisText.SECONDARY_ORANGE)
+                .append(text(unknown.size(), NamedTextColor.WHITE))
+                .append(text(" preserved", OrbisText.SECONDARY_ORANGE))
+                .hoverEvent(HoverEvent.showText(text(
+                                "These flags belong to a plugin or mod that is missing or failed to start.",
+                                NamedTextColor.GRAY)
+                        .append(newline())
+                        .append(text(
+                                "Their data is preserved untouched and will work again once that plugin is loaded.",
+                                NamedTextColor.GRAY))
+                        .append(newline())
+                        .append(text(
+                                "They cannot be edited or removed while unrecognised.",
+                                NamedTextColor.GRAY)))));
+
+        for (String key : unknown) {
+            session.sendMessage(
+                    text("  ▷ ", NamedTextColor.GRAY).append(text(key, NamedTextColor.WHITE)));
         }
     }
 }

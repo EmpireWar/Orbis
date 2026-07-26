@@ -23,14 +23,19 @@
  */
 package org.empirewar.orbis.flag;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.kyori.adventure.key.Key;
 
+import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.registry.OrbisRegistries;
+import org.empirewar.orbis.util.ExtraCodecs;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -56,6 +61,20 @@ public sealed class MutableRegionFlag<T> extends RegionFlag<T> permits GroupedMu
     public static final Codec<MutableRegionFlag<?>> TYPE_CODEC = OrbisRegistries.FLAG_TYPE
             .getCodec()
             .dispatch("region_flag_type", MutableRegionFlag::getType, RegionFlagType::codec);
+
+    /**
+     * Codec for a {@link org.empirewar.orbis.region.Region}'s serialised {@code flags} list.
+     * <p>
+     * Entries that cannot be decoded - typically flags owned by a plugin or mod that is missing or
+     * failed to start - are retained rather than dropped,
+     * so their data decodes normally again once the owning plugin returns.
+     *
+     * @see org.empirewar.orbis.util.RetainingListCodec
+     */
+    public static final Codec<List<Either<MutableRegionFlag<?>, Dynamic<?>>>> FLAG_LIST_CODEC =
+            ExtraCodecs.retainingList(TYPE_CODEC, msg -> OrbisAPI.get()
+                    .logger()
+                    .debug("Retaining unrecognised region flag entry: {}", msg));
 
     private T value;
 

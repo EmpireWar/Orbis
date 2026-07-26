@@ -39,7 +39,18 @@ public class TestOrbisPlatform extends OrbisPlatform {
     private static final UUID OVERWORLD_ID =
             UUID.fromString("00000000-0000-0000-0000-000000000000");
 
+    private final Path dataFolder;
+
     public TestOrbisPlatform() {
+        this(defaultDataFolder());
+    }
+
+    /**
+     * Creates a platform rooted at a specific data folder, so a test can lay out region files
+     * before startup without colliding with other test classes.
+     */
+    public TestOrbisPlatform(Path dataFolder) {
+        this.dataFolder = dataFolder;
         load();
         try {
             loadRegions();
@@ -70,8 +81,7 @@ public class TestOrbisPlatform extends OrbisPlatform {
         return true;
     }
 
-    @Override
-    public Path dataFolder() {
+    private static Path defaultDataFolder() {
         // Use a test-specific directory in the system temp directory
         Path testDir = Path.of(System.getProperty("java.io.tmpdir"), "orbis-test-data");
         try {
@@ -81,6 +91,11 @@ public class TestOrbisPlatform extends OrbisPlatform {
             throw new RuntimeException("Failed to create test data directory", e);
         }
         return testDir;
+    }
+
+    @Override
+    public Path dataFolder() {
+        return dataFolder;
     }
 
     private final Logger logger = LoggerFactory.getLogger("orbis");

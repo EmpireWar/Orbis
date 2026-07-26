@@ -23,11 +23,14 @@
  */
 package org.empirewar.orbis.util;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
@@ -36,7 +39,9 @@ import org.joml.Vector2i;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public interface ExtraCodecs {
 
@@ -55,7 +60,28 @@ public interface ExtraCodecs {
             Codec.STRING.comapFlatMap(ExtraCodecs::validateKey, Key::asString).stable();
 
     private static DataResult<Key> validateKey(final String id) {
-        return DataResult.success(Key.key(id));
+        try {
+            return DataResult.success(Key.key(id), Lifecycle.stable());
+        } catch (InvalidKeyException e) {
+            // Key.key throws rather than returning a result. Left unhandled, a single malformed
+            // identifier in a hand-edited file would propagate out of the codec and take the whole
+            // region with it.
+            return DataResult.error(
+                    () -> "Invalid key '" + id + "': " + e.getMessage(), Lifecycle.stable());
+        }
+    }
+
+    /**
+     * Creates a list codec that retains elements it cannot decode instead of dropping them.
+     *
+     * @see RetainingListCodec
+     * @param elementCodec the codec used for elements that can be understood
+     * @param errorReporter receives the decode failure message for each retained element
+     * @return the codec
+     */
+    static <A> Codec<List<Either<A, Dynamic<?>>>> retainingList(
+            final Codec<A> elementCodec, final Consumer<String> errorReporter) {
+        return new RetainingListCodec<>(elementCodec, errorReporter);
     }
 
     Codec<UUID> STRING_UUID = Codec.STRING.comapFlatMap(
