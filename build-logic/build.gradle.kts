@@ -16,6 +16,7 @@ repositories {
     maven("https://maven.fabricmc.net/")
     maven("https://maven.shedaniel.me/")
     maven("https://maven.neoforged.net/releases")
+    maven("https://maven.azuredoom.com/mods")
 }
 
 dependencies {
@@ -25,4 +26,5 @@ dependencies {
     implementation("net.kyori:blossom:2.1.0")
     implementation("dev.architectury:architectury-loom:1.11.456")
     implementation("architectury-plugin:architectury-plugin.gradle.plugin:3.4-SNAPSHOT")
+    implementation("com.azuredoom.hytale-tools:com.azuredoom.hytale-tools.gradle.plugin:1.0.50")
 }

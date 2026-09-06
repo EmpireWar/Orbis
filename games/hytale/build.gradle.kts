@@ -13,11 +13,25 @@ object Libs {
     const val DATAFIXERUPPER = "8.0.16"
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
+hytaleTools {
+    modId = "Orbis"
+    mainClass = "org.empirewar.orbis.hytale.OrbisHytale"
+    modDescription = "A modern, multi-platform region protection plugin for Hytale & Minecraft."
+    modUrl = "https://github.com/EmpireWar/Orbis"
+    modCredits = "SamB440||https://github.com/SamB440"
+    manifestServerVersion = ">=0.0.1"
+
+    // Orbis ships its own UI/language assets under src/main/resources.
+    includesPack = true
+
+    // Orbis has no runtime plugin dependencies.
+    manifestDependencies = ""
+}
+
+configurations {
+    // The Hytale server bundles its own (newer) Gson. Shipping or staging ours puts an older
+    // copy of com.google.gson ahead of the server's, which breaks its own JSON loaders.
+    runtimeClasspath { exclude(group = "com.google.code.gson", module = "gson") }
 }
 
 dependencies {
@@ -38,7 +52,8 @@ dependencies {
     implementation("com.mojang:datafixerupper:${Libs.DATAFIXERUPPER}")
 
     // Google
-    implementation("com.google.code.gson:gson:2.10.1")
+    // The Hytale server bundles its own (newer) Gson - shipping ours would shadow it.
+    compileOnly("com.google.code.gson:gson:2.10.1")
 
     implementation("org.slf4j:slf4j-api:2.0.12")
     testImplementation("org.slf4j:slf4j-api:2.0.12")
@@ -46,25 +61,13 @@ dependencies {
 }
 
 tasks {
-    processResources {
-        val replaceProperties = mapOf(
-            "version" to project.version
-        )
-
-        inputs.properties(replaceProperties)
-
-        filesMatching("manifest.json") {
-            expand(replaceProperties)
-        }
-    }
-
     shadowJar {
         val root = "org.empirewar.orbis.${project.name}.libs"
         relocate("org.joml", "$root.joml")
         relocate("net.kyori", "$root.adventure")
         relocate("org.spongepowered.configurate", "$root.configurate")
         relocate("com.mojang", "$root.mojang")
-        relocate("com.google", "$root.google")
+        relocate("com.google.common", "$root.google.common")
         relocate("org.slf4j", "$root.slf4j")
         relocate("org.yaml.snakeyaml", "$root.snakeyaml")
         relocate("it.unimi.dsi.fastutil", "$root.fastutil")

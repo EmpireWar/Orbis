@@ -1,11 +1,20 @@
 plugins {
     java
+    id("com.azuredoom.hytale-tools")
 }
 
-repositories {
-    maven("https://maven.hytale.com/release")
+// The Hytale toolchain (and the plugin's decompilation tooling) requires Java 25.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 }
 
-dependencies {
-    compileOnly("com.hypixel.hytale:Server:+")
+hytaleTools {
+    // Resolves com.hypixel.hytale:Server from the Hytale maven for us.
+    hytaleVersion = "0.+"
+    patchline = "release"
+    javaVersion = 25
+
+    manifestGroup = "org.empirewar"
 }

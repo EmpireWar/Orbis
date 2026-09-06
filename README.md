@@ -204,5 +204,21 @@ We welcome PRs and ideas! To get started:
 - Open a pull request with clear description
 - Join our [Discord](https://discord.gg/fh62mxU) for dev chat
 
+### Building
+The build requires a **JDK 25** daemon (a requirement of the Hytale toolchain). Gradle will
+download one automatically if you do not have it installed.
+
+```bash
+./gradlew build                          # Build every platform
+./gradlew :games:hytale:runServer        # Run a dev Hytale server with Orbis
+./gradlew :platforms:paper:runServer     # Run a dev Paper server with Orbis
+```
+
+Hytale support is built with the [Hytale Gradle Plugin](https://github.com/AzureDoom/Hytale-Gradle-Plugin),
+which resolves the Hytale server, generates `manifest.json` and provides the dev server tasks.
+Before your first Hytale run, execute `./gradlew :games:hytale:setupHytaleDev` - it downloads the
+game assets (this authenticates against your Hytale account) and prepares decompiled sources for
+your IDE. `./gradlew :games:hytale:hytaleDoctor` diagnoses setup problems.
+
 ## 📄 License
 Orbis is released under the MIT License. See [LICENSE](LICENSE) for details.
