@@ -83,8 +83,9 @@ public class MovementListener implements Listener {
         }
 
         if (player.isGliding()) {
-            final boolean canGlide = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_GLIDE)
-                            .player(player.getUniqueId()))
+            final boolean canGlide = toQuery.query(
+                            RegionQuery.Flag.builder(MinecraftFlags.CAN_GLIDE)
+                                    .player(player.getUniqueId()))
                     .result()
                     .orElse(true);
             if (!canGlide) {
@@ -138,7 +139,7 @@ public class MovementListener implements Listener {
                             PersistentDataType.LONG,
                             System.currentTimeMillis());
             queryResult
-                    .query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_DENIED_COMMANDS)
+                    .query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_DENIED_COMMANDS)
                             .player(player.getUniqueId()))
                     .result()
                     .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(

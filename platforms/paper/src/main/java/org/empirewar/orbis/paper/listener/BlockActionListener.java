@@ -113,8 +113,8 @@ public record BlockActionListener(OrbisPaperPlatform<?> orbis) implements Listen
     @EventHandler(ignoreCancelled = true)
     public void onExplode(BlockExplodeEvent event) {
         event.blockList()
-                .removeIf(
-                        block -> shouldPreventBlockAction(block, DefaultFlags.CAN_BLOCKS_EXPLODE));
+                .removeIf(block ->
+                        shouldPreventBlockAction(block, MinecraftFlags.CAN_BLOCKS_EXPLODE));
     }
 
     @EventHandler

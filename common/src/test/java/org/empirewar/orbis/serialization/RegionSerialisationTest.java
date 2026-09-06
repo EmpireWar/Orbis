@@ -37,7 +37,7 @@ import com.google.gson.JsonPrimitive;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.TestOrbisPlatform;
 import org.empirewar.orbis.area.CuboidArea;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
@@ -117,16 +117,16 @@ public class RegionSerialisationTest {
     @Test
     void unknownFlagSurvivesLoadSaveLoad() {
         final Region region = newRegion("survives");
-        region.addFlag(DefaultFlags.CAN_BREAK);
-        region.setFlag(DefaultFlags.CAN_BREAK, false);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
+        region.setFlag(MinecraftFlags.CAN_BREAK, false);
 
         final Region loaded = fromJson(withUnknownFlag(region));
         assertNotNull(loaded, "region with an unrecognised flag should still load");
 
         // The known flag is untouched and still queryable.
-        assertTrue(loaded.hasFlag(DefaultFlags.CAN_BREAK));
+        assertTrue(loaded.hasFlag(MinecraftFlags.CAN_BREAK));
         final Optional<Boolean> queried = loaded.query(RegionQuery.Flag.<Boolean>builder()
-                        .flag(DefaultFlags.CAN_BREAK)
+                        .flag(MinecraftFlags.CAN_BREAK)
                         .build())
                 .result();
         assertTrue(queried.isPresent());
@@ -148,30 +148,30 @@ public class RegionSerialisationTest {
     @Test
     void retainedEntryNotLostWhenOtherFlagsAreEdited() {
         final Region region = newRegion("edits");
-        region.addFlag(DefaultFlags.CAN_BREAK);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
 
         final Region loaded = fromJson(withUnknownFlag(region));
         assertNotNull(loaded);
 
-        loaded.setFlag(DefaultFlags.CAN_BREAK, true);
-        loaded.addFlag(DefaultFlags.CAN_PLACE);
-        loaded.removeFlag(DefaultFlags.CAN_BREAK);
+        loaded.setFlag(MinecraftFlags.CAN_BREAK, true);
+        loaded.addFlag(MinecraftFlags.CAN_PLACE);
+        loaded.removeFlag(MinecraftFlags.CAN_BREAK);
 
         final JsonObject resaved = toJson(loaded);
         assertTrue(flagSet(resaved).contains(unknownEntry()));
 
         final Region reloaded = fromJson(resaved);
         assertNotNull(reloaded);
-        assertTrue(reloaded.hasFlag(DefaultFlags.CAN_PLACE));
-        assertFalse(reloaded.hasFlag(DefaultFlags.CAN_BREAK));
+        assertTrue(reloaded.hasFlag(MinecraftFlags.CAN_PLACE));
+        assertFalse(reloaded.hasFlag(MinecraftFlags.CAN_BREAK));
         assertEquals(Set.of(UNKNOWN_KEY), reloaded.unknownFlagKeys());
     }
 
     @Test
     void mixedKnownAndMultipleUnknownFlags() {
         final Region region = newRegion("mixed");
-        region.addFlag(DefaultFlags.CAN_BREAK);
-        region.addFlag(DefaultFlags.CAN_PLACE);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
+        region.addFlag(MinecraftFlags.CAN_PLACE);
 
         final JsonObject json = toJson(region);
         final JsonObject first =
@@ -194,7 +194,7 @@ public class RegionSerialisationTest {
     @Test
     void groupedUnknownFlagIsRetainedWithGroups() {
         final Region region = newRegion("grouped");
-        region.addFlag(DefaultFlags.CAN_BREAK);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
 
         // A grouped entry carries an extra "groups" array. Retention happens above the
         // RegionFlagType dispatch layer, so the whole entry survives including that array.
@@ -216,7 +216,7 @@ public class RegionSerialisationTest {
     @Test
     void unknownRegionFlagTypeIsRetained() {
         final Region region = newRegion("unknown-type");
-        region.addFlag(DefaultFlags.CAN_BREAK);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
 
         // FLAG_TYPE is frozen too, so an unrecognised region_flag_type fails at the outer dispatch.
         final JsonObject weird =
@@ -233,7 +233,7 @@ public class RegionSerialisationTest {
     @Test
     void malformedFlagKeyIsRetainedNotThrown() {
         final Region region = newRegion("malformed");
-        region.addFlag(DefaultFlags.CAN_BREAK);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
 
         // Key.key throws rather than erroring; without the guards this takes out the whole region.
         final JsonObject malformed =
@@ -250,7 +250,7 @@ public class RegionSerialisationTest {
     @Test
     void globalRegionRetainsUnknownFlags() {
         final GlobalRegion region = new GlobalRegion("serialise-global");
-        region.addFlag(DefaultFlags.CAN_BREAK);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
 
         final JsonObject json = toJson(region);
         assertEquals("orbis:global", json.get("type").getAsString());

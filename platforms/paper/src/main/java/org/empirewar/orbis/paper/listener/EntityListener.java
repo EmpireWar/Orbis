@@ -227,7 +227,7 @@ public class EntityListener implements Listener {
                 orbis.getRegionisedWorld(event.getLocation().getWorld());
         event.blockList().removeIf(block -> {
             return !world.query(RegionQuery.Position.at(block.getX(), block.getY(), block.getZ()))
-                    .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTITIES_EXPLODE))
+                    .query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTITIES_EXPLODE))
                     .result()
                     .orElse(true);
         });

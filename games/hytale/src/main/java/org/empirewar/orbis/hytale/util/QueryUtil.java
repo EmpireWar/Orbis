@@ -23,7 +23,6 @@
  */
 package org.empirewar.orbis.hytale.util;
 
-import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.world.World;
 
@@ -35,6 +34,7 @@ import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
+import org.joml.Vector3i;
 
 public final class QueryUtil {
 
@@ -47,7 +47,7 @@ public final class QueryUtil {
     public static boolean shouldPreventBlockAction(@Nullable Vector3i block, @Nullable Player player, World world, RegistryRegionFlag<Boolean> flag) {
         // spotless:on
         if (block == null) return false;
-        final Vector3d pos = new Vector3d(block.getX(), block.getY(), block.getZ());
+        final Vector3d pos = new Vector3d(block.x(), block.y(), block.z());
         final RegionisedWorld regionisedWorld =
                 OrbisAPI.get().getRegionisedWorld(Key.key("hytale", world.getName()));
         final RegionQuery.Flag.Builder<Boolean> builder = RegionQuery.Flag.builder(flag);

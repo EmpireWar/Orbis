@@ -141,10 +141,8 @@ public class RegionCommand extends AbstractCommandCollection {
                                     .getSelection();
                             if (blockSelection != null && blockSelection.hasSelectionBounds()) {
                                 Selection sel = new Selection(AreaType.CUBOID);
-                                final com.hypixel.hytale.math.vector.Vector3i min =
-                                        blockSelection.getSelectionMin();
-                                final com.hypixel.hytale.math.vector.Vector3i max =
-                                        blockSelection.getSelectionMax();
+                                final Vector3i min = blockSelection.getSelectionMin();
+                                final Vector3i max = blockSelection.getSelectionMax();
                                 sel.addPoint(new Vector3i(min.x, min.y, min.z));
                                 sel.addPoint(new Vector3i(max.x, max.y, max.z));
                                 return sel;

@@ -27,7 +27,6 @@ import static net.kyori.adventure.text.Component.text;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractCommandCollection;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
@@ -45,6 +44,7 @@ import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.world.RegionisedWorld;
+import org.joml.Vector3d;
 import org.jspecify.annotations.NonNull;
 
 public class OrbisCommand extends AbstractCommandCollection {

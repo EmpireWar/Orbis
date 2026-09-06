@@ -52,10 +52,10 @@ public final class RegionEntryExitListener {
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
 
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_PLAYER_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_PLAYER_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> processCommand(cmd, player, false)));
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_CONSOLE_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_CONSOLE_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> processCommand(cmd, player, true)));
     }
@@ -68,10 +68,10 @@ public final class RegionEntryExitListener {
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
 
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_PLAYER_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_PLAYER_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> processCommand(cmd, player, false)));
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_CONSOLE_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_CONSOLE_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> processCommand(cmd, player, true)));
     }

@@ -185,7 +185,7 @@ public class RegionCommandTest {
         Region region = new Region("inforegion", new CuboidArea());
         region.area().addPoint(new Vector3i(0, 0, 0));
         region.area().addPoint(new Vector3i(4, 4, 4));
-        region.addFlag(DefaultFlags.CAN_BREAK);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
 
         // Round-trip through a flag entry no registry knows about, as if the owning plugin failed
         // to load. Operators need to see these listed, or they cannot tell a preserved flag apart
