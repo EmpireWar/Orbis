@@ -25,7 +25,7 @@ package org.empirewar.orbis.modded.mixin;
 
 import net.minecraft.server.level.ServerPlayer;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +38,7 @@ public abstract class ServerPlayerEntityMixin {
     @Inject(method = "drop(Z)Z", at = @At(value = "HEAD"), cancellable = true)
     private void checkDropItem(boolean bl, CallbackInfoReturnable<Boolean> cir) {
         ServerPlayer player = (ServerPlayer) (Object) this;
-        if (FlagActions.shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEM)) {
+        if (FlagActions.shouldPreventEntityAction(player, MinecraftFlags.CAN_DROP_ITEM)) {
             cir.setReturnValue(false); // Reject item drop
         }
     }

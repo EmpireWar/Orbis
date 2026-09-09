@@ -27,8 +27,8 @@ import net.kyori.adventure.key.Key;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.empirewar.orbis.Orbis;
-import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.spongepowered.api.entity.Entity;
@@ -75,9 +75,9 @@ public final class InteractEntityListener {
                         attacked.position().z()));
         final RegistryRegionFlag<Boolean> flag =
                 switch (attacked) {
-                    case Vehicle ignored -> DefaultFlags.CAN_DESTROY_VEHICLE;
-                    case Painting ignored -> DefaultFlags.CAN_DESTROY_PAINTING;
-                    case ItemFrame ignored -> DefaultFlags.CAN_DESTROY_ITEM_FRAME;
+                    case Vehicle ignored -> MinecraftFlags.CAN_DESTROY_VEHICLE;
+                    case Painting ignored -> MinecraftFlags.CAN_DESTROY_PAINTING;
+                    case ItemFrame ignored -> MinecraftFlags.CAN_DESTROY_ITEM_FRAME;
                     default -> null;
                 };
 
@@ -96,14 +96,14 @@ public final class InteractEntityListener {
         // Check PvP flag for players via AttackEntityEvent instead if cancel-pvp-hit-sounds = false
         if (attacked instanceof ServerPlayer) {
             if (orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)
-                    && shouldPreventEntityAction(attacked, player, DefaultFlags.CAN_PVP)) {
+                    && shouldPreventEntityAction(attacked, player, MinecraftFlags.CAN_PVP)) {
                 event.setCancelled(true);
             }
             return;
         }
 
         final RegionQuery.Flag.Builder<List<Key>> flagQueryBuilder =
-                RegionQuery.Flag.builder(DefaultFlags.DAMAGEABLE_ENTITIES);
+                RegionQuery.Flag.builder(MinecraftFlags.DAMAGEABLE_ENTITIES);
         if (player != null) flagQueryBuilder.player(player.uniqueId());
         final List<Key> damageable =
                 positionQuery.query(flagQueryBuilder).result().orElse(null);
@@ -119,7 +119,7 @@ public final class InteractEntityListener {
         if (orbis.config().node("cancel-pvp-hit-sounds").getBoolean(true)) return;
 
         final Entity attacked = event.entity();
-        if (shouldPreventEntityAction(attacked, attacker, DefaultFlags.CAN_PVP)) {
+        if (shouldPreventEntityAction(attacked, attacker, MinecraftFlags.CAN_PVP)) {
             event.setCancelled(true);
         }
     }
@@ -130,7 +130,7 @@ public final class InteractEntityListener {
         if (event.source() instanceof DamageSource damageSource) {
             final DamageType type = damageSource.type();
             if (type != DamageTypes.FALL.get()) return;
-            if (shouldPreventEntityAction(entity, DefaultFlags.FALL_DAMAGE)) {
+            if (shouldPreventEntityAction(entity, MinecraftFlags.FALL_DAMAGE)) {
                 event.setCancelled(true);
             }
         }
@@ -142,7 +142,7 @@ public final class InteractEntityListener {
         if (!(entity instanceof ServerPlayer)) return;
 
         if (!(damager instanceof ServerPlayer)) {
-            if (shouldPreventEntityAction(entity, DefaultFlags.CAN_TAKE_MOB_DAMAGE_SOURCES)) {
+            if (shouldPreventEntityAction(entity, MinecraftFlags.CAN_TAKE_MOB_DAMAGE_SOURCES)) {
                 event.setCancelled(true);
             }
         }
@@ -150,14 +150,14 @@ public final class InteractEntityListener {
 
     @Listener(order = Order.EARLY)
     public void onDrop(ChangeInventoryEvent.Drop event, @First ServerPlayer player) {
-        if (shouldPreventEntityAction(player, DefaultFlags.CAN_DROP_ITEM)) {
+        if (shouldPreventEntityAction(player, MinecraftFlags.CAN_DROP_ITEM)) {
             event.setCancelled(true);
         }
     }
 
     @Listener(order = Order.EARLY)
     public void onPickup(ChangeInventoryEvent.Pickup event, @Root ServerPlayer player) {
-        if (shouldPreventEntityAction(player, DefaultFlags.CAN_PICKUP_ITEM)) {
+        if (shouldPreventEntityAction(player, MinecraftFlags.CAN_PICKUP_ITEM)) {
             event.setCancelled(true);
         }
     }
@@ -167,11 +167,11 @@ public final class InteractEntityListener {
         if (!(event.entity() instanceof ItemFrame itemFrame)) return;
         final boolean rotate = !itemFrame.item().get().isEmpty();
         if (rotate) {
-            if (shouldPreventEntityAction(itemFrame, DefaultFlags.ITEM_FRAME_ROTATE)) {
+            if (shouldPreventEntityAction(itemFrame, MinecraftFlags.ITEM_FRAME_ROTATE)) {
                 event.setCancelled(true);
             }
         } else {
-            if (shouldPreventEntityAction(itemFrame, DefaultFlags.ITEM_FRAME_ITEM_PLACE)) {
+            if (shouldPreventEntityAction(itemFrame, MinecraftFlags.ITEM_FRAME_ITEM_PLACE)) {
                 event.setCancelled(true);
             }
         }

@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.TestOrbisPlatform;
 import org.empirewar.orbis.area.AreaType;
+import org.empirewar.orbis.minecraft.command.SelectionCommand;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.session.TestOrbisPlayerSession;
 import org.junit.jupiter.api.AfterAll;

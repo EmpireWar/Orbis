@@ -26,7 +26,7 @@ package org.empirewar.orbis.paper.session;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 
 import org.bukkit.command.CommandSender;
-import org.empirewar.orbis.player.ConsoleOrbisSession;
+import org.empirewar.orbis.minecraft.player.ConsoleOrbisSession;
 
 public class PaperConsoleSession extends ConsoleOrbisSession {
 

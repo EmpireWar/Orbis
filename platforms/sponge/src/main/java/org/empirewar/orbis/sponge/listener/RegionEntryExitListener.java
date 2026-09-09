@@ -23,7 +23,7 @@
  */
 package org.empirewar.orbis.sponge.listener;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.sponge.OrbisSponge;
@@ -48,14 +48,14 @@ public final class RegionEntryExitListener {
     public void onEnter(RegionEnterEvent event) {
         final Player player = event.getPlayer();
         final Region region = event.getRegion();
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_MESSAGE))
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
 
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_PLAYER_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_PLAYER_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> processCommand(cmd, player, false)));
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_CONSOLE_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_CONSOLE_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> processCommand(cmd, player, true)));
     }
@@ -64,14 +64,14 @@ public final class RegionEntryExitListener {
     public void onLeave(RegionLeaveEvent event) {
         final Player player = event.getPlayer();
         final Region region = event.getRegion();
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_MESSAGE))
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
 
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_PLAYER_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_PLAYER_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> processCommand(cmd, player, false)));
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_CONSOLE_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_CONSOLE_COMMANDS))
                 .result()
                 .ifPresent(commands -> commands.forEach(cmd -> processCommand(cmd, player, true)));
     }

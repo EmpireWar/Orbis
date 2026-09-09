@@ -28,7 +28,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
 import org.empirewar.orbis.paper.api.event.RegionLeaveEvent;
@@ -43,15 +43,15 @@ public record RegionEntryExitListener(OrbisPaperPlatform<?> orbis) implements Li
         final Player player = event.getPlayer();
         final Region region = event.getRegion();
         this.applyTimeChanges(player, event.getWorld(), event.getLocation());
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_MESSAGE))
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
 
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_PLAYER_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_PLAYER_COMMANDS))
                 .result()
                 .ifPresent(commands ->
                         commands.forEach(cmd -> this.processCommand(cmd, player, false)));
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_CONSOLE_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_CONSOLE_COMMANDS))
                 .result()
                 .ifPresent(commands ->
                         commands.forEach(cmd -> this.processCommand(cmd, player, true)));
@@ -62,15 +62,15 @@ public record RegionEntryExitListener(OrbisPaperPlatform<?> orbis) implements Li
         final Player player = event.getPlayer();
         final Region region = event.getRegion();
         this.applyTimeChanges(player, event.getWorld(), event.getLocation());
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_MESSAGE))
                 .result()
                 .ifPresent(message -> player.sendMessage(orbis.miniMessage().deserialize(message)));
 
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_PLAYER_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_PLAYER_COMMANDS))
                 .result()
                 .ifPresent(commands ->
                         commands.forEach(cmd -> this.processCommand(cmd, player, false)));
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_CONSOLE_COMMANDS))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_CONSOLE_COMMANDS))
                 .result()
                 .ifPresent(commands ->
                         commands.forEach(cmd -> this.processCommand(cmd, player, true)));
@@ -91,7 +91,7 @@ public record RegionEntryExitListener(OrbisPaperPlatform<?> orbis) implements Li
         final var timeResult = world.query(
                         RegionQuery.Position.at(location.getX(), location.getY(), location.getZ())
                                 .build())
-                .query(RegionQuery.Flag.builder(DefaultFlags.TIME).player(player.getUniqueId()))
+                .query(RegionQuery.Flag.builder(MinecraftFlags.TIME).player(player.getUniqueId()))
                 .result();
         timeResult.ifPresentOrElse(
                 time -> player.setPlayerTime(time, false), player::resetPlayerTime);
