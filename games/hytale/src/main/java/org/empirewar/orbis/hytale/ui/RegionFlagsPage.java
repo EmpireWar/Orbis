@@ -30,7 +30,6 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
-import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
 import com.hypixel.hytale.server.core.ui.DropdownEntryInfo;
 import com.hypixel.hytale.server.core.ui.LocalizableString;
@@ -44,6 +43,7 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.hytale.util.Translations;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
 import org.jetbrains.annotations.Nullable;
@@ -51,13 +51,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class RegionFlagsPage
-        extends InteractiveCustomUIPage<RegionFlagsPage.RegionFlagsData> {
+/** Lists and edits the flags set on a region. */
+public final class RegionFlagsPage extends ParentedPage<RegionFlagsPage.RegionFlagsData> {
 
     private final String regionName;
 
-    public RegionFlagsPage(PlayerRef player, CustomPageLifetime lifetime, Region region) {
-        super(player, lifetime, RegionFlagsData.CODEC);
+    public RegionFlagsPage(
+            PlayerRef player,
+            CustomPageLifetime lifetime,
+            Region region,
+            @Nullable InteractiveCustomUIPage<?> parent) {
+        super(player, lifetime, RegionFlagsData.CODEC, parent);
         this.regionName = region.name();
     }
 
@@ -68,17 +72,18 @@ public final class RegionFlagsPage
             UIEventBuilder ev,
             Store<EntityStore> store) {
         ui.append("Pages/Orbis_RegionFlags.ui");
+        super.build(ref, ui, ev, store);
 
         ui.set("#RegionNameLabel.Text", regionName);
 
         ev.addEventBinding(
                 CustomUIEventBindingType.Activating,
                 "#AddFlagButton",
-                EventData.of(UIActions.BUTTON, "AddFlag")
+                EventData.of(UIActions.BUTTON, UIActions.ADD_FLAG)
                         .append(UIActions.REGION, regionName)
-                        .append("@" + UIActions.FLAG, "#FlagSelector.Value"));
+                        .append(UIActions.live(UIActions.FLAG), "#FlagSelector.Value"));
 
-        Region region = resolveRegion();
+        final Region region = resolveRegion();
         if (region == null) {
             showMissing(ui);
             return;
@@ -91,53 +96,36 @@ public final class RegionFlagsPage
     @Override
     public void handleDataEvent(
             Ref<EntityStore> ref, Store<EntityStore> store, RegionFlagsData data) {
-        if (data.button == null) return;
+        super.handleDataEvent(ref, store, data);
+        if (isBack(data) || data.button == null) return;
 
         switch (data.button) {
-            case "AddFlag" -> addFlag(data);
-            case "ToggleFlag" -> toggleFlag(data);
-            case "RemoveFlag" -> removeFlag(data);
+            case UIActions.ADD_FLAG -> addFlag(data);
+            case UIActions.TOGGLE_FLAG -> toggleFlag(data);
+            case UIActions.MODIFY_FLAG ->
+                sendMessage(Translations.message("orbis.error.notEditable"));
+            case UIActions.REMOVE_FLAG -> removeFlag(data);
+            default -> {
+                return;
+            }
         }
 
         rebuild();
     }
 
-    @Override
-    protected void close() {
-        Region region = resolveRegion();
-        if (region == null) {
-            super.close();
-            return;
-        }
-
-        Ref<EntityStore> ref = this.playerRef.getReference();
-        if (ref != null) {
-            Store<EntityStore> store = ref.getStore();
-            Player playerComponent = store.getComponent(ref, Player.getComponentType());
-            playerComponent
-                    .getPageManager()
-                    .openCustomPage(
-                            ref,
-                            store,
-                            new RegionInfoPage(playerRef, CustomPageLifetime.CanDismiss, region));
-        }
-    }
-
     private void showMissing(UICommandBuilder ui) {
         ui.clear("#FlagCards");
 
-        ui.set("#FlagCountLabel.Text", "Region unavailable");
+        ui.set("#FlagCountLabel.Text", translate("orbis.region.flags.unavailable"));
 
-        ui.appendInline("#FlagCards", """
-                Label {
-                  Text: "This region no longer exists.";
-                  Style: (FontSize: 16, TextColor: #FF6B6B);
-                }
-                """);
+        ui.appendInline(
+                "#FlagCards",
+                "Label { Text: %ui.orbis.region.flags.missing;"
+                        + " Style: (FontSize: 16, TextColor: #FF6B6B); }");
     }
 
     private void populateDropdown(UICommandBuilder ui, Region region) {
-        List<DropdownEntryInfo> entries = new ArrayList<>();
+        final List<DropdownEntryInfo> entries = new ArrayList<>();
         String first = null;
 
         for (RegistryRegionFlag<?> flag : OrbisRegistries.FLAGS) {
@@ -145,7 +133,7 @@ public final class RegionFlagsPage
                 continue;
             }
 
-            String key = flag.key().asString();
+            final String key = flag.key().asString();
             entries.add(new DropdownEntryInfo(LocalizableString.fromString(key), key));
 
             if (first == null) {
@@ -153,15 +141,15 @@ public final class RegionFlagsPage
             }
         }
 
-        if (entries.isEmpty()) {
-            ui.set("#FlagSelector.Visible", false);
-            ui.set("#AddFlagButton.Visible", false);
+        final boolean any = !entries.isEmpty();
+        ui.set("#FlagSelector.Visible", any);
+        ui.set("#AddFlagButton.Visible", any);
+
+        if (!any) {
             ui.set("#FlagSelector.Value", "");
             return;
         }
 
-        ui.set("#FlagSelector.Visible", true);
-        ui.set("#AddFlagButton.Visible", true);
         ui.set("#FlagSelector.Entries", entries);
         ui.set("#FlagSelector.Value", first);
     }
@@ -169,69 +157,95 @@ public final class RegionFlagsPage
     private void renderFlags(UICommandBuilder ui, UIEventBuilder ev, Region region) {
         ui.clear("#FlagCards");
 
-        List<RegistryRegionFlag<?>> flags = OrbisRegistries.FLAGS.getAll().stream()
+        final List<RegistryRegionFlag<?>> flags = OrbisRegistries.FLAGS.getAll().stream()
                 .filter(f -> region.getFlag(f).isPresent())
                 .toList();
 
-        ui.set(
-                "#FlagCountLabel.Text",
-                flags.isEmpty()
-                        ? "No flags"
-                        : flags.size() + " flag" + (flags.size() == 1 ? "" : "s"));
+        ui.set("#FlagCountLabel.Text", flagCount(flags.size()));
 
         int index = 0;
         for (RegistryRegionFlag<?> registryFlag : flags) {
-            MutableRegionFlag<?> flag = region.getFlag(registryFlag).orElseThrow();
+            final MutableRegionFlag<?> flag = region.getFlag(registryFlag).orElseThrow();
 
             FlagEntryUI.render(ui, ev, index++, regionName, registryFlag, flag);
         }
     }
 
+    private String flagCount(int count) {
+        if (count == 0) {
+            return translate("orbis.region.flags.noFlags");
+        }
+
+        final String noun = translate(
+                count == 1
+                        ? "orbis.region.flags.flagCountSingular"
+                        : "orbis.region.flags.flagCount");
+        return count + " " + noun;
+    }
+
+    private String translate(String key) {
+        return Translations.ui(key, playerRef);
+    }
+
     private void addFlag(RegionFlagsData data) {
-        Region region = resolveRegion();
+        final Region region = resolveRegion();
         if (region == null || data.flag == null) return;
 
-        RegistryRegionFlag<?> flag =
+        final RegistryRegionFlag<?> flag =
                 OrbisRegistries.FLAGS.get(Key.key(data.flag)).orElse(null);
-        if (flag == null) return;
+        if (flag == null) {
+            sendMessage(Translations.message("orbis.error.flagGone"));
+            return;
+        }
 
         region.addFlag(flag);
     }
 
     private void toggleFlag(RegionFlagsData data) {
-        Region region = resolveRegion();
+        final Region region = resolveRegion();
         if (region == null || data.flag == null) return;
 
-        RegistryRegionFlag<?> registry =
+        final RegistryRegionFlag<?> registry =
                 OrbisRegistries.FLAGS.get(Key.key(data.flag)).orElse(null);
-        if (registry == null) return;
-
-        MutableRegionFlag<?> flag = region.getFlag(registry).orElse(null);
-        if (!(flag instanceof MutableRegionFlag<?> m)) return;
-
-        if (m.getValue() instanceof Boolean b) {
-            @SuppressWarnings("unchecked")
-            MutableRegionFlag<Boolean> bool = (MutableRegionFlag<Boolean>) m;
-            bool.setValue(!b);
+        if (registry == null) {
+            sendMessage(Translations.message("orbis.error.flagGone"));
+            return;
         }
-        // TODO: non-boolean editor
+
+        final MutableRegionFlag<?> flag = region.getFlag(registry).orElse(null);
+        if (flag == null) return;
+
+        if (flag.getValue() instanceof Boolean value) {
+            @SuppressWarnings("unchecked")
+            final MutableRegionFlag<Boolean> bool = (MutableRegionFlag<Boolean>) flag;
+            bool.setValue(!value);
+            return;
+        }
+
+        // TODO: non-boolean editor - see #ModifyFlag in Orbis_FlagEntry.ui.
+        sendMessage(Translations.message("orbis.error.notEditable"));
     }
 
     private void removeFlag(RegionFlagsData data) {
-        Region region = resolveRegion();
+        final Region region = resolveRegion();
         if (region == null || data.flag == null) return;
 
         OrbisRegistries.FLAGS.get(Key.key(data.flag)).ifPresent(region::removeFlag);
     }
 
-    private Region resolveRegion() {
-        return OrbisRegistries.REGIONS.get(regionName).orElse(null);
+    private @Nullable Region resolveRegion() {
+        final Region region = OrbisRegistries.REGIONS.get(regionName).orElse(null);
+        if (region == null) {
+            sendMessage(Translations.message("orbis.error.regionGone"));
+        }
+        return region;
     }
 
-    public static final class RegionFlagsData {
+    /** Event payload for this page. */
+    public static final class RegionFlagsData extends ParentedPage.ParentedData {
 
-        public static final BuilderCodec<RegionFlagsData> CODEC = BuilderCodec.builder(
-                        RegionFlagsData.class, RegionFlagsData::new)
+        public static final BuilderCodec<RegionFlagsData> CODEC = ParentedData.addBackField(
+                        BuilderCodec.builder(RegionFlagsData.class, RegionFlagsData::new))
                 .addField(
                         new KeyedCodec<>(UIActions.BUTTON, Codec.STRING),
                         (d, v) -> d.button = v,
@@ -241,7 +255,7 @@ public final class RegionFlagsPage
                         (d, v) -> d.flag = v,
                         d -> d.flag)
                 .addField(
-                        new KeyedCodec<>("@" + UIActions.FLAG, Codec.STRING),
+                        new KeyedCodec<>(UIActions.live(UIActions.FLAG), Codec.STRING),
                         (d, v) -> d.flag = v,
                         d -> d.flag)
                 .build();

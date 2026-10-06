@@ -1,0 +1,36 @@
+orbis.common.back = < Back
+orbis.common.remove = Remove
+orbis.common.none = None
+
+orbis.region.info.title = Region Info
+orbis.region.info.flags = Flags
+orbis.region.info.priority = Priority:
+orbis.region.info.adjust = Adjust
+orbis.region.info.parents = Parent Regions
+orbis.region.info.addParent = Add Parent
+orbis.region.info.noParents = No parents assigned.
+orbis.region.info.globalNoParents = Global regions cannot have parents.
+orbis.region.info.members = Members
+orbis.region.info.addMember = Add Member
+orbis.region.info.noMembers = No members.
+orbis.region.info.bounds = Bounds:
+orbis.region.info.volume = Volume:
+orbis.region.info.points = Points:
+orbis.region.info.globalArea = Global region (entire world).
+orbis.region.info.notFound = Region not found.
+
+orbis.region.flags.title = Region Flags
+orbis.region.flags.add = Add Flag
+orbis.region.flags.modify = Modify
+orbis.region.flags.noFlags = No flags
+orbis.region.flags.flagCount = flags
+orbis.region.flags.flagCountSingular = flag
+orbis.region.flags.unavailable = Region unavailable
+orbis.region.flags.missing = This region no longer exists.
+
+orbis.error.regionGone = That region no longer exists.
+orbis.error.parentGone = That parent region no longer exists.
+orbis.error.parentInvalid = That parent cannot be added (it would create a loop).
+orbis.error.flagGone = That flag no longer exists.
+orbis.error.priorityInvalid = Priority must be zero or greater.
+orbis.error.notEditable = That flag cannot be edited from this screen yet.

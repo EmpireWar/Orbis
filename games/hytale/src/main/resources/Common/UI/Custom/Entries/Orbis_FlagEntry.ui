@@ -1,16 +1,22 @@
 $C = "../Common.ui";
 
+@OrbisGold = #93844c;
+
 Group {
   LayoutMode: Left;
   Anchor: (Bottom: 8);
   Background: $C.@InputBoxBackground;
   Padding: (Left: 6, Right: 6, Top: 6, Bottom: 6);
 
-//  Group #FlagIcon {
-//    Anchor: (Width: 48, Height: 48, Left: 4, Top: 4, Bottom: 4);
-//    Background: "../mod_icon_not_found.png";
-//    Padding: (Full: 4);
-//  }
+  // The flag description is shown as a tooltip rather than an inline label, so cards stay compact.
+  TextTooltipShowDelay: 0.1;
+  TextTooltipStyle: $C.@DefaultTextTooltipStyle;
+
+  // Boolean flags toggle in place; everything else falls back to #ModifyFlag below.
+  $C.@CheckBox #FlagToggle {
+    Anchor: (Left: 4, Vertical: 0);
+    Visible: false;
+  }
 
   Group {
     LayoutMode: Top;
@@ -19,13 +25,12 @@ Group {
 
     Group {
       LayoutMode: Left;
-      Anchor: (Bottom: 4);
 
       Label #FlagName {
         Style: (
           FontSize: 16,
           RenderBold: true,
-          TextColor: #93844cff
+          TextColor: @OrbisGold
         );
         FlexWeight: 1;
       }
@@ -45,28 +50,21 @@ Group {
       }
     }
 
-    Label #FlagDescription {
-      Visible: false;
-      Style: (
-        FontSize: 14,
-        Wrap: true,
-        TextColor: #ffffffb3
-      );
-      Anchor: (Bottom: 6);
-    }
-
     Group {
       LayoutMode: Left;
-      Anchor: (Top: 4);
+      Anchor: (Top: 6);
 
-      $C.@TextButton #ToggleFlag {
+      $C.@TextButton #ModifyFlag {
         Anchor: (Width: 192, Height: 28);
-        Text: "Toggle";
+        Text: %ui.orbis.region.flags.modify;
+        Visible: false;
       }
+
+      Label { FlexWeight: 1; }
 
       $C.@CancelTextButton #RemoveFlag {
         Anchor: (Width: 192, Height: 28, Left: 6);
-        Text: "Remove";
+        Text: %ui.orbis.common.remove;
       }
     }
   }

@@ -24,6 +24,7 @@
 package org.empirewar.orbis.hytale.ui;
 
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
@@ -31,8 +32,25 @@ import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 
+/** Renders a single flag card into {@code #FlagCards}. */
 public final class FlagEntryUI {
 
+    private static final String GOLD = "#93844c";
+
+    /**
+     * Appends and populates one flag card.
+     *
+     * <p>Boolean flags get an in-place checkbox; anything else falls back to a modify button, which
+     * is not yet wired up. The flag description is attached as a tooltip rather than an inline
+     * label so cards stay compact.
+     *
+     * @param ui the command builder
+     * @param ev the event builder
+     * @param index the card's index within {@code #FlagCards}
+     * @param regionName the region being edited
+     * @param registryFlag the flag definition
+     * @param flag the flag's value on this region
+     */
     public static void render(
             UICommandBuilder ui,
             UIEventBuilder ev,
@@ -42,37 +60,57 @@ public final class FlagEntryUI {
             MutableRegionFlag<?> flag) {
         ui.append("#FlagCards", "Entries/Orbis_FlagEntry.ui");
 
-        String base = "#FlagCards[" + index + "]";
+        final String base = "#FlagCards[" + index + "]";
+        final String key = registryFlag.key().asString();
 
-        ui.set(base + " #FlagName.Text", registryFlag.key().asString());
+        ui.set(base + " #FlagName.Text", key);
         ui.set(base + " #FlagValue.Text", String.valueOf(flag.getValue()));
 
-        registryFlag
+        ui.set(base + ".TooltipTextSpans", tooltip(registryFlag));
+
+        final EventData payload =
+                EventData.of(UIActions.REGION, regionName).append(UIActions.FLAG, key);
+
+        if (flag.getValue() instanceof Boolean value) {
+            ui.set(base + " #FlagToggle.Visible", true);
+            ui.set(base + " #FlagToggle.Value", value);
+            ui.set(base + " #ModifyFlag.Visible", false);
+
+            // ValueChanged rather than Activating: the checkbox reports its new state itself.
+            ev.addEventBinding(
+                    CustomUIEventBindingType.ValueChanged,
+                    base + " #FlagToggle",
+                    payload.append(UIActions.BUTTON, UIActions.TOGGLE_FLAG),
+                    false);
+        } else {
+            ui.set(base + " #FlagToggle.Visible", false);
+            ui.set(base + " #ModifyFlag.Visible", true);
+
+            ev.addEventBinding(
+                    CustomUIEventBindingType.Activating,
+                    base + " #ModifyFlag",
+                    payload.append(UIActions.BUTTON, UIActions.MODIFY_FLAG));
+        }
+
+        final EventData remove = EventData.of(UIActions.BUTTON, UIActions.REMOVE_FLAG)
+                .append(UIActions.REGION, regionName)
+                .append(UIActions.FLAG, key);
+
+        ev.addEventBinding(CustomUIEventBindingType.Activating, base + " #RemoveFlag", remove);
+
+        // Right-click the card as a shortcut for the remove button.
+        ev.addEventBinding(CustomUIEventBindingType.RightClicking, base, remove);
+    }
+
+    private static Message tooltip(RegistryRegionFlag<?> registryFlag) {
+        final Message name =
+                Message.raw(registryFlag.key().asString()).bold(true).color(GOLD);
+
+        return registryFlag
                 .description()
-                .ifPresentOrElse(
-                        d -> {
-                            ui.set(base + " #FlagDescription.Text", d);
-                            ui.set(base + " #FlagDescription.Visible", true);
-                        },
-                        () -> ui.set(base + " #FlagDescription.Visible", false));
-
-        boolean isBoolean = flag.getValue() instanceof Boolean;
-        String toggleEvent = isBoolean ? "ToggleFlag" : "ModifyFlag";
-        ui.set(base + " #ToggleFlag.Text", isBoolean ? "Toggle" : "Modify");
-
-        ev.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                base + " #ToggleFlag",
-                EventData.of(UIActions.BUTTON, toggleEvent)
-                        .append(UIActions.REGION, regionName)
-                        .append(UIActions.FLAG, registryFlag.key().asString()));
-
-        ev.addEventBinding(
-                CustomUIEventBindingType.Activating,
-                base + " #RemoveFlag",
-                EventData.of(UIActions.BUTTON, "RemoveFlag")
-                        .append(UIActions.REGION, regionName)
-                        .append(UIActions.FLAG, registryFlag.key().asString()));
+                .map(description ->
+                        Message.join(name, Message.raw("\n\n"), Message.raw(description)))
+                .orElse(name);
     }
 
     private FlagEntryUI() {}

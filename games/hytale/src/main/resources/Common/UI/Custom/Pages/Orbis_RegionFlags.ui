@@ -1,14 +1,41 @@
 $C = "../Common.ui";
 
-$C.@PageOverlay {
+@OrbisGold = #93844c;
 
-  $C.@Container {
+@RegionNameStyle = LabelStyle(
+  FontSize: 18,
+  RenderBold: true,
+  TextColor: @OrbisGold
+);
+
+@CaptionStyle = LabelStyle(
+  FontSize: 14,
+  TextColor: #ffffff(0.8)
+);
+
+@BackButtonStyle = TextButtonStyle(
+  Default: (LabelStyle: (FontSize: 14, TextColor: @OrbisGold, RenderBold: true)),
+  Sounds: $C.@ButtonSounds
+);
+
+$C.@PageOverlay {
+  $C.@DecoratedContainer {
+    @CloseButton = true;
+
     Anchor: (Width: 650, Height: 669);
 
     #Title {
+      TextButton #BackButton {
+        Anchor: (Left: 12, Top: 4, Width: 64, Height: 24);
+        Padding: (Left: 8, Top: 2);
+        Text: %ui.orbis.common.back;
+        Style: @BackButtonStyle;
+        Background: #000000(0.13);
+      }
+
       Group {
-        $C.@Title {
-          @Text = "REGION FLAGS";
+        $C.@Title #TitleText {
+          @Text = %ui.orbis.region.flags.title;
         }
       }
     }
@@ -26,20 +53,12 @@ $C.@PageOverlay {
           Label #RegionNameLabel {
             FlexWeight: 1;
             Anchor: (Left: 4, Vertical: 0);
-            Style: (
-              FontSize: 18,
-              RenderBold: true,
-              TextColor: #93844cff
-            );
+            Style: @RegionNameStyle;
           }
 
           Label #FlagCountLabel {
             Anchor: (Right: 8, Vertical: 0);
-            Style: (
-              FontSize: 14,
-              RenderBold: false,
-              TextColor: #ffffffcc
-            );
+            Style: @CaptionStyle;
           }
         }
 
@@ -50,11 +69,13 @@ $C.@PageOverlay {
           $C.@DropdownBox #FlagSelector {
             FlexWeight: 1;
             Anchor: (Height: 30);
+            // @DefaultDropdownBoxStyle already carries a SearchInputStyle; this just enables it.
+            ShowSearchInput: true;
           }
 
           $C.@TextButton #AddFlagButton {
             Anchor: (Width: 196, Height: 30, Left: 8);
-            Text: "Add Flag";
+            Text: %ui.orbis.region.flags.add;
           }
         }
 

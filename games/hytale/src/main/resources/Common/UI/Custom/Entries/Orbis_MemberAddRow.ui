@@ -6,6 +6,6 @@ Group {
 
   $C.@TextButton #AddMember {
     Anchor: (Width: 192, Height: 28);
-    Text: "Add Member";
+    Text: %ui.orbis.region.info.addMember;
   }
 }

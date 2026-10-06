@@ -7,10 +7,12 @@ Group {
   $C.@DropdownBox #ParentSelector {
     FlexWeight: 1;
     Anchor: (Height: 28, Right: 8);
+    // @DefaultDropdownBoxStyle already carries a SearchInputStyle; this just enables it.
+    ShowSearchInput: true;
   }
 
   $C.@TextButton #AddParent {
     Anchor: (Width: 192, Height: 28);
-    Text: "Add Parent";
+    Text: %ui.orbis.region.info.addParent;
   }
 }
