@@ -30,10 +30,10 @@ import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.empirewar.orbis.minecraft.player.OrbisSession;
 import org.empirewar.orbis.paper.command.PaperCommands;
 import org.empirewar.orbis.paper.session.PaperConsoleSession;
 import org.empirewar.orbis.paper.session.PaperPlayerSession;
-import org.empirewar.orbis.player.OrbisSession;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.brigadier.suggestion.TooltipSuggestion;
 import org.incendo.cloud.execution.ExecutionCoordinator;

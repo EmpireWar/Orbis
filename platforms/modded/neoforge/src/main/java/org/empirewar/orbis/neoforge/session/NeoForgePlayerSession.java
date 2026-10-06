@@ -30,8 +30,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.server.permission.PermissionAPI;
 
 import org.empirewar.orbis.OrbisAPI;
+import org.empirewar.orbis.minecraft.player.PlayerOrbisSession;
 import org.empirewar.orbis.neoforge.OrbisNeoForge;
-import org.empirewar.orbis.player.PlayerOrbisSession;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 

@@ -18,18 +18,22 @@ pluginManagement {
         maven("https://maven.shedaniel.me/")
         maven("https://maven.neoforged.net/releases")
         maven("https://repo.spongepowered.org/repository/maven-public/")
+        maven("https://maven.azuredoom.com/mods")
     }
 }
 
 plugins {
     // Apply the foojay-resolver plugin to allow automatic download of JDKs
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 rootProject.name = "Orbis"
-include("common", "migrators:rpgregions", "migrators:worldguard",
+include("common", "games:hytale", "api:hytale-api", "games:minecraft",
+    "migrators:rpgregions", "migrators:worldguard",
     "platforms:paper", "api:paper-api",
     "platforms:sponge", "api:sponge-api",
     "platforms:modded:modded-common",
     "platforms:modded:fabric", "api:fabric-api",
-    "platforms:modded:neoforge", "api:neoforge-api")
+    "platforms:modded:neoforge", "api:neoforge-api"
+)
+

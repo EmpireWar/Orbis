@@ -26,8 +26,8 @@ package org.empirewar.orbis.sponge.listener;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.Orbis;
-import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.world.RegionisedWorld;
 import org.jetbrains.annotations.Nullable;
@@ -65,20 +65,20 @@ public final class BlockActionListener {
     public void onChange(ChangeBlockEvent.All event, @First ServerPlayer serverPlayer) {
         event.transactions(Operations.BREAK.get()).forEach(transaction -> {
             if (shouldPreventBlockAction(
-                    transaction.original(), serverPlayer, DefaultFlags.CAN_BREAK)) {
+                    transaction.original(), serverPlayer, MinecraftFlags.CAN_BREAK)) {
                 event.invalidateAll();
             }
         });
 
         event.transactions(Operations.PLACE.get()).forEach(transaction -> {
             if (shouldPreventBlockAction(
-                    transaction.original(), serverPlayer, DefaultFlags.CAN_PLACE)) {
+                    transaction.original(), serverPlayer, MinecraftFlags.CAN_PLACE)) {
                 event.invalidateAll();
             }
         });
 
         event.transactions(Operations.DECAY.get()).forEach(transaction -> {
-            if (shouldPreventBlockAction(transaction.original(), DefaultFlags.LEAF_DECAY)) {
+            if (shouldPreventBlockAction(transaction.original(), MinecraftFlags.LEAF_DECAY)) {
                 transaction.invalidate();
             }
         });
@@ -91,7 +91,7 @@ public final class BlockActionListener {
                                     block.position().x(),
                                     block.position().y(),
                                     block.position().z()))
-                    .query(RegionQuery.Flag.builder(DefaultFlags.GROWABLE_BLOCKS))
+                    .query(RegionQuery.Flag.builder(MinecraftFlags.GROWABLE_BLOCKS))
                     .result()
                     .orElse(null);
             if (growable == null) return;
@@ -107,7 +107,8 @@ public final class BlockActionListener {
             if ((original.state().type().isAnyOf(BlockTypes.FARMLAND.get())
                             && replacement.state().type().isAnyOf(BlockTypes.DIRT.get()))
                     || original.state().type().isAnyOf(BlockTypes.TURTLE_EGG.get())) {
-                if (shouldPreventBlockAction(original, serverPlayer, DefaultFlags.BLOCK_TRAMPLE)) {
+                if (shouldPreventBlockAction(
+                        original, serverPlayer, MinecraftFlags.BLOCK_TRAMPLE)) {
                     transaction.invalidate();
                 }
             }
@@ -119,7 +120,7 @@ public final class BlockActionListener {
                     .key(RegistryTypes.BLOCK_TYPE)
                     .asString()
                     .contains("DEAD")) {
-                if (shouldPreventBlockAction(original, DefaultFlags.CORAL_DECAY)) {
+                if (shouldPreventBlockAction(original, MinecraftFlags.CORAL_DECAY)) {
                     transaction.invalidate();
                 }
             }
@@ -130,7 +131,7 @@ public final class BlockActionListener {
     public void onFireSpread(ChangeBlockEvent.Pre event) {
         if (!event.context().containsKey(EventContextKeys.FIRE_SPREAD)) return;
         for (ServerLocation location : event.locations()) {
-            if (shouldPreventBlockAction(location.createSnapshot(), DefaultFlags.FIRE_SPREAD)) {
+            if (shouldPreventBlockAction(location.createSnapshot(), MinecraftFlags.FIRE_SPREAD)) {
                 event.setCancelled(true);
                 break;
             }
@@ -144,7 +145,7 @@ public final class BlockActionListener {
         //        event.setCancelled(
         //
         // shouldPreventBlockAction(event.container().currentMenu().orElseThrow().inventory().,
-        // DefaultFlags.BLOCK_INVENTORY_ACCESS));
+        // MinecraftFlags.BLOCK_INVENTORY_ACCESS));
     }
 
     @Listener(order = Order.EARLY)
@@ -153,7 +154,7 @@ public final class BlockActionListener {
         if (block.get(Keys.POWER).isPresent()
                 || block.get(Keys.IS_POWERED).isPresent()
                 || block.get(Keys.REDSTONE_DELAY).isPresent()) {
-            if (shouldPreventBlockAction(block, player, DefaultFlags.TRIGGER_REDSTONE)) {
+            if (shouldPreventBlockAction(block, player, MinecraftFlags.TRIGGER_REDSTONE)) {
                 event.setUseBlockResult(Tristate.FALSE);
                 event.setCancelled(true);
             }
@@ -169,7 +170,7 @@ public final class BlockActionListener {
 
         event.locations().forEach(location -> {
             if (shouldPreventBlockAction(
-                    location.createSnapshot(), DefaultFlags.ACTIVATE_PISTONS)) {
+                    location.createSnapshot(), MinecraftFlags.ACTIVATE_PISTONS)) {
                 event.setCancelled(true);
             }
         });

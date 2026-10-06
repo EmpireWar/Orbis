@@ -29,7 +29,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -46,7 +46,7 @@ public abstract class LeavesBlockMixin {
             BlockPos pos,
             RandomSource random,
             CallbackInfo ci) {
-        if (FlagActions.shouldPreventBlockAction(level, pos, null, DefaultFlags.LEAF_DECAY)) {
+        if (FlagActions.shouldPreventBlockAction(level, pos, null, MinecraftFlags.LEAF_DECAY)) {
             ci.cancel(); // Skip the decay logic entirely
         }
     }

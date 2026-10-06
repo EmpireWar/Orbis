@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.JsonParser;
 
 import org.empirewar.orbis.area.CuboidArea;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.serialization.StaticGsonProvider;
@@ -67,7 +67,7 @@ public class OrbisPlatformLoadRegionsTest {
         area.addPoint(new Vector3i(0, 0, 0));
         area.addPoint(new Vector3i(4, 4, 4));
         final Region region = new Region(name, area);
-        region.addFlag(DefaultFlags.CAN_BREAK);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
 
         final Path regions = Files.createDirectories(tempDir.resolve("regions"));
         Files.writeString(

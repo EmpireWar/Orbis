@@ -30,11 +30,11 @@ import net.kyori.adventure.text.event.HoverEvent;
 
 import org.empirewar.orbis.Orbis;
 import org.empirewar.orbis.area.AreaType;
-import org.empirewar.orbis.command.Permissions;
 import org.empirewar.orbis.selection.Selection;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.util.OrbisText;
 import org.empirewar.orbis.util.OrbisTranslations;
+import org.empirewar.orbis.util.Permissions;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 import org.spongepowered.api.block.BlockSnapshot;

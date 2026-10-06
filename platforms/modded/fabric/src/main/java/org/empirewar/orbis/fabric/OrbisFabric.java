@@ -43,7 +43,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 
 import org.empirewar.orbis.OrbisAPI;
-import org.empirewar.orbis.OrbisPlatform;
 import org.empirewar.orbis.fabric.api.event.RegionEnterEvent;
 import org.empirewar.orbis.fabric.api.event.RegionLeaveEvent;
 import org.empirewar.orbis.fabric.event.PlayerMoveEvent;
@@ -54,7 +53,8 @@ import org.empirewar.orbis.fabric.listener.InteractEntityListener;
 import org.empirewar.orbis.fabric.selection.SelectionListener;
 import org.empirewar.orbis.fabric.session.FabricConsoleSession;
 import org.empirewar.orbis.fabric.session.FabricPlayerSession;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.OrbisMinecraftPlatform;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.command.ModdedCommands;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
@@ -72,7 +72,7 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.UUID;
 
-public class OrbisFabric extends OrbisPlatform implements ModInitializer {
+public class OrbisFabric extends OrbisMinecraftPlatform implements ModInitializer {
 
     // This logger is used to write text to the console and the log file.
     // It is considered best practice to use your mod id as the logger's name.
@@ -185,14 +185,14 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
                 (s, world) -> this.loadWorld(((Keyed) world.dimension()).key(), UUID.randomUUID()));
 
         RegionEnterEvent.EVENT.register((player, level, pos, world, region) -> {
-            region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
+            region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_MESSAGE))
                     .result()
                     .ifPresent(message ->
                             ((Audience) player).sendMessage(miniMessage().deserialize(message)));
         });
 
         RegionLeaveEvent.EVENT.register((player, level, pos, world, region) -> {
-            region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
+            region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_MESSAGE))
                     .result()
                     .ifPresent(message ->
                             ((Audience) player).sendMessage(miniMessage().deserialize(message)));
@@ -204,7 +204,7 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
 
             final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery =
                     world.query(RegionQuery.Position.builder().position(to.x(), to.y(), to.z()));
-            final boolean canMove = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
+            final boolean canMove = toQuery.query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER)
                             .player(player.getUUID()))
                     .result()
                     .orElse(true);
@@ -239,7 +239,7 @@ public class OrbisFabric extends OrbisPlatform implements ModInitializer {
                     this.getRegionisedWorld(((Keyed) player.level().dimension()).key());
             final boolean canMove = world.query(
                             RegionQuery.Position.builder().position(pos.x(), pos.y(), pos.z()))
-                    .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
+                    .query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER)
                             .player(player.getUUID()))
                     .result()
                     .orElse(true);

@@ -26,11 +26,10 @@ package org.empirewar.orbis.fabric.listener;
 import net.fabricmc.fabric.api.event.player.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.level.block.*;
 import net.minecraft.world.phys.HitResult;
 
 import org.empirewar.orbis.fabric.OrbisFabric;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 
 public final class BlockActionListener {
@@ -43,7 +42,7 @@ public final class BlockActionListener {
         // Block breaking
         PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
             return !FlagActions.shouldPreventBlockAction(
-                    world, pos, player, DefaultFlags.CAN_BREAK);
+                    world, pos, player, MinecraftFlags.CAN_BREAK);
         });
 
         // Block placing
@@ -51,7 +50,7 @@ public final class BlockActionListener {
             if (hitResult.getType() == HitResult.Type.BLOCK) {
                 BlockPos pos = hitResult.getBlockPos();
                 if (FlagActions.shouldPreventBlockAction(
-                        world, pos, player, DefaultFlags.CAN_PLACE)) {
+                        world, pos, player, MinecraftFlags.CAN_PLACE)) {
                     return InteractionResult.FAIL;
                 }
             }

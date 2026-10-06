@@ -1,0 +1,28 @@
+name: "Hytale Bug report"
+description: "Report a Hytale bug with Orbis."
+labels:
+  - bug
+  - hytale
+body:
+  - type: input
+    id: orbis_version
+    attributes:
+      label: "Orbis Version"
+      description: "Which version of Orbis are you using? (e.g., 1.2.3)"
+      placeholder: "1.2.3"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe the bug"
+      description: "A clear and concise description of what the bug is. Include steps to reproduce if possible."
+    validations:
+      required: true
+  - type: textarea
+    id: plugins_mods
+    attributes:
+      label: "Mods on the server"
+      description: "List any other mods present on your server."
+    validations:
+      required: false

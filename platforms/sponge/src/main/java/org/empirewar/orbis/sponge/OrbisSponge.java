@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.OrbisAPI;
-import org.empirewar.orbis.OrbisPlatform;
+import org.empirewar.orbis.minecraft.OrbisMinecraftPlatform;
 import org.empirewar.orbis.sponge.command.SpongeCommands;
 import org.empirewar.orbis.sponge.key.SpongeDataKeys;
 import org.empirewar.orbis.sponge.listener.*;
@@ -64,7 +64,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 @Plugin("orbis")
-public class OrbisSponge extends OrbisPlatform {
+public class OrbisSponge extends OrbisMinecraftPlatform {
 
     private final Logger logger = LoggerFactory.getLogger("orbis");
     private final PluginContainer pluginContainer;

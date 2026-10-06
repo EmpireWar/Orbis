@@ -28,7 +28,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.neoforge.OrbisNeoForge;
 import org.empirewar.orbis.neoforge.api.event.RegionEnterEvent;
 import org.empirewar.orbis.neoforge.api.event.RegionLeaveEvent;
@@ -48,7 +48,7 @@ public final class RegionMessagesListener {
     public void onEnter(RegionEnterEvent event) {
         final Player player = event.getEntity();
         final Region region = event.getRegion();
-        region.query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_MESSAGE))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_MESSAGE))
                 .result()
                 .ifPresent(message ->
                         ((Audience) player).sendMessage(orbis.miniMessage().deserialize(message)));
@@ -58,7 +58,7 @@ public final class RegionMessagesListener {
     public void onLeave(RegionLeaveEvent event) {
         final Player player = event.getEntity();
         final Region region = event.getRegion();
-        region.query(RegionQuery.Flag.builder(DefaultFlags.EXIT_MESSAGE))
+        region.query(RegionQuery.Flag.builder(MinecraftFlags.EXIT_MESSAGE))
                 .result()
                 .ifPresent(message ->
                         ((Audience) player).sendMessage(orbis.miniMessage().deserialize(message)));

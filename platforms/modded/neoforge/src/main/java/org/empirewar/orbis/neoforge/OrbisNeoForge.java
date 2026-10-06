@@ -47,8 +47,7 @@ import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
 import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
 import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
 
-import org.empirewar.orbis.OrbisPlatform;
-import org.empirewar.orbis.command.Permissions;
+import org.empirewar.orbis.minecraft.OrbisMinecraftPlatform;
 import org.empirewar.orbis.modded.command.ModdedCommands;
 import org.empirewar.orbis.neoforge.listener.BlockActionListener;
 import org.empirewar.orbis.neoforge.listener.ConnectionListener;
@@ -59,6 +58,7 @@ import org.empirewar.orbis.neoforge.selection.SelectionListener;
 import org.empirewar.orbis.neoforge.session.NeoForgeConsoleSession;
 import org.empirewar.orbis.neoforge.session.NeoForgePlayerSession;
 import org.empirewar.orbis.selection.Selection;
+import org.empirewar.orbis.util.Permissions;
 import org.incendo.cloud.SenderMapper;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.neoforge.NeoForgeServerCommandManager;
@@ -71,7 +71,8 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 @Mod("orbis")
-public class OrbisNeoForge extends OrbisPlatform {
+public class OrbisNeoForge extends OrbisMinecraftPlatform {
+
     public static final Logger LOGGER = LoggerFactory.getLogger("orbis");
 
     private volatile MinecraftServerAudiences adventure;

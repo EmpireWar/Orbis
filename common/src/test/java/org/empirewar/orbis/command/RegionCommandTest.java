@@ -31,10 +31,11 @@ import com.google.gson.JsonPrimitive;
 import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.TestOrbisPlatform;
 import org.empirewar.orbis.area.CuboidArea;
-import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
 import org.empirewar.orbis.flag.value.FlagValue;
 import org.empirewar.orbis.member.PermissionMember;
+import org.empirewar.orbis.minecraft.command.RegionCommand;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
@@ -164,7 +165,7 @@ public class RegionCommandTest {
     void testOnFlagAddAndSet() {
         TestOrbisPlayerSession session = new TestOrbisPlayerSession(UUID.randomUUID());
         Region region = new Region("flagregion", new CuboidArea());
-        RegistryRegionFlag<Boolean> flag = DefaultFlags.CAN_BREAK;
+        RegistryRegionFlag<Boolean> flag = MinecraftFlags.CAN_BREAK;
         cmd.onFlagAdd(session, null, region, flag, null);
         assertTrue(region.hasFlag(flag));
         cmd.onFlagSet(session, null, region, flag, new FlagValue<>(true));
@@ -184,7 +185,7 @@ public class RegionCommandTest {
         Region region = new Region("inforegion", new CuboidArea());
         region.area().addPoint(new Vector3i(0, 0, 0));
         region.area().addPoint(new Vector3i(4, 4, 4));
-        region.addFlag(DefaultFlags.CAN_BREAK);
+        region.addFlag(MinecraftFlags.CAN_BREAK);
 
         // Round-trip through a flag entry no registry knows about, as if the owning plugin failed
         // to load. Operators need to see these listed, or they cannot tell a preserved flag apart

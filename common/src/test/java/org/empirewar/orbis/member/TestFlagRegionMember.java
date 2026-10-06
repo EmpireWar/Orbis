@@ -26,7 +26,7 @@ package org.empirewar.orbis.member;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.empirewar.orbis.area.CuboidArea;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.Region;
 import org.junit.jupiter.api.Test;
@@ -39,23 +39,23 @@ public class TestFlagRegionMember {
     @Test
     void testRegionWithMemberAndGroupedFlag() {
         Region region = new Region("Selma", new CuboidArea());
-        region.addGroupedFlag(DefaultFlags.ITEM_FRAME_ITEM_PLACE, Set.of(FlagMemberGroup.MEMBER));
+        region.addGroupedFlag(MinecraftFlags.ITEM_FRAME_ITEM_PLACE, Set.of(FlagMemberGroup.MEMBER));
         final UUID fakePlayer = UUID.randomUUID();
         final PlayerMember fakeMember = new PlayerMember(fakePlayer);
 
         // Not specifying a player should give us a valid result
-        assertTrue(region.query(RegionQuery.Flag.builder(DefaultFlags.ITEM_FRAME_ITEM_PLACE))
+        assertTrue(region.query(RegionQuery.Flag.builder(MinecraftFlags.ITEM_FRAME_ITEM_PLACE))
                 .result()
                 .isPresent());
 
         // Specify the player to check the group
-        assertTrue(region.query(RegionQuery.Flag.builder(DefaultFlags.ITEM_FRAME_ITEM_PLACE)
+        assertTrue(region.query(RegionQuery.Flag.builder(MinecraftFlags.ITEM_FRAME_ITEM_PLACE)
                         .player(fakePlayer))
                 .result()
                 .isEmpty());
 
         region.addMember(fakeMember);
-        assertTrue(region.query(RegionQuery.Flag.builder(DefaultFlags.ITEM_FRAME_ITEM_PLACE)
+        assertTrue(region.query(RegionQuery.Flag.builder(MinecraftFlags.ITEM_FRAME_ITEM_PLACE)
                         .player(fakePlayer))
                 .result()
                 .isPresent());

@@ -35,7 +35,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.persistence.PersistentDataType;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.paper.OrbisPaperPlatform;
 import org.empirewar.orbis.paper.api.event.RegionEnterEvent;
 import org.empirewar.orbis.paper.api.event.RegionLeaveEvent;
@@ -65,7 +65,7 @@ public class MovementListener implements Listener {
         final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld());
         final RegionQuery.FilterableRegionResult<RegionQuery.Position> toQuery = world.query(
                 RegionQuery.Position.builder().position(to.getX(), to.getY(), to.getZ()));
-        final boolean canMove = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
+        final boolean canMove = toQuery.query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER)
                         .player(player.getUniqueId()))
                 .result()
                 .orElse(true);
@@ -83,8 +83,9 @@ public class MovementListener implements Listener {
         }
 
         if (player.isGliding()) {
-            final boolean canGlide = toQuery.query(RegionQuery.Flag.builder(DefaultFlags.CAN_GLIDE)
-                            .player(player.getUniqueId()))
+            final boolean canGlide = toQuery.query(
+                            RegionQuery.Flag.builder(MinecraftFlags.CAN_GLIDE)
+                                    .player(player.getUniqueId()))
                     .result()
                     .orElse(true);
             if (!canGlide) {
@@ -117,7 +118,7 @@ public class MovementListener implements Listener {
         final RegionisedWorld world = orbis.getRegionisedWorld(to.getWorld());
         var queryResult = world.query(RegionQuery.Position.at(to.getX(), to.getY(), to.getZ()));
         boolean canMove = queryResult
-                .query(RegionQuery.Flag.builder(DefaultFlags.CAN_ENTER)
+                .query(RegionQuery.Flag.builder(MinecraftFlags.CAN_ENTER)
                         .player(player.getUniqueId()))
                 .result()
                 .orElse(true);
@@ -138,7 +139,7 @@ public class MovementListener implements Listener {
                             PersistentDataType.LONG,
                             System.currentTimeMillis());
             queryResult
-                    .query(RegionQuery.Flag.builder(DefaultFlags.ENTRY_DENIED_COMMANDS)
+                    .query(RegionQuery.Flag.builder(MinecraftFlags.ENTRY_DENIED_COMMANDS)
                             .player(player.getUniqueId()))
                     .result()
                     .ifPresent(commands -> commands.forEach(cmd -> Bukkit.dispatchCommand(
@@ -155,7 +156,7 @@ public class MovementListener implements Listener {
         final RegionisedWorld world = orbis.getRegionisedWorld(entity.getWorld());
         final boolean drain = world.query(RegionQuery.Position.builder()
                         .position(location.getX(), location.getY(), location.getZ()))
-                .query(RegionQuery.Flag.builder(DefaultFlags.DRAIN_HUNGER)
+                .query(RegionQuery.Flag.builder(MinecraftFlags.DRAIN_HUNGER)
                         .player(entity.getUniqueId()))
                 .result()
                 .orElse(true);
@@ -171,7 +172,7 @@ public class MovementListener implements Listener {
             final RegionisedWorld world = orbis.getRegionisedWorld(location.getWorld());
             final boolean canGlide = world.query(RegionQuery.Position.builder()
                             .position(location.getX(), location.getY(), location.getZ()))
-                    .query(RegionQuery.Flag.builder(DefaultFlags.CAN_GLIDE)
+                    .query(RegionQuery.Flag.builder(MinecraftFlags.CAN_GLIDE)
                             .player(player.getUniqueId()))
                     .result()
                     .orElse(true);

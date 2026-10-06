@@ -29,7 +29,6 @@ import net.kyori.adventure.key.Key;
 
 import org.empirewar.orbis.area.AreaType;
 import org.empirewar.orbis.area.CuboidArea;
-import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.MutableRegionFlag;
 import org.empirewar.orbis.flag.RegionFlagType;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
@@ -50,8 +49,8 @@ public final class OrbisRegistries {
     public static final ResolvableStringOrbisRegistry<Region> REGIONS =
             createStringResolvable(Key.key("orbis", "regions"), r -> null);
 
-    public static final KeyOrbisRegistry<RegistryRegionFlag<?>> FLAGS =
-            create(Key.key("orbis", "flags"), r -> DefaultFlags.CAN_BREAK);
+    public static final KeyOrbisRegistry<RegistryRegionFlag<?>> FLAGS = create(
+            Key.key("orbis", "flags"), r -> null); // TODO: Load default flags dependent on game
 
     public static final KeyOrbisRegistry<RegionFlagType<?>> FLAG_TYPE =
             create(Key.key("orbis", "flag_type"), r -> {

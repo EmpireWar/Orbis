@@ -25,7 +25,7 @@ package org.empirewar.orbis.fabric.session;
 
 import net.minecraft.commands.CommandSourceStack;
 
-import org.empirewar.orbis.player.ConsoleOrbisSession;
+import org.empirewar.orbis.minecraft.player.ConsoleOrbisSession;
 
 public final class FabricConsoleSession extends ConsoleOrbisSession {
 

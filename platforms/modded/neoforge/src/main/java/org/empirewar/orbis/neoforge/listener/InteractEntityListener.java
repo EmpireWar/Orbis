@@ -30,7 +30,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 
 import org.empirewar.orbis.Orbis;
-import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.minecraft.flags.MinecraftFlags;
 import org.empirewar.orbis.modded.util.FlagActions;
 
 public final class InteractEntityListener {
@@ -42,7 +42,7 @@ public final class InteractEntityListener {
     @SubscribeEvent
     public void onLivingAttack(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            if (!FlagActions.shouldPreventEntityAction(player, DefaultFlags.INVULNERABILITY)) {
+            if (!FlagActions.shouldPreventEntityAction(player, MinecraftFlags.INVULNERABILITY)) {
                 event.setCanceled(true);
                 return;
             }
@@ -50,7 +50,7 @@ public final class InteractEntityListener {
             Entity direct = event.getSource().getDirectEntity();
             if (!(direct instanceof ServerPlayer)) {
                 if (FlagActions.shouldPreventEntityAction(
-                        player, DefaultFlags.CAN_TAKE_MOB_DAMAGE_SOURCES)) {
+                        player, MinecraftFlags.CAN_TAKE_MOB_DAMAGE_SOURCES)) {
                     event.setCanceled(true);
                 }
             }

@@ -26,7 +26,7 @@ package org.empirewar.orbis.neoforge.session;
 import net.kyori.adventure.platform.modcommon.AdventureCommandSourceStack;
 import net.minecraft.commands.CommandSourceStack;
 
-import org.empirewar.orbis.player.ConsoleOrbisSession;
+import org.empirewar.orbis.minecraft.player.ConsoleOrbisSession;
 
 public final class NeoForgeConsoleSession extends ConsoleOrbisSession {
 

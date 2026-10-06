@@ -1,0 +1,172 @@
+$C = "../Common.ui";
+
+@OrbisGold = #93844c;
+
+@SectionHeadingStyle = LabelStyle(
+  FontSize: 16,
+  RenderBold: true,
+  RenderUppercase: true,
+  TextColor: @OrbisGold
+);
+
+@RegionNameStyle = LabelStyle(
+  FontSize: 18,
+  RenderBold: true,
+  TextColor: @OrbisGold
+);
+
+@CaptionStyle = LabelStyle(
+  FontSize: 14,
+  TextColor: #ffffff(0.8)
+);
+
+@BackButtonStyle = TextButtonStyle(
+  Default: (LabelStyle: (FontSize: 14, TextColor: @OrbisGold, RenderBold: true)),
+  Sounds: $C.@ButtonSounds
+);
+
+$C.@PageOverlay {
+  $C.@DecoratedContainer {
+    @CloseButton = true;
+
+    Anchor: (Width: 650, Height: 669);
+
+    #Title {
+      TextButton #BackButton {
+        Anchor: (Left: 12, Top: 4, Width: 64, Height: 24);
+        Padding: (Left: 8, Top: 2);
+        Text: %ui.orbis.common.back;
+        Style: @BackButtonStyle;
+        Background: #000000(0.13);
+      }
+
+      Group {
+        $C.@Title #TitleText {
+          @Text = %ui.orbis.region.info.title;
+        }
+      }
+    }
+
+    #Content {
+      LayoutMode: Left;
+
+      Group #Main {
+        LayoutMode: Top;
+
+        Group {
+          LayoutMode: Left;
+          Anchor: (Bottom: 12);
+
+          Label #RegionNameLabel {
+            FlexWeight: 1;
+            Anchor: (Left: 4, Vertical: 0);
+            Style: @RegionNameStyle;
+          }
+
+          $C.@TextButton #ManageFlags {
+            Anchor: (Width: 120, Height: 30, Left: 8);
+            Text: %ui.orbis.region.info.flags;
+          }
+        }
+
+        // Everything below the header scrolls, so sections can overflow gracefully.
+        Group #Sections {
+          FlexWeight: 1;
+          LayoutMode: TopScrolling;
+          Padding: (Left: 4, Right: 4);
+          ScrollbarStyle: $C.@DefaultScrollbarStyle;
+
+          Group #PrioritySection {
+            LayoutMode: Left;
+            Anchor: (Bottom: 10);
+
+            Label {
+              Text: %ui.orbis.region.info.priority;
+              Style: @CaptionStyle;
+              Anchor: (Vertical: 0);
+            }
+
+            $C.@NumberField #PriorityValue {
+              Anchor: (Left: 6, Vertical: 0, Width: 120);
+              Value: 0;
+            }
+
+            $C.@TextButton #AdjustPriority {
+              Text: %ui.orbis.region.info.adjust;
+              Anchor: (Width: 120, Height: 28, Left: 10);
+            }
+          }
+
+          Group #Separator {
+            Anchor: (Width: 600, Top: 6, Bottom: 8);
+            OutlineColor: @OrbisGold;
+            OutlineSize: 0.5;
+          }
+
+          Group #ParentsSection {
+            LayoutMode: Top;
+            Anchor: (Bottom: 12);
+
+            Label {
+              Text: %ui.orbis.region.info.parents;
+              Style: @SectionHeadingStyle;
+              Anchor: (Bottom: 4);
+            }
+
+            Group #ParentsList {
+              LayoutMode: TopScrolling;
+              Anchor: (Width: 600, Height: 180);
+              Padding: (Left: 4, Right: 4);
+              ScrollbarStyle: $C.@DefaultScrollbarStyle;
+
+              Group #ParentCards {
+                LayoutMode: Top;
+              }
+            }
+          }
+
+          Group #Separator {
+            Anchor: (Width: 600, Top: 6, Bottom: 8);
+            OutlineColor: @OrbisGold;
+            OutlineSize: 0.5;
+          }
+
+          Group #MembersSection {
+            LayoutMode: Top;
+            Anchor: (Bottom: 12);
+
+            Label {
+              Text: %ui.orbis.region.info.members;
+              Style: @SectionHeadingStyle;
+              Anchor: (Bottom: 4);
+            }
+
+            Group #MembersList {
+              LayoutMode: TopScrolling;
+              Anchor: (Width: 600, Height: 180);
+              Padding: (Left: 4, Right: 4);
+              ScrollbarStyle: $C.@DefaultScrollbarStyle;
+
+              Group #MemberCards {
+                LayoutMode: Top;
+              }
+            }
+          }
+
+          Group #Separator {
+            Anchor: (Width: 600, Top: 6, Bottom: 8);
+            OutlineColor: @OrbisGold;
+            OutlineSize: 0.5;
+          }
+
+          Group #AreaDetails {
+            LayoutMode: Top;
+            Anchor: (Bottom: 6);
+          }
+        }
+      }
+    }
+  }
+}
+
+$C.@BackButton {}
