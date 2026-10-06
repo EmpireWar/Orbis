@@ -42,6 +42,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.tag.DamageTypeTags;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.empirewar.orbis.flag.DefaultFlags;
 import org.empirewar.orbis.flag.RegistryRegionFlag;
@@ -63,6 +64,9 @@ public class EntityListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
+        // Like vanilla invulnerability, let /kill and the void through
+        if (DamageTypeTags.BYPASSES_INVULNERABILITY.isTagged(
+                event.getDamageSource().getDamageType())) return;
 
         final RegionisedWorld world = orbis.getRegionisedWorld(player.getWorld());
         final Location location = player.getLocation();
