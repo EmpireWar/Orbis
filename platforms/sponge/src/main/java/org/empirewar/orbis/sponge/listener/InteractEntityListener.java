@@ -48,6 +48,8 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
+import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.math.vector.Vector3d;
 
@@ -158,6 +160,15 @@ public final class InteractEntityListener {
     @Listener(order = Order.EARLY)
     public void onPickup(ChangeInventoryEvent.Pickup event, @Root ServerPlayer player) {
         if (shouldPreventEntityAction(player, DefaultFlags.CAN_PICKUP_ITEM)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @Listener(order = Order.EARLY)
+    public void onDrawBow(UseItemStackEvent.Start event, @Root ServerPlayer player) {
+        final var type = event.itemStackInUse().type();
+        if (type != ItemTypes.BOW.get() && type != ItemTypes.CROSSBOW.get()) return;
+        if (shouldPreventEntityAction(player, DefaultFlags.CAN_SHOOT_BOW)) {
             event.setCancelled(true);
         }
     }

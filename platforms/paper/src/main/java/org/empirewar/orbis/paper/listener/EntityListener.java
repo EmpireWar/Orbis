@@ -40,6 +40,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.empirewar.orbis.flag.DefaultFlags;
@@ -114,6 +115,15 @@ public class EntityListener implements Listener {
     public void onPickup(EntityPickupItemEvent event) {
         if (shouldPreventEntityAction(event.getEntity(), DefaultFlags.CAN_PICKUP_ITEM)) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onShootBow(EntityShootBowEvent event) {
+        if (event.getEntity() instanceof Player player
+                && shouldPreventEntityAction(player, DefaultFlags.CAN_SHOOT_BOW)) {
+            event.setCancelled(true);
+            player.updateInventory();
         }
     }
 

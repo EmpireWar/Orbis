@@ -112,6 +112,8 @@ public final class DefaultFlags {
             "Whether entity-caused explosions can break blocks", () -> true, Codec.BOOL);
     public static final RegistryRegionFlag<Boolean> CAN_BLOCKS_EXPLODE = register("can_blocks_explode",
             "Whether block-caused explosions can break blocks", () -> true, Codec.BOOL);
+    public static final RegistryRegionFlag<Boolean> CAN_SHOOT_BOW = register("can_shoot_bow",
+            "Whether players can shoot bows and crossbows", () -> true, Codec.BOOL);
     // spotless:on
 
     private static <T> RegistryRegionFlag<T> register(
