@@ -31,7 +31,9 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.tag.DamageTypeTags;
 
 public class DamageEntityListener {
 
@@ -45,6 +47,11 @@ public class DamageEntityListener {
     public void onDamage(DamageEntityEvent event) {
         final Entity attacked = event.entity();
         if (!(attacked instanceof ServerPlayer)) return;
+        // Like vanilla invulnerability, let /kill and the void through
+        if (event.cause()
+                .first(DamageSource.class)
+                .map(source -> source.type().is(DamageTypeTags.BYPASSES_INVULNERABILITY))
+                .orElse(false)) return;
 
         final RegionisedWorld world =
                 orbis.getRegionisedWorld(attacked.serverLocation().world().key());

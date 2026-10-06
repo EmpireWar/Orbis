@@ -90,7 +90,7 @@ public final class DefaultFlags {
     public static final RegistryRegionFlag<Long> TIME = register("time",
             "An integer/long specifying the time of day in ticks", () -> 12000L, Codec.LONG);
     public static final RegistryRegionFlag<Boolean> INVULNERABILITY = register("invulnerability",
-            "Whether players should take damage from any source", () -> false, Codec.BOOL);
+            "Whether players are immune to damage (except sources that bypass invulnerability, like /kill and the void)", () -> false, Codec.BOOL);
     public static final RegistryRegionFlag<String> ENTRY_MESSAGE = register("entry_message",
             "A message to display when a player enters this region (supports MiniMessage)", () -> "", Codec.STRING);
     public static final RegistryRegionFlag<String> EXIT_MESSAGE = register("exit_message",
