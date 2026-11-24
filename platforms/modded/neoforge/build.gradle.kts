@@ -18,6 +18,19 @@ val shadowBundle by configurations.creating {
     isCanBeConsumed = false
 }
 
+// :common's runtime dependencies, resolved from this project. Gradle 9 forbids resolving another
+// project's configurations (e.g. project(":common").configurations.runtimeClasspath) directly.
+val commonRuntime by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+    attributes {
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+        attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
+        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
+        attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+    }
+}
+
 configurations {
     compileClasspath {
         extendsFrom(common)
@@ -49,11 +62,13 @@ dependencies {
         isTransitive = false
     }
     implementation(project(":common"))
+    commonRuntime(project(":common"))
 
     // JiJ all runtime dependencies from :common
     afterEvaluate {
-        // Get the resolved runtimeClasspath of :common
-        val commonRuntimeClasspath = project(":common").configurations.getByName("runtimeClasspath")
+        // The only first-level dependency is :common itself; its children are its runtime dependencies
+        val commonDependencies = commonRuntime.resolvedConfiguration.firstLevelModuleDependencies
+            .flatMap { it.children }
         val visited = mutableSetOf<String>()
 
         fun includeAllTransitives(dep: ResolvedDependency) {
@@ -80,11 +95,11 @@ dependencies {
             println("$indent${dep.moduleGroup}:${dep.moduleName}:${dep.moduleVersion}")
             dep.children.forEach { printDeps(it, "$indent  ") }
         }
-        commonRuntimeClasspath.resolvedConfiguration.firstLevelModuleDependencies.forEach { dep ->
+        commonDependencies.forEach { dep ->
             printDeps(dep)
         }
 
-        commonRuntimeClasspath.resolvedConfiguration.firstLevelModuleDependencies.forEach { dep ->
+        commonDependencies.forEach { dep ->
             includeAllTransitives(dep)
         }
     }
