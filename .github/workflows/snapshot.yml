@@ -8,6 +8,8 @@ on:
 jobs:
   publish-snapshot:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the snapshot GitHub release with the built-in GITHUB_TOKEN
 
     steps:
       - name: Checkout repository
@@ -36,6 +38,13 @@ jobs:
           echo "Version is ${{ steps.version.outputs.version }}, not a SNAPSHOT. Skipping workflow."
           exit 0
 
+      - name: Validate publishing credentials
+        if: endsWith(env.BASE_VERSION, '-SNAPSHOT')
+        run: bash .github/scripts/validate-publish-credentials.sh
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT_ID: O785bSfs
+
       - name: Build all variants
         run: ./gradlew build
 
@@ -55,7 +64,7 @@ jobs:
         if: endsWith(env.BASE_VERSION, '-SNAPSHOT')
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          github-token: ${{ secrets.RELEASES_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
           name: Snapshot ${{ github.sha }}
@@ -72,7 +81,7 @@ jobs:
         if: endsWith(env.BASE_VERSION, '-SNAPSHOT')
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          github-token: ${{ secrets.RELEASES_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
           name: Snapshot ${{ github.sha }}
@@ -87,7 +96,7 @@ jobs:
         if: endsWith(env.BASE_VERSION, '-SNAPSHOT')
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          github-token: ${{ secrets.RELEASES_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
           name: Snapshot ${{ github.sha }}
@@ -100,7 +109,7 @@ jobs:
         if: endsWith(env.BASE_VERSION, '-SNAPSHOT')
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          github-token: ${{ secrets.RELEASES_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: O785bSfs
           name: Snapshot ${{ github.sha }}
