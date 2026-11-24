@@ -23,6 +23,7 @@
  */
 package org.empirewar.orbis;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,6 +32,8 @@ import com.google.gson.JsonParser;
 
 import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.member.PermissionMember;
+import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
 import org.empirewar.orbis.registry.OrbisRegistries;
 import org.empirewar.orbis.serialization.StaticGsonProvider;
@@ -44,6 +47,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -129,5 +133,26 @@ public class OrbisPlatformLoadRegionsTest {
             assertTrue(written.stream()
                     .anyMatch(file -> file.getFileName().toString().equals("load3-saved.json")));
         }
+    }
+
+    @Test
+    void globalRegionMembersSurviveRestart() throws IOException {
+        final PermissionMember member = new PermissionMember("orbis.region-build");
+        final GlobalRegion global = new GlobalRegion("load4-global");
+        global.addMember(member);
+        writeRaw("load4-global.json", StaticGsonProvider.GSON.toJson(global));
+
+        final TestOrbisPlatform platform = new TestOrbisPlatform(tempDir);
+        final Region loaded = OrbisRegistries.REGIONS.get("load4-global").orElseThrow();
+        assertTrue(loaded.isGlobal());
+        assertEquals(Set.of(member), loaded.members(), "members should load from disk");
+
+        platform.saveRegions();
+        final Region resaved = StaticGsonProvider.GSON.fromJson(
+                Files.readString(
+                        tempDir.resolve("regions").resolve("load4-global.json"),
+                        StandardCharsets.UTF_8),
+                Region.class);
+        assertEquals(Set.of(member), resaved.members(), "members should be saved to disk");
     }
 }

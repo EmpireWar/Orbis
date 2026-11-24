@@ -38,6 +38,9 @@ import org.empirewar.orbis.OrbisAPI;
 import org.empirewar.orbis.TestOrbisPlatform;
 import org.empirewar.orbis.area.CuboidArea;
 import org.empirewar.orbis.flag.DefaultFlags;
+import org.empirewar.orbis.member.FlagMemberGroup;
+import org.empirewar.orbis.member.PermissionMember;
+import org.empirewar.orbis.member.PlayerMember;
 import org.empirewar.orbis.query.RegionQuery;
 import org.empirewar.orbis.region.GlobalRegion;
 import org.empirewar.orbis.region.Region;
@@ -50,6 +53,7 @@ import org.junit.jupiter.api.TestInstance;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Covers the round-trip guarantee that a region flag this build cannot understand - typically one
@@ -274,5 +278,70 @@ public class RegionSerialisationTest {
         assertNotNull(loaded);
         assertTrue(loaded.unknownFlagKeys().isEmpty());
         assertEquals(0, toJson(loaded).getAsJsonArray("flags").size());
+    }
+
+    @Test
+    void globalRegionMembersSurviveRoundTrip() {
+        final GlobalRegion region = new GlobalRegion("serialise-global-members");
+        final PermissionMember permissionMember = new PermissionMember("orbis.region-build");
+        final PlayerMember playerMember = new PlayerMember(UUID.randomUUID());
+        region.addMember(permissionMember);
+        region.addMember(playerMember);
+
+        final JsonObject json = toJson(region);
+        assertEquals(2, json.getAsJsonArray("members").size());
+
+        final Region loaded = fromJson(json);
+        assertNotNull(loaded);
+        assertTrue(loaded.isGlobal());
+        assertEquals(Set.of(permissionMember, playerMember), loaded.members());
+
+        // A further cycle must be stable.
+        assertEquals(
+                Set.of(permissionMember, playerMember), fromJson(toJson(loaded)).members());
+    }
+
+    @Test
+    void globalRegionWithoutMembersFieldStillLoads() {
+        // The shape every global region was saved in before members were serialised.
+        final JsonObject json = new JsonObject();
+        json.addProperty("name", "serialise-global-legacy");
+        final JsonArray flags = new JsonArray();
+        flags.add(flagEntry("orbis:can_place", "orbis:mutable", new JsonPrimitive(false)));
+        json.add("flags", flags);
+        json.addProperty("type", "orbis:global");
+        json.addProperty("data_version", 1);
+
+        final Region loaded = assertDoesNotThrow(() -> fromJson(json));
+        assertNotNull(loaded);
+        assertTrue(loaded.isGlobal());
+        assertTrue(loaded.members().isEmpty());
+        assertTrue(loaded.hasFlag(DefaultFlags.CAN_PLACE));
+
+        // No members to write, so the saved shape stays as it was.
+        assertFalse(toJson(loaded).has("members"));
+    }
+
+    @Test
+    void globalRegionMemberIsExemptFromNonMemberFlagAfterReload() {
+        final GlobalRegion region = new GlobalRegion("serialise-global-grouped");
+        region.addGroupedFlag(DefaultFlags.CAN_PLACE, Set.of(FlagMemberGroup.NONMEMBER));
+        region.setFlag(DefaultFlags.CAN_PLACE, false);
+        final UUID member = UUID.randomUUID();
+        final UUID nonMember = UUID.randomUUID();
+        region.addMember(new PlayerMember(member));
+
+        final Region loaded = fromJson(toJson(region));
+        assertNotNull(loaded);
+
+        // The member is not affected by a NONMEMBER flag, so this region gives no answer.
+        assertTrue(loaded.query(RegionQuery.Flag.builder(DefaultFlags.CAN_PLACE).player(member))
+                .result()
+                .isEmpty());
+        // Everyone else is still denied.
+        assertEquals(
+                Optional.of(false),
+                loaded.query(RegionQuery.Flag.builder(DefaultFlags.CAN_PLACE).player(nonMember))
+                        .result());
     }
 }
