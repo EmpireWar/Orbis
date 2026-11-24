@@ -39,6 +39,7 @@ import org.empirewar.orbis.exception.IncompleteAreaException;
 import org.empirewar.orbis.util.OrbisText;
 import org.joml.Vector3ic;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +76,8 @@ public final class Selection {
     }
 
     public Set<Vector3ic> getPoints() {
-        return Set.copyOf(points);
+        // keep the order the points were selected in (it is a polygon's outline)
+        return Collections.unmodifiableSet(new LinkedHashSet<>(points));
     }
 
     public void addPoint(Vector3ic point) {

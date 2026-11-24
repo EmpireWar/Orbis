@@ -110,7 +110,8 @@ public sealed interface Area extends Iterable<Vector3ic> permits EncompassingAre
     /**
      * Gets the set of points that make up this area.
      * <p>
-     * The returned set cannot be modified.
+     * The returned set cannot be modified. It iterates in the order the points were added, which for a
+     * {@link PolygonArea} is the order of its outline.
      *
      * @return set of points of this area
      */

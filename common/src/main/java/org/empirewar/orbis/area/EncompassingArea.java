@@ -28,6 +28,7 @@ import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -150,7 +151,9 @@ public abstract sealed class EncompassingArea implements Area
 
     @Override
     public Set<Vector3ic> points() {
-        return Set.copyOf(points);
+        // an ordered snapshot: a polygon's outline is the order its points were added in,
+        // and Set.copyOf does not keep it
+        return Collections.unmodifiableSet(new LinkedHashSet<>(points));
     }
 
     @Override

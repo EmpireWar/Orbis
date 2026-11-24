@@ -28,10 +28,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class EncompassingAreaTest {
@@ -90,5 +94,24 @@ public class EncompassingAreaTest {
         area.addPoint(new Vector3i(-467, 147, 49));
         area.addPoint(new Vector3i(-652, 4, -87));
         assertTrue(area.contains(-580, 81, -26));
+    }
+
+    @Test
+    @Order(6)
+    void testPointsKeepInsertionOrder() {
+        // a concave outline: its shape depends on the order of the points
+        final List<Vector3ic> outline = new ArrayList<>();
+        for (int i = 0; i < 64; i++) {
+            final double a = Math.PI * 2 * i / 64;
+            final double r = i % 2 == 0 ? 100 : 40;
+            outline.add(new Vector3i((int) (Math.cos(a) * r), 0, (int) (Math.sin(a) * r)));
+        }
+        PolygonArea area = new PolygonArea();
+        outline.forEach(area::addPoint);
+        assertEquals(outline, new ArrayList<>(area.points()));
+
+        // and through a copy made from the list form (the codec's)
+        PolygonArea copy = new PolygonArea(outline);
+        assertEquals(outline, new ArrayList<>(copy.points()));
     }
 }
